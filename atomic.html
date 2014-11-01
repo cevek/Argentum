@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="data.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    data.forEach(function (issue) {
+        issue.fields = {};
+        issue.field.forEach(function (field) {
+            issue.fields[field.name] = field.value;
+        });
+    });
+
+</script>
+
+<style type="text/css">
+    body { font-size: 12px; font-family: Verdana; }
+    .issue { padding: 10px; }
+    .issue:nth-child(2n) { background: #EAEAEA; }
+    .field { color: gray; width: 150px; display: inline-block; text-align: right; margin: 0 10px 0 0; }
+    .comments { margin: 10px 0 0 0; }
+    .comments .title { font-size: 14px; }
+    .comment { padding: 5px 10px; border-bottom: 1px dashed silver }
+    .comment:last-child { border-bottom: none }
+    .comment .author { color: gray; }
+    .comment .text { padding: 0 0 0 0px; }
+
+
+</style>
+
+<div id="test"></div>
+
+<script src="templater.js" type="text/javascript"></script>
+<script src="testData.js" type="text/javascript"></script>
+<!--<script src="tester.js" type="text/javascript"></script>-->
+</body>
+</html>

@@ -1,0 +1,47 @@
+<component name="libraryTable">
+  <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/tester.js" />
+        <item url="file://$PROJECT_DIR$/demo1/Component.js" />
+        <item url="file://$PROJECT_DIR$/demo1/TaskList.js" />
+        <item url="file://$PROJECT_DIR$/demo1/TaskItem.js" />
+        <item url="file://$PROJECT_DIR$/test.js" />
+        <item url="file://$PROJECT_DIR$/templater.js" />
+        <item url="file://$PROJECT_DIR$/demo1/TaskFull.js" />
+        <item url="file://$PROJECT_DIR$/testData.js" />
+        <item url="file://$PROJECT_DIR$/demo1/Task.js" />
+        <item url="file://$PROJECT_DIR$/demo1/List.js" />
+        <item url="file://$PROJECT_DIR$/demo1/File.js" />
+        <item url="file://$PROJECT_DIR$/demo1/all.js" />
+        <item url="file://$PROJECT_DIR$/demo1/Argentum.js" />
+        <item url="file://$PROJECT_DIR$/demo1/Comment.js" />
+        <item url="file://$PROJECT_DIR$/demo1/User.js" />
+        <item url="file://$PROJECT_DIR$/demo1/testAtoms.js" />
+        <item url="file://$PROJECT_DIR$/test3.js" />
+        <item url="file://$PROJECT_DIR$/demo1/main.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/demo1/Component.js" />
+      <root url="file://$PROJECT_DIR$/tester.js" />
+      <root url="file://$PROJECT_DIR$/demo1/TaskList.js" />
+      <root url="file://$PROJECT_DIR$/demo1/TaskItem.js" />
+      <root url="file://$PROJECT_DIR$/templater.js" />
+      <root url="file://$PROJECT_DIR$/test.js" />
+      <root url="file://$PROJECT_DIR$/demo1/TaskFull.js" />
+      <root url="file://$PROJECT_DIR$/testData.js" />
+      <root url="file://$PROJECT_DIR$/demo1/Task.js" />
+      <root url="file://$PROJECT_DIR$/demo1/List.js" />
+      <root url="file://$PROJECT_DIR$/demo1/File.js" />
+      <root url="file://$PROJECT_DIR$/demo1/all.js" />
+      <root url="file://$PROJECT_DIR$/demo1/Argentum.js" />
+      <root url="file://$PROJECT_DIR$/demo1/Comment.js" />
+      <root url="file://$PROJECT_DIR$/demo1/testAtoms.js" />
+      <root url="file://$PROJECT_DIR$/demo1/User.js" />
+      <root url="file://$PROJECT_DIR$/demo1/main.js" />
+      <root url="file://$PROJECT_DIR$/test3.js" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>
