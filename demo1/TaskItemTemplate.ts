@@ -1,17 +1,13 @@
 module wrike {
-    export function TaskItemTemplate(vm:TaskItem) {
-        return Arg.dom('div.task', {
-                onclick: ()=>vm.clickTask(),
-                classSet: {
-                    active: ()=>vm.activeTask.get() === this.task.get().task,
-                    completed: ()=> vm.task.get().task.completed
-                },
-                style: {
-                    //height: ()=>this.task.get().height,
-                    top: ()=>vm.task.get().top
-                }
-            },
-            Arg.dom('div.summary', null, ()=>vm.task.get().task.summary)
-        );
-    }
+	export function TaskItemTemplate(vm:TaskItem){ return (
+		Arg.dom('div', {'class': 'task',
+		                'arg-style-top': v=>vm.task.get().top,
+		                'arg-class-active': v=>vm.activeTask.get() === vm.task.get().task,
+		                'arg-class-completed': v=>vm.task.get().task.completed,
+		                'onclick': v=>vm.clickTask()}, [
+			Arg.dom('div', {'class': 'summary'}, [
+				v=>vm.task.get().task.summary,
+				Arg.dom('span', {}, [
+					'hello'])])])
+	)}
 }
