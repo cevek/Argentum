@@ -1,0 +1,15 @@
+<div class="full-task">
+    <div class="id">ID: {task.get().id}</div>
+    <div class="summary">Summary: {task.get().id}</div>
+    <div class="description">Description: {task.get().description}</div>
+    <label>
+        <input type="checkbox" checked="task.get().completed" onclick="setComplete()"/>
+        <arg if="task.get().completed">Completed</arg>
+        <arg else>Complete</arg>
+    </label>
+    <div class="subtasks">
+        <arg map="subtask in task.get().subtasks">
+            <TaskItem task="::new TaskVM(subtask)" activeTask="::task"/>
+        </arg>
+    </div>
+</div>

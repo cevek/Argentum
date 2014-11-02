@@ -1,0 +1,8 @@
+<div class="task"
+     arg-style="top: task.get().top"
+     arg-class-set="active: activeTask.get() === task.get().task,
+                    completed: task.get().task.completed"
+     onclick="clickTask()">
+
+    <div class="summary">{task.get().task.summary}</div>
+</div>

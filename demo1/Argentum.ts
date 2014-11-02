@@ -9,7 +9,6 @@ module Arg {
             var m;
             while (m = reg.exec(code)) {
                 var key = m[1];
-                console.log(key);
                 var props:any = {
                     enumerable: true,
                     get: new Function(" if (!this.$" + key + ") {this.$" + key + " = new Arg.Atomic();} return this.$" + key + ".get()"),
@@ -26,6 +25,8 @@ module Arg {
         id:number;
         value:T;
 
+        constructor(val?:()=>T);
+        constructor(val?:T);
         constructor(val?:any) {
             this.id = ++Atomic.counter;
 
@@ -261,7 +262,6 @@ module Arg {
     }
 
     function renderMapHelper(node, tree, array) {
-        console.log("Render map helper", node);
 
         if (tree.domNode) {
             while (tree.domNode.firstChild) {
@@ -295,8 +295,6 @@ module Arg {
     }
 
     function renderMap(node, tree) {
-        console.log("renderMap");
-
         tree.domNode = document.createElement('iterator');
 
         var array = tree.$map;
@@ -499,9 +497,10 @@ module Arg {
         return obj;
     }
 
-    export function map<R>(array:Atomic<R>, fn:(item:R, n:number)=>any, split?:string);
-    export function map<R>(array:R[], fn:(item:R, n:number)=>any, split?:string);
-    export function map<R>(array:any, fn:(item:R, n:number)=>any, split = '') {
+    export function map<R>(array:()=>R[], fn:(item:R, n?:number)=>any, split?:string);
+    export function map<R>(array:Atomic<R[]>, fn:(item:R, n?:number)=>any, split?:string);
+    export function map<R>(array:R[], fn:(item:R, n?:number)=>any, split?:string);
+    export function map<R>(array:any, fn:(item:R, n?:number)=>any, split = '') {
         return {tag: 'map', attrs: null, $map: array, $split: split, fn: fn, children: null};
     }
 

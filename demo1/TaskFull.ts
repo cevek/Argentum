@@ -19,17 +19,17 @@ module wrike {
                     Arg.dom('input', {
                         type: "checkbox",
                         checked: new Arg.Atomic(v=>this.task.get().completed),
-                        onclick: this.setComplete.bind(this)
+                        onclick: ()=>this.setComplete()
                     }),
                     v=>this.task.get().completed ? 'Completed' : 'Complete'
                 ),
-/*
-                Arg.map(new Arg.Atomic(v=>this.task.get().subtasks), subtask=>
-                    new TaskItem(null, new ATaskVM(subtask), this.task))
-*/
+                Arg.map(()=>this.task.get().subtasks, subtask=>
+                    new TaskItem(null, new ATaskVM(new TaskVM(subtask)), this.task))
             ])
         }
 
     }
 }
+
+
 
