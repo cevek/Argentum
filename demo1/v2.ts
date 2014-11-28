@@ -13,7 +13,7 @@ class Atom <T> {
     }
 
     get():T {
-        if (this.value === void 0) {
+        if (this.value === undefined) {
             this.onGet && this.onGet(this);
         }
         return this.value;
@@ -42,9 +42,9 @@ class Atom <T> {
     }
 
     private _update() {
-        var list = Object.keys(this.order).sort((a, b)=>this.order[b] - this.order[a]);
+        var list = Object.keys(this.order).sort((a, b)=>this.order[Number(b)] - this.order[Number(a)]);
         for (var i = 0; i < list.length; i++) {
-            var slave = this.slaves[list[i]];
+            var slave = this.slaves[Number(list[i])];
             if (!slave.computing) {
                 slave.computing = true;
                 slave.value = slave.onSet(slave);
@@ -53,7 +53,7 @@ class Atom <T> {
         }
     }
 
-    static traverseMasters(atom:Atom<any>, depth) {
+    static traverseMasters(atom:Atom<any>, depth:number) {
         var ndepth = depth + 1;
         for (var i in atom.masters) {
 
@@ -92,7 +92,7 @@ class Atom <T> {
     private static microtasks:{atom: Atom<any>; compute: boolean; value: any}[] = [];
     private static lastMicrotaskId = 0;
 
-    static sendMicrotask(atom:Atom<any>, compute:boolean, value = null) {
+    static sendMicrotask(atom:Atom<any>, compute:boolean, value:any = null) {
         console.log("sendmicrotask", atom.id);
         var mid = ++Atom.lastMicrotaskId;
         Atom.microtasks.push({atom: atom, compute: compute, value: value});
@@ -104,7 +104,7 @@ class Atom <T> {
             var mid = event.data && event.data.atomMicrotaskId;
             if (mid == Atom.lastMicrotaskId) {
                 console.log("message", event.data, Atom.microtasks);
-                var doneAtoms = {};
+                var doneAtoms: {[index: number]: boolean} = {};
                 for (var i = Atom.microtasks.length - 1; i >= 0; i--) {
                     var microtask = Atom.microtasks[i];
                     if (!doneAtoms[microtask.atom.id]) {
@@ -127,7 +127,7 @@ class Atom <T> {
 
 Atom.listenMicrotask();
 
-function log(a:Atom<any>, val) {
+function log(a:Atom<any>, val:any) {
     console.log("computed", a.id);
     return val;
 }
@@ -144,10 +144,8 @@ var a3 = new Atom(a=>log(a, 1), a=> {
 var a4 = new Atom(a=>log(a, 2)).subscribesTo(a3);
 var a5 = new Atom(a=>log(a, 3)).subscribesTo(a3);
 var a6 = new Atom(a=>log(a, 4)).subscribesTo(a4);
-var a7 = new Atom(
-    a=> {
+var a7 = new Atom<number>(a=> {
         setTimeout(()=> {
-            log(a, 1);
             console.log("server put request");
         }, 1000);
     }
