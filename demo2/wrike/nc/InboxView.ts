@@ -2,7 +2,11 @@
 module wrike {
     export module nc {
         export class InboxView {
-            items:Inbox[];
+            items:Inbox[] = [new Inbox()];
+            render(){
+                return InboxViewTemplate(this);
+            }
+
         }
     }
 }

@@ -76,6 +76,10 @@ class Atom <T> {
         return this;
     }
 
+    addListener(fn: (val: T)=>void){
+
+    }
+
     /*
      setSlave(atom:Atom<any>) {
      this.slaves[atom.id] = atom;
@@ -126,6 +130,7 @@ class Atom <T> {
 }
 
 Atom.listenMicrotask();
+/*
 
 function log(a:Atom<any>, val:any) {
     console.log("computed", a.id);
@@ -151,20 +156,24 @@ var a7 = new Atom<number>(a=> {
     }
 ).subscribesTo(a6).subscribesTo(a5).subscribesTo(a3).subscribesTo(p1);
 
+*/
 /*
  a1.setSlave(a2).setSlave(a3).setSlave(a5);
  a2.setSlave(a4).setSlave(a5);
  a3.setSlave(a5);
  a4.setSlave(a5);
- */
+ *//*
+
 
 //a1.set(2);
+*/
 /*a1.set(1);
  console.log("reinit");
  a1.set(2);
  a1.set(3);
  a1.set(4);
- a1.set(5);*/
+ a1.set(5);*//*
+
 a3.set(10);
 
 p1.set(1);
@@ -177,6 +186,7 @@ console.timeEnd('perf');
 
 
 
+*/
 
 
 

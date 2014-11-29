@@ -2,7 +2,7 @@
 module wrike {
     export module nc {
         export class Assigment extends NCItem{
-            task:Task;
+            task:Task = new Task();
         }
     }
 }

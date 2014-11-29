@@ -2,9 +2,9 @@
 module wrike {
     export module nc {
         export class Inbox {
-            marketing:Marketing;
-            assigment:Assigment;
-            priority:number;
+            marketing:Marketing = new Marketing();
+            assigment:Assigment = new Assigment();
+            priority:number = 1;
         }
     }
 }

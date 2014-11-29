@@ -2,9 +2,9 @@
 module wrike {
     export module nc {
         export class NCItem {
-            id:number;
-            isRead:boolean;
-            isPinned:boolean;
+            id:number = 1;
+            isRead:boolean = false;
+            isPinned:boolean = false;
         }
     }
 }

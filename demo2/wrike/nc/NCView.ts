@@ -5,8 +5,12 @@ module wrike {
             Marketing,
             Inbox
         }
-        export class NCView {
+        export class NCView implements Arg.Component {
             static activeType:NCTabs;
+
+            render() {
+                return NCViewTemplate(this);
+            }
         }
     }
 }

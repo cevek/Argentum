@@ -1,6 +1,6 @@
 module wrike {
     export class User {
-        id:number;
-        name:string;
+        id:number = 1;
+        name:string = 'Cody';
     }
 }
