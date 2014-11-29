@@ -5,11 +5,12 @@ class Atom <T> {
     private onSet:(atom:Atom<T>)=>T;
     private onGet:(atom:Atom<T>)=>void;
 
-    constructor(onSet:(atom:Atom<T>)=>void, onGet?:(atom:Atom<T>)=>void);
-    constructor(onSet:(atom:Atom<T>)=>T, onGet?:(atom:Atom<T>)=>void) {
+    constructor(onSet?:(atom:Atom<T>)=>void, onGet?:(atom:Atom<T>)=>void, val?:T);
+    constructor(onSet?:(atom:Atom<T>)=>T, onGet?:(atom:Atom<T>)=>void, val?:T) {
         this.onSet = onSet;
         this.onGet = onGet;
         this.id = ++Atom.lasId;
+        this.value = val;
     }
 
     get():T {
@@ -51,6 +52,11 @@ class Atom <T> {
                 slave._update();
             }
         }
+        if (this.listeners) {
+            for (var i = 0; i < this.listeners.length; i++) {
+                this.listeners[i](this.value);
+            }
+        }
     }
 
     static traverseMasters(atom:Atom<any>, depth:number) {
@@ -76,8 +82,8 @@ class Atom <T> {
         return this;
     }
 
-    addListener(fn: (val: T)=>void){
-
+    addListener(fn:(val:T)=>void) {
+        this.listeners.push(fn);
     }
 
     /*
@@ -92,6 +98,7 @@ class Atom <T> {
     private slaves:{[id: number]:Atom<any>} = {};
     private masters:{[id: number]:Atom<any>} = {};
     private order:{[id: number]:number} = {};
+    private listeners:{(val:T):void}[] = [];
 
     private static microtasks:{atom: Atom<any>; compute: boolean; value: any}[] = [];
     private static lastMicrotaskId = 0;
@@ -108,7 +115,7 @@ class Atom <T> {
             var mid = event.data && event.data.atomMicrotaskId;
             if (mid == Atom.lastMicrotaskId) {
                 console.log("message", event.data, Atom.microtasks);
-                var doneAtoms: {[index: number]: boolean} = {};
+                var doneAtoms:{[index: number]: boolean} = {};
                 for (var i = Atom.microtasks.length - 1; i >= 0; i--) {
                     var microtask = Atom.microtasks[i];
                     if (!doneAtoms[microtask.atom.id]) {
@@ -132,31 +139,31 @@ class Atom <T> {
 Atom.listenMicrotask();
 /*
 
-function log(a:Atom<any>, val:any) {
-    console.log("computed", a.id);
-    return val;
-}
+ function log(a:Atom<any>, val:any) {
+ console.log("computed", a.id);
+ return val;
+ }
 
-var p1 = new Atom(a=>10101);
-var p2 = new Atom(a=>10102).subscribesTo(p1);
+ var p1 = new Atom(a=>10101);
+ var p2 = new Atom(a=>10102).subscribesTo(p1);
 
-var a3 = new Atom(a=>log(a, 1), a=> {
-    setTimeout(()=> {
-        console.log("server get request");
-        a.set(1234);
-    }, 1000)
-});
-var a4 = new Atom(a=>log(a, 2)).subscribesTo(a3);
-var a5 = new Atom(a=>log(a, 3)).subscribesTo(a3);
-var a6 = new Atom(a=>log(a, 4)).subscribesTo(a4);
-var a7 = new Atom<number>(a=> {
-        setTimeout(()=> {
-            console.log("server put request");
-        }, 1000);
-    }
-).subscribesTo(a6).subscribesTo(a5).subscribesTo(a3).subscribesTo(p1);
+ var a3 = new Atom(a=>log(a, 1), a=> {
+ setTimeout(()=> {
+ console.log("server get request");
+ a.set(1234);
+ }, 1000)
+ });
+ var a4 = new Atom(a=>log(a, 2)).subscribesTo(a3);
+ var a5 = new Atom(a=>log(a, 3)).subscribesTo(a3);
+ var a6 = new Atom(a=>log(a, 4)).subscribesTo(a4);
+ var a7 = new Atom<number>(a=> {
+ setTimeout(()=> {
+ console.log("server put request");
+ }, 1000);
+ }
+ ).subscribesTo(a6).subscribesTo(a5).subscribesTo(a3).subscribesTo(p1);
 
-*/
+ */
 /*
  a1.setSlave(a2).setSlave(a3).setSlave(a5);
  a2.setSlave(a4).setSlave(a5);
@@ -165,8 +172,8 @@ var a7 = new Atom<number>(a=> {
  *//*
 
 
-//a1.set(2);
-*/
+ //a1.set(2);
+ */
 /*a1.set(1);
  console.log("reinit");
  a1.set(2);
@@ -174,19 +181,19 @@ var a7 = new Atom<number>(a=> {
  a1.set(4);
  a1.set(5);*//*
 
-a3.set(10);
+ a3.set(10);
 
-p1.set(1);
+ p1.set(1);
 
-console.time('perf');
+ console.time('perf');
 
-console.timeEnd('perf');
-
-
+ console.timeEnd('perf');
 
 
 
-*/
+
+
+ */
 
 
 

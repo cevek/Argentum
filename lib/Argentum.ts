@@ -11,6 +11,7 @@ module Arg {
     interface Tree {
         tag: string;
         dom_node?:Node;
+        dom_node2?:Node;
         children: any[];
         fn?: (item:any, i:number)=>any;
         whenFn?: (val:any)=>any;
@@ -21,11 +22,21 @@ module Arg {
 
     }
 
+    function removeBetween(from:Node, to:Node) {
+        var n:Node;
+        var parent = from.parentNode;
+        while ((n = from.nextSibling) && n != to) {
+            parent.removeChild(n);
+        }
+    }
+
     function renderWhen(node:Node, tree:Tree):void {
 
-        tree.dom_node = document.createComment("if");
+        tree.dom_node = document.createComment("endif");
+        tree.dom_node2 = document.createComment("if");
         node.insertBefore(tree.dom_node, null);
-        if (tree.when.constructor === Function) {
+        node.insertBefore(tree.dom_node2, tree.dom_node);
+        if (tree.when && tree.when.constructor === Function) {
             var atom = new Atom<string>(tree.when);
             //tree.dom_node.textContent = atom.get() || '';
             var condition = atom.get();
@@ -33,13 +44,28 @@ module Arg {
                 render(node, tree.whenFn(condition), tree.dom_node);
             }
             atom.addListener(function (condition) {
+                if (tree.dom_node.previousSibling) {
+                    tree.dom_node.parentNode.removeChild(tree.dom_node.previousSibling);
+                }
+                removeBetween(tree.dom_node2, tree.dom_node);
                 if (condition) {
                     render(node, tree.whenFn(condition), tree.dom_node);
                 }
-                else {
-                    if (tree.dom_node.previousSibling) {
-                        tree.dom_node.parentNode.removeChild(tree.dom_node.previousSibling);
-                    }
+            });
+            return;
+        }
+        if (tree.when instanceof Atom) {
+            var atom = <Atom<string>>tree.when;
+            var condition = atom.get();
+            console.log("condition", condition, atom);
+
+            if (condition) {
+                render(node, tree.whenFn(condition), tree.dom_node);
+            }
+            atom.addListener(function (condition) {
+                removeBetween(tree.dom_node2, tree.dom_node);
+                if (condition) {
+                    render(node, tree.whenFn(condition), tree.dom_node);
                 }
             });
             return;
