@@ -10,16 +10,47 @@ module Arg {
 
     interface Tree {
         tag: string;
-        dom_node?:HTMLElement;
+        dom_node?:Node;
         children: any[];
-        fn?: (item:any, i:number)=>void;
+        fn?: (item:any, i:number)=>any;
+        whenFn?: (val:any)=>any;
         $map?: any;
         $split?: string;
         attrs:{[key: string]: any};
+        when?: any;
 
     }
 
-    function renderMapHelper(node:HTMLElement, tree:Tree, array:any[]) {
+    function renderWhen(node:Node, tree:Tree):void {
+
+        tree.dom_node = document.createComment("if");
+        node.insertBefore(tree.dom_node, null);
+        if (tree.when.constructor === Function) {
+            var atom = new Atom<string>(tree.when);
+            //tree.dom_node.textContent = atom.get() || '';
+            var condition = atom.get();
+            if (condition) {
+                render(node, tree.whenFn(condition), tree.dom_node);
+            }
+            atom.addListener(function (condition) {
+                if (condition) {
+                    render(node, tree.whenFn(condition), tree.dom_node);
+                }
+                else {
+                    if (tree.dom_node.previousSibling) {
+                        tree.dom_node.parentNode.removeChild(tree.dom_node.previousSibling);
+                    }
+                }
+            });
+            return;
+        }
+        if (tree.when) {
+            render(node, tree.whenFn(tree.when), tree.dom_node);
+        }
+
+    }
+
+    function renderMapHelper(node:Node, tree:Tree, array:any[]) {
 
         if (tree.dom_node) {
             while (tree.dom_node.firstChild) {
@@ -52,7 +83,7 @@ module Arg {
          });*/
     }
 
-    function renderMap(node:HTMLElement, tree:Tree) {
+    function renderMap(node:Node, tree:Tree) {
         tree.dom_node = document.createElement('iterator');
 
         var array = tree.$map;
@@ -71,9 +102,9 @@ module Arg {
         node.appendChild(tree.dom_node);
     }
 
-    function walkArray(node:HTMLElement, tree:Tree[]):void;
-    function walkArray(node:HTMLElement, tree:Tree):void;
-    function walkArray(node:HTMLElement, tree:any):void {
+    function walkArray(node:Node, tree:Tree[]):void;
+    function walkArray(node:Node, tree:Tree):void;
+    function walkArray(node:Node, tree:any):void {
         for (var j = 0; j < tree.length; j++) {
             if (tree[j]) {
                 render(node, tree[j]);
@@ -82,7 +113,6 @@ module Arg {
     }
 
     function prepareStyleProperty(prop:string, value:string) {
-        var int = Number(value);
         if (!isNaN(+value) && (prop === 'height' || prop === 'width' || prop === 'top' || prop === 'left')) {
             return value + 'px';
         }
@@ -126,17 +156,17 @@ module Arg {
         node.setAttribute('className', className);
     }
 
-    function renderTag(node:HTMLElement, tree:Tree, nodeBefore:HTMLElement) {
+    function renderTag(node:HTMLElement, tree:Tree, nodeBefore:Node) {
 
         tree.dom_node = document.createElement(tree.tag);
         if (tree.attrs) {
             for (var key in tree.attrs) {
                 if (key === "style") {
-                    applyStyle(tree.dom_node, tree.attrs['style']);
+                    applyStyle(<HTMLElement>tree.dom_node, tree.attrs['style']);
                     continue;
                 }
                 if (key === 'classSet') {
-                    applyClassSet(tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
+                    applyClassSet(<HTMLElement>tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
                     continue;
                 }
                 /*if (key !== 'onclick' && tree.attrs[key].constructor === Function) {
@@ -148,14 +178,14 @@ module Arg {
                  continue;
                  }*/
                 if (tree.attrs[key].constructor === Atom) {
-                    tree.dom_node.setAttribute(key, tree.attrs[key].get());
+                    (<HTMLElement>tree.dom_node).setAttribute(key, tree.attrs[key].get());
                     tree.attrs[key].addListener(function (key:string) {
-                        tree.dom_node.setAttribute(key, tree.attrs[key].get());
+                        (<HTMLElement>tree.dom_node).setAttribute(key, tree.attrs[key].get());
                     }.bind(this, key));
                     continue;
                 }
 
-                tree.dom_node.setAttribute(key, tree.attrs[key]);
+                (<HTMLElement>tree.dom_node).setAttribute(key, tree.attrs[key]);
             }
         }
 
@@ -188,9 +218,9 @@ module Arg {
         }
     }
 
-    function text(node:Element, text:()=>string, nodeBefore:HTMLElement):void;
-    function text(node:Element, text:string, nodeBefore:HTMLElement):void;
-    function text(node:Element, text:any, nodeBefore:HTMLElement):void {
+    function text(node:Node, text:()=>string, nodeBefore:Node):void;
+    function text(node:Node, text:string, nodeBefore:Node):void;
+    function text(node:Node, text:any, nodeBefore:Node):void {
         var domNode:Text;
         if (text.constructor === Function) {
             var atom = new Atom<string>(text);
@@ -242,10 +272,10 @@ module Arg {
         return obj;
     }
 
-    export function render(node:HTMLElement, tree:Component, nodeBefore?:HTMLElement):void;
-    export function render(node:HTMLElement, tree:Tree[], nodeBefore?:HTMLElement):void;
-    export function render(node:HTMLElement, tree:Tree, nodeBefore?:HTMLElement):void;
-    export function render(node:HTMLElement, tree:any, nodeBefore:HTMLElement = null):void {
+    export function render(node:Node, tree:Component, nodeBefore?:Node):void;
+    export function render(node:Node, tree:Tree[], nodeBefore?:Node):void;
+    export function render(node:Node, tree:Tree, nodeBefore?:Node):void;
+    export function render(node:Node, tree:any, nodeBefore:Node = null):void {
         if (tree.constructor === Array) {
             walkArray(node, tree);
             return;
@@ -254,8 +284,12 @@ module Arg {
             renderMap(node, tree);
             return;
         }
+        if (tree.tag == 'when') {
+            renderWhen(node, tree);
+            return;
+        }
         if (tree.tag) {
-            renderTag(node, tree, nodeBefore);
+            renderTag(<HTMLElement>node, tree, nodeBefore);
             return;
         }
         if (tree.render) {
@@ -273,10 +307,9 @@ module Arg {
         return {tag: 'map', attrs: null, $map: array || [], $split: split, fn: fn, children: null};
     }
 
-    export function when<R>(val: R, fn:(val:R)=>any):Tree {
-        return {tag: 'when', attrs: null, fn: fn, children: [fn(val)]};
+    export function when<R>(val:R, fn:(val:R)=>any):Tree {
+        return {tag: 'when', attrs: null, when: val, whenFn: fn, children: null};
     }
-
 
     //class AList<T> {
     //    length = 0;

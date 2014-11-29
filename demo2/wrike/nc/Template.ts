@@ -27,7 +27,7 @@ module wrike {
                                         Arg.dom('div.assigment-item', null, inbox.assigment.task.summary)
                                 ),
                                 Arg.when(inbox.marketing, a=>
-                                        Arg.dom('div.assigment-item', null, inbox.marketing.title)
+                                        Arg.dom('div.marketing-item', null, inbox.marketing.title)
                                 )
                             )
                     )
