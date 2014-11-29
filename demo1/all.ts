@@ -1,4 +1,4 @@
-/// <reference path="Argentum.ts"/>
+/// <reference path="../lib/Argentum.ts"/>
 /// <reference path="Component.ts"/>
 /// <reference path="Task.ts"/>
 /// <reference path="List.ts"/>
