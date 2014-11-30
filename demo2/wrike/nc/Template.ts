@@ -40,12 +40,15 @@ module wrike {
             return (
                 Arg.dom('div.tabs', null,
                     Arg.dom('div.button', {
-                        classSet: {selected: ()=>NCView.activeType.val === NCTabs.Inbox, fuck: true},
-                        onclick: ()=>NCView.activeType.val = NCTabs.Inbox
+                        classSet: {
+                            selected: ()=>NCView.activeType.val === NCTabs.Mentions
+                        },
+                        onclick: ()=>NCView.activeType.val = NCTabs.Mentions
                     }, "Mentions"),
+
                     Arg.dom('div.button', {
-                        classSet: {selected: ()=>NCView.activeType.val === NCTabs.Marketing},
-                        onclick: ()=>NCView.activeType.val = NCTabs.Inbox
+                        classSet: {selected: ()=>NCView.activeType.val === NCTabs.Inbox},
+                        onclick: ()=> NCView.activeType.val = NCTabs.Inbox
                     }, "Inbox")
                 )
             )

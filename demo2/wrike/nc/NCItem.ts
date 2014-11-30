@@ -9,10 +9,10 @@ module wrike {
             constructor() {
                 setInterval(()=> {
                     this.isRead.val = Math.random() > 0.5;
-                }, Math.random() * 1000);
+                }, 800);
                 setInterval(()=> {
                     this.isPinned.val = Math.random() > 0.5;
-                }, Math.random() * 1000);
+                }, 900);
             }
         }
     }

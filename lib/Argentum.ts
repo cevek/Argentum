@@ -140,7 +140,6 @@ module Arg {
             }
         }
 
-        console.log("cls set", node, cls, classSet);
         node.className = className;
     }
 
@@ -173,18 +172,19 @@ module Arg {
         tree.dom_node = document.createElement(tree.tag);
         if (tree.attrs) {
             for (var key in tree.attrs) {
-                if (key === "style") {
-                    applyStyle(<HTMLElement>tree.dom_node, tree.attrs['style']);
-                    continue;
-                }
-                if (key === 'classSet') {
-                    applyClassSet(<HTMLElement>tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
-                    continue;
-                }
                 if (tree.attrs[key].constructor === Function && key.substr(0, 2) == "on") {
                     tree.attrs[key]["doNotAtomize"] = true;
                 }
-                setValue(tree.attrs[key], tree.dom_node, key, renderAttrDOMSet);
+                if (key === "style") {
+                    applyStyle(<HTMLElement>tree.dom_node, tree.attrs['style']);
+                }
+                else if (key === 'classSet') {
+                    applyClassSet(<HTMLElement>tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
+                }
+                // if key == className and not has classSets or anything else
+                else if (!tree.attrs['classSet'] || key != 'className') {
+                    setValue(tree.attrs[key], tree.dom_node, key, renderAttrDOMSet);
+                }
             }
         }
 

@@ -1,22 +1,46 @@
 class Atom <T> {
-    private static lasId = 0;
+    private static lastId = 0;
     id:number;
     private value:T;
-    private onSet:(atom:Atom<T>)=>T;
-    private onGet:(atom:Atom<T>)=>void;
+    private getter:(atom:Atom<T>)=>T;
+    private setter:(atom:Atom<T>)=>T;
 
-    constructor(onSet?:(atom:Atom<T>)=>void, onGet?:(atom:Atom<T>)=>void, val?:T);
-    constructor(onSet?:(atom:Atom<T>)=>T, onGet?:(atom:Atom<T>)=>void, val?:T) {
-        this.onSet = onSet;
-        this.onGet = onGet;
-        this.id = ++Atom.lasId;
+    constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
+    constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>T, val?:T) {
+        this.getter = getter;
+        this.setter = setter;
+        this.id = ++Atom.lastId;
         this.value = val;
     }
 
+    static lastCalled:Atom<any>;
+
     get val():T {
-        if (this.value === undefined) {
-            this.onGet && this.onGet(this);
+        if (this.value === undefined && this.getter) {
+            var temp = Atom.lastCalled;
+            Atom.lastCalled = this;
+            this.value = this.getter(this);
+            Atom.lastCalled = temp;
         }
+
+        var parentAtom = Atom.lastCalled;
+        if (parentAtom) {
+            if (!this.slaves) {
+                this.slaves = {};
+            }
+
+            this.slaves[parentAtom.id] = parentAtom;
+            if (!parentAtom.masters) {
+                parentAtom.masters = {};
+            }
+
+            parentAtom.masters[this.id] = this;
+
+
+            this.order[parentAtom.id] = 0;
+            Atom.traverseMasters(parentAtom, 0);
+        }
+
         return this.value;
     }
 
@@ -31,7 +55,7 @@ class Atom <T> {
 
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
-        this.value = compute ? this.onSet(this) : value;
+        this.value = compute ? this.getter(this) : value;
         this._update();
     }
 
@@ -48,7 +72,7 @@ class Atom <T> {
             var slave = this.slaves[Number(list[i])];
             if (!slave.computing) {
                 slave.computing = true;
-                slave.value = slave.onSet(slave);
+                slave.value = slave.getter(slave);
                 slave._update();
             }
         }
