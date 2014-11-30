@@ -13,14 +13,14 @@ class Atom <T> {
         this.value = val;
     }
 
-    get():T {
+    get val():T {
         if (this.value === undefined) {
             this.onGet && this.onGet(this);
         }
         return this.value;
     }
 
-    set(val:T) {
+    set val(val:T) {
         this.value = val;
         Atom.sendMicrotask(this, false, val);
     }
@@ -104,7 +104,7 @@ class Atom <T> {
     private static lastMicrotaskId = 0;
 
     static sendMicrotask(atom:Atom<any>, compute:boolean, value:any = null) {
-        console.log("sendmicrotask", atom.id);
+        //console.log("sendmicrotask", atom.id);
         var mid = ++Atom.lastMicrotaskId;
         Atom.microtasks.push({atom: atom, compute: compute, value: value});
         window.postMessage({atomMicrotaskId: mid}, '*');
@@ -114,12 +114,12 @@ class Atom <T> {
         window.addEventListener("message", function message(event:any) {
             var mid = event.data && event.data.atomMicrotaskId;
             if (mid == Atom.lastMicrotaskId) {
-                console.log("message", event.data, Atom.microtasks);
+                //console.log("message", event.data, Atom.microtasks);
                 var doneAtoms:{[index: number]: boolean} = {};
                 for (var i = Atom.microtasks.length - 1; i >= 0; i--) {
                     var microtask = Atom.microtasks[i];
                     if (!doneAtoms[microtask.atom.id]) {
-                        console.log("do microtask", microtask, microtask.atom.id);
+                        //console.log("do microtask", microtask, microtask.atom.id);
                         microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
                         doneAtoms[microtask.atom.id] = true;
                     }

@@ -11,7 +11,8 @@ module wrike {
                             Arg.dom('div.item', null,
                                 Arg.dom('div.title', null, mention.task.summary),
                                 Arg.dom('div.description', null, mention.task.description),
-                                Arg.dom('div.pin', null, mention.isPinned)
+                                Arg.dom('div.pin', null, mention.isPinned),
+                                Arg.dom('div.read', null, mention.isRead)
                             )
                     )
                 )
@@ -27,7 +28,7 @@ module wrike {
                                         Arg.dom('div.assigment-item', null, inbox.assigment.task.summary)
                                 ),
                                 Arg.when(inbox.marketing, a=>
-                                        Arg.dom('div.marketing-item', null, inbox.marketing.get().title)
+                                        Arg.dom('div.marketing-item', null, inbox.marketing.val.title)
                                 )
                             )
                     )

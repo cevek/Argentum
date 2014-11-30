@@ -30,50 +30,19 @@ module Arg {
         }
     }
 
-    function renderWhen(node:Node, tree:Tree):void {
+    function renderWhenDOMSet(node:any, condition:any, tree:Tree) {
+        removeBetween(tree.dom_node2, tree.dom_node);
+        if (condition) {
+            render(node, tree.whenFn(condition), tree.dom_node);
+        }
+    }
 
+    function renderWhen(node:Node, tree:Tree):void {
         tree.dom_node = document.createComment("endif");
         tree.dom_node2 = document.createComment("if");
         node.insertBefore(tree.dom_node, null);
         node.insertBefore(tree.dom_node2, tree.dom_node);
-        if (tree.when && tree.when.constructor === Function) {
-            var atom = new Atom<string>(tree.when);
-            //tree.dom_node.textContent = atom.get() || '';
-            var condition = atom.get();
-            if (condition) {
-                render(node, tree.whenFn(condition), tree.dom_node);
-            }
-            atom.addListener(function (condition) {
-                if (tree.dom_node.previousSibling) {
-                    tree.dom_node.parentNode.removeChild(tree.dom_node.previousSibling);
-                }
-                removeBetween(tree.dom_node2, tree.dom_node);
-                if (condition) {
-                    render(node, tree.whenFn(condition), tree.dom_node);
-                }
-            });
-            return;
-        }
-        if (tree.when instanceof Atom) {
-            var atom = <Atom<string>>tree.when;
-            var condition = atom.get();
-            console.log("condition", condition, atom);
-
-            if (condition) {
-                render(node, tree.whenFn(condition), tree.dom_node);
-            }
-            atom.addListener(function (condition) {
-                removeBetween(tree.dom_node2, tree.dom_node);
-                if (condition) {
-                    render(node, tree.whenFn(condition), tree.dom_node);
-                }
-            });
-            return;
-        }
-        if (tree.when) {
-            render(node, tree.whenFn(tree.when), tree.dom_node);
-        }
-
+        setValue(tree.when, node, tree, renderWhenDOMSet);
     }
 
     function renderMapHelper(node:Node, tree:Tree, array:any[]) {
@@ -128,8 +97,6 @@ module Arg {
         node.appendChild(tree.dom_node);
     }
 
-    function walkArray(node:Node, tree:Tree[]):void;
-    function walkArray(node:Node, tree:Tree):void;
     function walkArray(node:Node, tree:any):void {
         for (var j = 0; j < tree.length; j++) {
             if (tree[j]) {
@@ -138,48 +105,65 @@ module Arg {
         }
     }
 
-    function prepareStyleProperty(prop:string, value:string) {
-        if (!isNaN(+value) && (prop === 'height' || prop === 'width' || prop === 'top' || prop === 'left')) {
-            return value + 'px';
+    function applyStyleDOMSet(styleNode:any, value:any, prop:string) {
+        var val = value;
+        if (!isNaN(+val) && (prop === 'height' || prop === 'width' || prop === 'top' || prop === 'left')) {
+            val += 'px';
         }
-        return value;
+        styleNode[prop] = val;
     }
 
-    function applyStyle(node:HTMLElement, styles:{[index: string]: ()=>string}):void;
-    function applyStyle(node:HTMLElement, styles:{[index: string]: string}):void;
     function applyStyle(node:HTMLElement, styles:any):void {
         for (var i in styles) {
-            if (styles[i].constructor === Function) {
-                var atom = new Atom<string>(styles[i]);
-                node.style[i] = prepareStyleProperty(i, atom.get());
-                atom.addListener(function (newVal) {
-                    node.style[i] = prepareStyleProperty(i, newVal);
-                });
-            }
-            else {
-                node.style[i] = prepareStyleProperty(i, styles[i]);
-            }
+            setValue(styles[i], node.style, i, applyStyleDOMSet);
         }
     }
 
-    function applyClassSet(node:HTMLElement, cls:string, classSet:{[index: string]: any}) {
+    function applyClassSet(node:HTMLElement, cls:string, classSet:{[index: string]: any}, isDeep = false) {
         var className = cls;
         for (var i in classSet) {
             var val = classSet[i];
             if (classSet[i].constructor === Function) {
                 classSet[i] = new Atom(classSet[i]);
-                classSet[i].addListener(function () {
-                    applyClassSet(node, cls, classSet);
-                });
             }
             if (classSet[i].constructor === Atom) {
                 val = classSet[i].get();
+                if (!isDeep) {
+                    classSet[i].addListener(function () {
+                        applyClassSet(node, cls, classSet, true);
+                    });
+                }
             }
             if (val) {
                 className += ' ' + i;
             }
         }
         node.setAttribute('className', className);
+    }
+
+    function setValue(value:any, node:any, param1:any, fn:(node:Node, value:any, param1:any)=>void):void {
+        if (value.constructor === Function) {
+            value = new Atom<any>(value);
+        }
+        if (value.constructor === Atom) {
+            fn(node, value.val, param1);
+            value.addListener(function () {
+                fn(node, value.val, param1);
+            });
+        }
+        else if (!value.tag) {
+            fn(node, value, param1);
+        }
+        return;
+    }
+
+
+    function renderTagDOMSet(node:Node, val:any) {
+        node.textContent = val === void 0 ? '' : val;
+    }
+
+    function renderAttrDOMSet(node:Node, val:any, key:string) {
+        (<HTMLElement>node).setAttribute(key, val);
     }
 
     function renderTag(node:HTMLElement, tree:Tree, nodeBefore:Node) {
@@ -195,73 +179,29 @@ module Arg {
                     applyClassSet(<HTMLElement>tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
                     continue;
                 }
-                /*if (key !== 'onclick' && tree.attrs[key].constructor === Function) {
-                 var attrAtom = new Atomic<any>(tree.attrs[key]);
-                 tree.domNode[key] = attrAtom.get();
-                 attrAtom.addListener(function (key) {
-                 tree.domNode[key] = attrAtom.get();
-                 }.bind(this, key));
-                 continue;
-                 }*/
-                if (tree.attrs[key].constructor === Atom) {
-                    (<HTMLElement>tree.dom_node).setAttribute(key, tree.attrs[key].get());
-                    tree.attrs[key].addListener(function (key:string) {
-                        (<HTMLElement>tree.dom_node).setAttribute(key, tree.attrs[key].get());
-                    }.bind(this, key));
-                    continue;
-                }
-
-                (<HTMLElement>tree.dom_node).setAttribute(key, tree.attrs[key]);
+                setValue(tree.attrs[key], tree.dom_node, key, renderAttrDOMSet);
             }
         }
 
         node.insertBefore(tree.dom_node, nodeBefore);
 
         var childrenLen = tree.children.length;
+/*
         if (childrenLen == 1 && tree.children[0].constructor !== Array) {
-            var textNode = tree.children[0];
-
-            if (textNode.constructor === Function) {
-                var atom = new Atom<string>(textNode);
-                tree.dom_node.textContent = atom.get() || '';
-
-                atom.addListener(function () {
-                    tree.dom_node.textContent = atom.get() || '';
-                });
-                return;
-            }
-
-            if (!textNode.tag) {
-                console.log("textNode", textNode);
-
-                tree.dom_node.textContent = textNode || '';
-                return;
-            }
+            setValue(tree.children[0], tree.dom_node, null, renderTagDOMSet);
+            return;
         }
+*/
 
         for (var i = 0; i < childrenLen; i++) {
             render(tree.dom_node, tree.children[i]);
         }
     }
 
-    function text(node:Node, text:()=>string, nodeBefore:Node):void;
-    function text(node:Node, text:string, nodeBefore:Node):void;
     function text(node:Node, text:any, nodeBefore:Node):void {
-        var domNode:Text;
-        if (text.constructor === Function) {
-            var atom = new Atom<string>(text);
-            text.atom = atom;
-
-            domNode = document.createTextNode(atom.get() || '');
-
-            atom.addListener(function () {
-                domNode.textContent = atom.get() || '';
-            });
-        }
-        else {
-            domNode = document.createTextNode(text || '');
-        }
+        var domNode = document.createTextNode('');
         node.insertBefore(domNode, nodeBefore);
+        setValue(text, domNode, null, renderTagDOMSet);
     }
 
     function prepareTag(tagExpr:string, obj:Tree) {
