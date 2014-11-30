@@ -1,7 +1,11 @@
 module wrike {
     export module nc {
         export function NCViewTemplate(vm:NCView) {
-            return [new TabsView(), new MentionsView(), new InboxView()];
+            return [
+                Arg.when(()=>NCView.activeType.val == NCTabs.Mentions, ()=>new MentionsView()),
+                Arg.when(()=>NCView.activeType.val == NCTabs.Inbox, ()=>new InboxView()),
+                new TabsView()
+            ];
         }
 
         export function MentionsViewTemplate(vm:MentionsView) {

@@ -36,7 +36,6 @@ class Atom <T> {
 
             parentAtom.masters[this.id] = this;
 
-
             this.order[parentAtom.id] = 0;
             Atom.traverseMasters(parentAtom, 0);
         }
@@ -45,8 +44,10 @@ class Atom <T> {
     }
 
     set val(val:T) {
-        this.value = val;
-        Atom.sendMicrotask(this, false, val);
+        if (this.value !== val) {
+            this.value = val;
+            Atom.sendMicrotask(this, false, val);
+        }
     }
 
     update() {

@@ -264,7 +264,7 @@ module Arg {
             return;
         }
         if (tree.render) {
-            render(node, tree.render());
+            render(node, tree.render(), nodeBefore);
             return;
         }
 
