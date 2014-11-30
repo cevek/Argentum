@@ -7,5 +7,6 @@
 /// <reference path="InboxView.ts"/>
 /// <reference path="MentionsView.ts"/>
 /// <reference path="NCView.ts"/>
+/// <reference path="TabsView.ts"/>
 /// <reference path="Template.ts"/>
 

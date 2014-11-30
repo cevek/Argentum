@@ -86,9 +86,9 @@ module Arg {
             tree.$map = array = new Atom(array);
         }
         if (array.constructor === Atom) {
-            renderMapHelper(node, tree, array.get());
+            renderMapHelper(node, tree, array.val);
             array.addListener(function () {
-                renderMapHelper(node, tree, array.get());
+                renderMapHelper(node, tree, array.val);
             });
         }
         else {
@@ -120,6 +120,7 @@ module Arg {
     }
 
     function applyClassSet(node:HTMLElement, cls:string, classSet:{[index: string]: any}, isDeep = false) {
+
         var className = cls;
         for (var i in classSet) {
             var val = classSet[i];
@@ -127,7 +128,7 @@ module Arg {
                 classSet[i] = new Atom(classSet[i]);
             }
             if (classSet[i].constructor === Atom) {
-                val = classSet[i].get();
+                val = classSet[i].val;
                 if (!isDeep) {
                     classSet[i].addListener(function () {
                         applyClassSet(node, cls, classSet, true);
@@ -138,11 +139,13 @@ module Arg {
                 className += ' ' + i;
             }
         }
-        node.setAttribute('className', className);
+
+        console.log("cls set", node, cls, classSet);
+        node.className = className;
     }
 
     function setValue(value:any, node:any, param1:any, fn:(node:Node, value:any, param1:any)=>void):void {
-        if (value.constructor === Function) {
+        if (value.constructor === Function && !value["doNotAtomize"]) {
             value = new Atom<any>(value);
         }
         if (value.constructor === Atom) {
@@ -157,13 +160,12 @@ module Arg {
         return;
     }
 
-
     function renderTagDOMSet(node:Node, val:any) {
         node.textContent = val === void 0 ? '' : val;
     }
 
-    function renderAttrDOMSet(node:Node, val:any, key:string) {
-        (<HTMLElement>node).setAttribute(key, val);
+    function renderAttrDOMSet(node:any, val:any, key:string) {
+        node[key] = val;
     }
 
     function renderTag(node:HTMLElement, tree:Tree, nodeBefore:Node) {
@@ -179,6 +181,9 @@ module Arg {
                     applyClassSet(<HTMLElement>tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
                     continue;
                 }
+                if (tree.attrs[key].constructor === Function && key.substr(0, 2) == "on") {
+                    tree.attrs[key]["doNotAtomize"] = true;
+                }
                 setValue(tree.attrs[key], tree.dom_node, key, renderAttrDOMSet);
             }
         }
@@ -186,12 +191,12 @@ module Arg {
         node.insertBefore(tree.dom_node, nodeBefore);
 
         var childrenLen = tree.children.length;
-/*
-        if (childrenLen == 1 && tree.children[0].constructor !== Array) {
-            setValue(tree.children[0], tree.dom_node, null, renderTagDOMSet);
-            return;
-        }
-*/
+        /*
+         if (childrenLen == 1 && tree.children[0].constructor !== Array) {
+         setValue(tree.children[0], tree.dom_node, null, renderTagDOMSet);
+         return;
+         }
+         */
 
         for (var i = 0; i < childrenLen; i++) {
             render(tree.dom_node, tree.children[i]);

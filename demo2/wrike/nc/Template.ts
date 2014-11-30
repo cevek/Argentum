@@ -1,7 +1,7 @@
 module wrike {
     export module nc {
         export function NCViewTemplate(vm:NCView) {
-            return [new MentionsView(), new InboxView()];
+            return [new TabsView(), new MentionsView(), new InboxView()];
         }
 
         export function MentionsViewTemplate(vm:MentionsView) {
@@ -32,6 +32,21 @@ module wrike {
                                 )
                             )
                     )
+                )
+            )
+        }
+
+        export function TabsViewTemplate(vm:TabsView) {
+            return (
+                Arg.dom('div.tabs', null,
+                    Arg.dom('div.button', {
+                        classSet: {selected: ()=>NCView.activeType.val === NCTabs.Inbox, fuck: true},
+                        onclick: ()=>NCView.activeType.val = NCTabs.Inbox
+                    }, "Mentions"),
+                    Arg.dom('div.button', {
+                        classSet: {selected: ()=>NCView.activeType.val === NCTabs.Marketing},
+                        onclick: ()=>NCView.activeType.val = NCTabs.Inbox
+                    }, "Inbox")
                 )
             )
         }
