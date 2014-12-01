@@ -162,6 +162,106 @@ class Atom <T> {
 }
 
 Atom.listenMicrotask();
+
+interface Array<T> {
+    addListener(fn:(type:string, val:T, i:number)=>void):void;
+    removeListener(fn:(type:string, val:T, i:number)=>void):void;
+    __change():void;
+    __push: any;
+    __unshift: any;
+    __pop: any;
+    __shift: any;
+    __sort: any;
+    __splice: any;
+    listeners: any[];
+}
+
+Array.prototype.addListener = function (fn:any) {
+    this.listeners = this.listeners || [];
+    this.listeners.push(fn);
+};
+Array.prototype.removeListener = function (fn:any) {
+    if (this.listeners) {
+        var index = this.listeners.indexOf(fn);
+        if (index > -1) {
+            this.splice(index, 1);
+        }
+    }
+};
+
+var Array_actionChangeId = 0;
+var Array_arrays:any[] = [];
+Array.prototype.__change = function () {
+    window.postMessage({arrayChangedActionId: ++Array_actionChangeId}, '*');
+
+    /*
+     if (this.listeners) {
+     for (var j = 0; j < this.listeners.length; j++) {
+     this.listeners[j](type, val, i);
+     }
+     }
+     */
+};
+
+window.addEventListener("message", function message(event:any) {
+    var mid = event.data && event.data.arrayChangedActionId;
+    if (mid == Array_actionChangeId) {
+
+        Array_arrays = [];
+    }
+});
+
+Array.prototype.__push = Array.prototype.push;
+Array.prototype.push = (item:any)=> {
+    this.__change();
+    return this.__push(item);
+};
+
+Array.prototype.__unshift = Array.prototype.unshift;
+Array.prototype.unshift = (item:any)=> {
+    this.__change();
+    return this.__unshift(item);
+};
+
+Array.prototype.__pop = Array.prototype.pop;
+Array.prototype.pop = ()=> {
+    this.__change();
+    return this.__pop();
+};
+
+Array.prototype.__shift = Array.prototype.shift;
+Array.prototype.shift = ()=> {
+    this.__change();
+    return this.__shift();
+};
+
+Array.prototype.__sort = Array.prototype.sort;
+Array.prototype.sort = (fn:any)=> {
+    this.__change();
+    return this.__sort(fn);
+};
+
+Array.prototype.__splice = Array.prototype.splice;
+Array.prototype.splice = (start:number, deleteCount?:number)=> {
+    this.__change();
+    /*
+     if (deleteCount) {
+     for (var i = start; i < start + deleteCount; i++) {
+     }
+     }
+     */
+    if (arguments.length > 2) {
+        /*
+         for (var i = start; i < start + arguments.length - 2; i++) {
+         this.callListeners('added', this[i], i);
+         }
+         */
+        return this.__splice.apply(this, arguments);
+    }
+    else {
+        return this.__splice(start, deleteCount);
+    }
+};
 /*
 
  function log(a:Atom<any>, val:any) {
