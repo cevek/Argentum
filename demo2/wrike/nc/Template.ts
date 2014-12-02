@@ -34,15 +34,15 @@ module wrike {
         export function TabsViewTemplate(vm:TabsView) {
             return d.root(
                 d('div.tabs',
-                    d('div.button', 'Mentions').attrs({
+                    d('div.button', {
                         classSet: {selected: new Atom(a=> NCView.activeType.val === NCTabs.Mentions)},
-                        onclick: new Atom(a=> NCView.activeType.val = NCTabs.Mentions)
-                    }),
+                        onclick: ()=> NCView.activeType.val = NCTabs.Mentions
+                    }, 'Mentions'),
 
-                    d('div.button', "Inbox").attrs({
+                    d('div.button', {
                         classSet: {selected: new Atom(a=> NCView.activeType.val === NCTabs.Inbox)},
                         onclick: ()=> NCView.activeType.val = NCTabs.Inbox
-                    })))
+                    }, 'Inbox')))
         }
     }
 }

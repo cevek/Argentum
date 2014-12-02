@@ -11,7 +11,6 @@ module Arg {
         $split?: string;
         _attrs:{[key: string]: any};
         when?: any;
-        attrs?: (attrs:{[key: string]: any})=>Tree;
     }
 
     interface Attrs {
@@ -277,10 +276,13 @@ module Arg {
         text(node, tree, nodeBefore);
     }
 
-    export function dom():Tree;
-    export function dom(tagExpr:string, ...children:any[]):Tree;
-    export function dom(tagExpr?:any, ...children:any[]) {
-        var obj:Tree = {tag: '', _attrs: null, children: children || []};
+
+    export function dom(tagExpr:string, ...children: any[]) {
+        var attrs: any;
+        if (children[0].constructor === Object){
+            attrs = children.shift();
+        }
+        var obj:Tree = {tag: '', _attrs: attrs, children: children || []};
         prepareTag(tagExpr, obj);
         return obj;
     }
