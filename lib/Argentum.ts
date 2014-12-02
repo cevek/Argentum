@@ -1,13 +1,5 @@
 module Arg {
 
-    export interface Component {
-        render(): any;
-    }
-
-    export interface Listener<T> {
-        (event:string, value:T): void;
-    }
-
     interface Tree {
         tag: string;
         dom_node?:Node;
@@ -17,9 +9,29 @@ module Arg {
         whenFn?: (val:any)=>any;
         $map?: any;
         $split?: string;
-        attrs:{[key: string]: any};
+        _attrs:{[key: string]: any};
         when?: any;
+        attrs?: (attrs:{[key: string]: any})=>Tree;
+    }
 
+    interface Attrs {
+        [key: string]: any;
+    }
+
+    export interface Component {
+        render(): any;
+    }
+
+    export interface Listener<T> {
+        (event:string, value:T): void;
+    }
+
+    interface MapFn<T> {
+        (item:T, n?:number): any;
+    }
+
+    interface WhenFn {
+        (cond:any): any;
     }
 
     function removeBetween(from:Node, to:Node) {
@@ -170,20 +182,20 @@ module Arg {
     function renderTag(node:HTMLElement, tree:Tree, nodeBefore:Node) {
 
         tree.dom_node = document.createElement(tree.tag);
-        if (tree.attrs) {
-            for (var key in tree.attrs) {
-                if (tree.attrs[key].constructor === Function && key.substr(0, 2) == "on") {
-                    tree.attrs[key]["doNotAtomize"] = true;
+        if (tree._attrs) {
+            for (var key in tree._attrs) {
+                if (tree._attrs[key].constructor === Function && key.substr(0, 2) == "on") {
+                    tree._attrs[key]["doNotAtomize"] = true;
                 }
                 if (key === "style") {
-                    applyStyle(<HTMLElement>tree.dom_node, tree.attrs['style']);
+                    applyStyle(<HTMLElement>tree.dom_node, tree._attrs['style']);
                 }
                 else if (key === 'classSet') {
-                    applyClassSet(<HTMLElement>tree.dom_node, tree.attrs['className'], tree.attrs['classSet']);
+                    applyClassSet(<HTMLElement>tree.dom_node, tree._attrs['className'], tree._attrs['classSet']);
                 }
                 // if key == className and not has classSets or anything else
-                else if (!tree.attrs['classSet'] || key != 'className') {
-                    setValue(tree.attrs[key], tree.dom_node, key, renderAttrDOMSet);
+                else if (!tree._attrs['classSet'] || key != 'className') {
+                    setValue(tree._attrs[key], tree.dom_node, key, renderAttrDOMSet);
                 }
             }
         }
@@ -229,18 +241,12 @@ module Arg {
         }
 
         if (className) {
-            if (obj.attrs) {
-                obj.attrs['className'] = className;
+            if (obj._attrs) {
+                obj._attrs['className'] = className;
             } else {
-                obj.attrs = {className: className};
+                obj._attrs = {className: className};
             }
         }
-    }
-
-    export function dom(tagExpr:string, attrs?:{[key: string]: any}, ...children:any[]) {
-        var obj:Tree = {tag: '', attrs: attrs, children: children};
-        prepareTag(tagExpr, obj);
-        return obj;
     }
 
     export function render(node:Node, tree:Component, nodeBefore?:Node):void;
@@ -271,15 +277,28 @@ module Arg {
         text(node, tree, nodeBefore);
     }
 
-    export function map<R>(array:()=>R[], fn:(item:R, n?:number)=>any, split?:string):Tree;
-    export function map<R>(array:Atom<R[]>, fn:(item:R, n?:number)=>any, split?:string):Tree;
-    export function map<R>(array:R[], fn:(item:R, n?:number)=>any, split?:string):Tree;
-    export function map<R>(array:any, fn:(item:R, n?:number)=>any, split = ''):Tree {
-        return {tag: 'map', attrs: null, $map: array || [], $split: split, fn: fn, children: null};
+    export function dom():Tree;
+    export function dom(tagExpr:string, ...children:any[]):Tree;
+    export function dom(tagExpr?:any, ...children:any[]) {
+        var obj:Tree = {tag: '', _attrs: null, children: children || []};
+        prepareTag(tagExpr, obj);
+        return obj;
     }
 
-    export function when<R>(val:R, fn:(val:R)=>any):Tree {
-        return {tag: 'when', attrs: null, when: val, whenFn: fn, children: null};
+    export module dom {
+
+        export function map<R>(tagExpr:string, array:any[], fn:MapFn<R>, split?:string):Tree;
+        export function map<R>(tagExpr:any, array:any, fn?:any, split?:any):Tree {
+            return {tag: 'map', _attrs: null, $map: array || [], $split: split, fn: fn, children: null};
+        }
+
+        export function when(condition:any, fn:WhenFn):Tree {
+            return {tag: 'when', _attrs: null, when: condition, whenFn: fn, children: null};
+        }
+
+        export function root(...children:any[]):Tree {
+            return dom.apply(null, children);
+        }
     }
 
     //class AList<T> {
@@ -374,3 +393,7 @@ module Arg {
     //}
 
 }
+
+var d = Arg.dom;
+
+
