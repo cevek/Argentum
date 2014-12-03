@@ -11,12 +11,15 @@ module wrike {
 
         export function MentionsViewTemplate(vm:MentionsView) {
             return d.root(
+                d('div', 'Begin'),
                 d.map('div.mentions', vm.items, (mention:Mention)=>
                     d('div.item',
                         d('div.title', mention.task.summary),
                         d('div.description', mention.task.description),
                         d('div.pin', mention.isPinned),
-                        d('div.read', mention.isRead))))
+                        d('div.read', mention.isRead))),
+                d('div', 'End')
+            )
         }
 
         export function InboxViewTemplate(vm:InboxView) {

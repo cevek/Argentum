@@ -164,8 +164,8 @@ class Atom <T> {
 Atom.listenMicrotask();
 
 interface Array<T> {
-    addListener(fn:(type:string, val:T, i:number)=>void):void;
-    removeListener(fn:(type:string, val:T, i:number)=>void):void;
+    addListener(fn:()=>void):void;
+    removeListener(fn:()=>void):void;
     __change():void;
     __push: any;
     __unshift: any;
@@ -173,7 +173,7 @@ interface Array<T> {
     __shift: any;
     __sort: any;
     __splice: any;
-    listeners: any[];
+    listeners: {():void}[];
 }
 
 Array.prototype.addListener = function (fn:any) {
@@ -192,57 +192,61 @@ Array.prototype.removeListener = function (fn:any) {
 var Array_actionChangeId = 0;
 var Array_arrays:any[] = [];
 Array.prototype.__change = function () {
-    window.postMessage({arrayChangedActionId: ++Array_actionChangeId}, '*');
-
-    /*
-     if (this.listeners) {
-     for (var j = 0; j < this.listeners.length; j++) {
-     this.listeners[j](type, val, i);
-     }
-     }
-     */
+    if (this.listeners && this.listeners.length) {
+        if (Array_arrays.indexOf(this) === -1) {
+            Array_arrays.push(this);
+        }
+        window.postMessage({arrayChangedActionId: ++Array_actionChangeId}, '*');
+    }
 };
 
 window.addEventListener("message", function message(event:any) {
     var mid = event.data && event.data.arrayChangedActionId;
     if (mid == Array_actionChangeId) {
+        console.log("Array change message");
 
+        for (var i = 0; i < Array_arrays.length; i++) {
+            var listeners = Array_arrays[i].listeners;
+            for (var j = 0; j < listeners.length; j++) {
+                listeners[j]();
+            }
+        }
         Array_arrays = [];
     }
 });
 
 Array.prototype.__push = Array.prototype.push;
-Array.prototype.push = (item:any)=> {
+Array.prototype.push = function (item:any) {
     this.__change();
     return this.__push(item);
 };
 
 Array.prototype.__unshift = Array.prototype.unshift;
-Array.prototype.unshift = (item:any)=> {
+Array.prototype.unshift = function (item:any) {
     this.__change();
     return this.__unshift(item);
 };
 
 Array.prototype.__pop = Array.prototype.pop;
-Array.prototype.pop = ()=> {
+Array.prototype.pop = function () {
     this.__change();
     return this.__pop();
 };
 
 Array.prototype.__shift = Array.prototype.shift;
-Array.prototype.shift = ()=> {
+Array.prototype.shift = function () {
     this.__change();
     return this.__shift();
 };
 
 Array.prototype.__sort = Array.prototype.sort;
-Array.prototype.sort = (fn:any)=> {
+Array.prototype.sort = function (fn:any) {
     this.__change();
     return this.__sort(fn);
 };
 
 Array.prototype.__splice = Array.prototype.splice;
-Array.prototype.splice = (start:number, deleteCount?:number)=> {
+Array.prototype.splice = function (start:number, deleteCount?:number) {
     this.__change();
     /*
      if (deleteCount) {

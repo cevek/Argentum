@@ -33,11 +33,15 @@ module Arg {
         (cond:any): any;
     }
 
-    function removeBetween(from:Node, to:Node) {
+    function removeBetween(from:Node, to:Node, included = false) {
         var n:Node;
         var parent = from.parentNode;
         while ((n = from.nextSibling) && n != to) {
             parent.removeChild(n);
+        }
+        if (included){
+            parent.removeChild(from);
+            parent.removeChild(to);
         }
     }
 
@@ -49,7 +53,7 @@ module Arg {
     }
 
     function renderWhen(node:Node, tree:Tree):void {
-        tree.dom_node = document.createComment("endif");
+        tree.dom_node = document.createComment("/if");
         tree.dom_node2 = document.createComment("if");
         node.insertBefore(tree.dom_node, null);
         node.insertBefore(tree.dom_node2, tree.dom_node);
@@ -58,18 +62,20 @@ module Arg {
 
     function renderMapHelper(node:Node, tree:Tree, array:any[]) {
 
-        if (tree.dom_node) {
-            while (tree.dom_node.firstChild) {
-                tree.dom_node.removeChild(tree.dom_node.firstChild);
-            }
-        }
+        /*
+         if (tree.dom_node) {
+         while (tree.dom_node.firstChild) {
+         tree.dom_node.removeChild(tree.dom_node.firstChild);
+         }
+         }
+         */
         //tree.domNode = document.createDocumentFragment();
         //tree.domNode.appendChild(document.createTextNode('fuck'));
 
         tree.children = [];
         for (var i = 0; i < array.length; i++) {
             tree.children[i] = tree.fn(array[i], i);
-            render(tree.dom_node, tree.children[i]);
+            render(node, tree.children[i], tree.dom_node);
             /*
              if (tree.$split && i > 0) {
              node.insertBefore(document.createTextNode(tree.$split), tree.children[i].domNode);
@@ -89,23 +95,78 @@ module Arg {
          });*/
     }
 
-    function renderMap(node:Node, tree:Tree) {
-        tree.dom_node = document.createElement('iterator');
+    var aaad = 0;
+    function renderMapDOMSet(node:any, array:any[], tree:Tree) {
+        removeBetween(tree.dom_node2, tree.dom_node);
+        if (array) {
 
-        var array = tree.$map;
-        if (array.constructor === Function) {
-            tree.$map = array = new Atom(array);
-        }
-        if (array.constructor === Atom) {
-            renderMapHelper(node, tree, array.val);
-            array.addListener(function () {
-                renderMapHelper(node, tree, array.val);
+            var domNodes:any[] = [];
+            var values:any[] = [];
+            for (var i = 0; i < array.length; i++) {
+                var child_tree = tree.fn(array[i], i);
+                render(node, child_tree, tree.dom_node);
+                domNodes.push(child_tree.dom_node);
+                values.push(array[i]);
+            }
+            array.addListener(()=> {
+                console.log("array changed");
+
+                aaad++;
+                var dom_node = document.createComment("/for" + aaad);
+                var dom_node2 = document.createComment("for" + aaad);
+                node.insertBefore(dom_node, tree.dom_node.nextSibling); //tree.dom_node.nextSibling
+                node.insertBefore(dom_node2, dom_node);
+
+                var _domNodes:any[] = [];
+                var _values:any[] = [];
+                for (var i = 0; i < array.length; i++) {
+                    var index = values.indexOf(array[i]);
+                    if (index > -1) {
+                        _domNodes[i] = domNodes[index];
+                        node.insertBefore(domNodes[index], dom_node);
+                    }
+                    else {
+                        var data = tree.fn(array[i], i);
+                        render(node, data, dom_node);
+                        _domNodes[i] = data.dom_node;
+                    }
+                    _values[i] = array[i];
+                }
+                removeBetween(tree.dom_node2, tree.dom_node, true);
+                domNodes = _domNodes;
+                values = _values;
+                tree.dom_node = dom_node;
+                tree.dom_node2 = dom_node2;
+
             });
         }
-        else {
-            renderMapHelper(node, tree, array);
-        }
-        node.appendChild(tree.dom_node);
+    }
+
+    function renderMap(node:Node, tree:Tree) {
+        //tree.dom_node = document.createElement('iterator');
+
+        tree.dom_node = document.createComment("/for");
+        tree.dom_node2 = document.createComment("for");
+        node.insertBefore(tree.dom_node, null);
+        node.insertBefore(tree.dom_node2, tree.dom_node);
+
+        /*        var array = tree.$map;
+         if (array.constructor === Function) {
+         tree.$map = array = new Atom(array);
+         }
+         if (array.constructor === Atom) {
+         renderMapHelper(node, tree, array.val);
+         array.addListener(function () {
+         renderMapHelper(node, tree, array.val);
+         });
+         }
+         else {
+         renderMapHelper(node, tree, array);
+         }*/
+
+        setValue(tree.$map, node, tree, renderMapDOMSet);
+
+        //node.appendChild(tree.dom_node);
     }
 
     function walkArray(node:Node, tree:any):void {
@@ -248,6 +309,18 @@ module Arg {
         }
     }
 
+    function prepareViewName(name:string) {
+        var splits = name.split(/([A-Z][a-z\d_]+)/);
+        var words:string[] = [];
+        for (var i = 0; i < splits.length; i++) {
+            var word = splits[i].toLowerCase();
+            if (word && word !== 'view') {
+                words.push(word);
+            }
+        }
+        return words.join("-");
+    }
+
     export function render(node:Node, tree:Component, nodeBefore?:Node):void;
     export function render(node:Node, tree:Tree[], nodeBefore?:Node):void;
     export function render(node:Node, tree:Tree, nodeBefore?:Node):void;
@@ -269,17 +342,18 @@ module Arg {
             return;
         }
         if (tree.render) {
-            render(node, tree.render(), nodeBefore);
+            var data = tree.render();
+            data.tag = prepareViewName(tree.constructor.name);
+            render(node, data, nodeBefore);
             return;
         }
 
         text(node, tree, nodeBefore);
     }
 
-
-    export function dom(tagExpr:string, ...children: any[]) {
-        var attrs: any;
-        if (children[0].constructor === Object){
+    export function dom(tagExpr:string, ...children:any[]) {
+        var attrs:any;
+        if (children[0].constructor === Object && !children[0].tag) {
             attrs = children.shift();
         }
         var obj:Tree = {tag: '', _attrs: attrs, children: children || []};
@@ -289,6 +363,7 @@ module Arg {
 
     export module dom {
 
+        export function map<R>(tagExpr:string, array:Atom<any>, fn:MapFn<R>, split?:string):Tree;
         export function map<R>(tagExpr:string, array:any[], fn:MapFn<R>, split?:string):Tree;
         export function map<R>(tagExpr:any, array:any, fn?:any, split?:any):Tree {
             return {tag: 'map', _attrs: null, $map: array || [], $split: split, fn: fn, children: null};
@@ -299,7 +374,7 @@ module Arg {
         }
 
         export function root(...children:any[]):Tree {
-            return dom.apply(null, children);
+            return dom('root', children);
         }
     }
 
