@@ -350,6 +350,9 @@ module Arg {
             return render(node, data, nodeBefore);
         }
 
+        if (tree.constructor === Function){
+            tree = new Atom<any>(tree);
+        }
         if (tree.constructor === Atom) {
             var atom = <Atom<any>>tree;
             var sub_tree = render(node, atom.get(), nodeBefore);
