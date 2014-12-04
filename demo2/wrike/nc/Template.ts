@@ -2,9 +2,9 @@ module wrike {
     export module nc {
         export function NCViewTemplate(vm:NCView) {
             return d.root(
-                d.when(new Atom(a=>NCView.activeType.val == NCTabs.Mentions), ()=>
+                d.when(new Atom(a=>NCView.activeType.isEqual(NCTabs.Mentions)), ()=>
                     new MentionsView()),
-                d.when(new Atom(a=>NCView.activeType.val == NCTabs.Inbox), ()=>
+                d.when(new Atom(a=>NCView.activeType.isEqual(NCTabs.Inbox)), ()=>
                     new InboxView()),
                 new TabsView());
         }
@@ -12,6 +12,7 @@ module wrike {
         export function MentionsViewTemplate(vm:MentionsView) {
             return d.root(
                 d('div', 'Begin'),
+                new Atom<any>(()=>vm.message.get() ? d('div', 'Hi') : d('a', {href: 'http://yandex.ru'}, 'yep')),
                 d.map('div.mentions', vm.items, (mention:Mention)=>
                     d('div.item',
                         d('div.title', mention.task.summary),
@@ -30,7 +31,7 @@ module wrike {
                             d.when(inbox.assigment, ()=>
                                 d('div.assigment-item', inbox.assigment.task.summary)),
                             d.when(inbox.marketing, ()=>
-                                d('div.marketing-item', inbox.marketing.val.title))))))
+                                d('div.marketing-item', inbox.marketing.get().title))))))
 
         }
 
@@ -38,13 +39,13 @@ module wrike {
             return d.root(
                 d('div.tabs',
                     d('div.button', {
-                        classSet: {selected: new Atom(a=> NCView.activeType.val === NCTabs.Mentions)},
-                        onclick: ()=> NCView.activeType.val = NCTabs.Mentions
+                        classSet: {selected: new Atom(a=> NCView.activeType.isEqual(NCTabs.Mentions))},
+                        onclick: ()=> NCView.activeType.set(NCTabs.Mentions)
                     }, 'Mentions'),
 
                     d('div.button', {
-                        classSet: {selected: new Atom(a=> NCView.activeType.val === NCTabs.Inbox)},
-                        onclick: ()=> NCView.activeType.val = NCTabs.Inbox
+                        classSet: {selected: new Atom(a=> NCView.activeType.isEqual(NCTabs.Inbox))},
+                        onclick: ()=> NCView.activeType.set(NCTabs.Inbox)
                     }, 'Inbox')))
         }
     }

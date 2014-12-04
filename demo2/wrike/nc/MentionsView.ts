@@ -3,15 +3,17 @@ module wrike {
     export module nc {
         export class MentionsView {
             items = new Atom<Mention[]>();
+            message = new Atom<boolean>(null, null, true);
 
             constructor() {
                 glob.mentions = this.items;
                 console.log(glob);
 
-                this.items.val = [new Mention(), new Mention()];
+                this.items.set([new Mention(), new Mention()]);
                 setInterval(() => {
-                    this.items.val.sort(()=>Math.random() - 0.5);
-                }, 15000);
+                    this.items.get().sort(()=>Math.random() - 0.5);
+                    this.message.set(Math.random() > 0.5);
+                }, 1000);
             }
 
             render() {

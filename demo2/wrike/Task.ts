@@ -5,8 +5,8 @@ module wrike {
         description = new Atom<string>();
         isCompleted:boolean = true;
         constructor(){
-            this.summary.val = 'Hey '+Math.random().toString(33).substr(2, 3);
-            this.description.val = 'Just some text '+Math.random().toString(33).substr(2, 3);
+            this.summary.set('Hey '+Math.random().toString(33).substr(2, 3));
+            this.description.set('Just some text '+Math.random().toString(33).substr(2, 3));
         }
     }
 }

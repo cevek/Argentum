@@ -4,12 +4,12 @@ module Arg {
         tag: string;
         dom_node?:Node;
         dom_node2?:Node;
-        children: any[];
+        children?: any[];
         fn?: (item:any, i:number)=>any;
         whenFn?: (val:any)=>any;
         $map?: any;
         $split?: string;
-        _attrs:{[key: string]: any};
+        _attrs?:{[key: string]: any};
         when?: any;
     }
 
@@ -39,7 +39,7 @@ module Arg {
         while ((n = from.nextSibling) && n != to) {
             parent.removeChild(n);
         }
-        if (included){
+        if (included) {
             parent.removeChild(from);
             parent.removeChild(to);
         }
@@ -52,12 +52,13 @@ module Arg {
         }
     }
 
-    function renderWhen(node:Node, tree:Tree):void {
+    function renderWhen(node:Node, tree:Tree):Tree {
         tree.dom_node = document.createComment("/if");
         tree.dom_node2 = document.createComment("if");
         node.insertBefore(tree.dom_node, null);
         node.insertBefore(tree.dom_node2, tree.dom_node);
         setValue(tree.when, node, tree, renderWhenDOMSet);
+        return tree;
     }
 
     function renderMapHelper(node:Node, tree:Tree, array:any[]) {
@@ -96,6 +97,7 @@ module Arg {
     }
 
     var aaad = 0;
+
     function renderMapDOMSet(node:any, array:any[], tree:Tree) {
         removeBetween(tree.dom_node2, tree.dom_node);
         if (array) {
@@ -109,7 +111,7 @@ module Arg {
                 values.push(array[i]);
             }
             array.addListener(()=> {
-                console.log("array changed");
+                //console.log("array changed");
 
                 aaad++;
                 var dom_node = document.createComment("/for" + aaad);
@@ -142,7 +144,7 @@ module Arg {
         }
     }
 
-    function renderMap(node:Node, tree:Tree) {
+    function renderMap(node:Node, tree:Tree):Tree {
         //tree.dom_node = document.createElement('iterator');
 
         tree.dom_node = document.createComment("/for");
@@ -165,6 +167,7 @@ module Arg {
          }*/
 
         setValue(tree.$map, node, tree, renderMapDOMSet);
+        return tree;
 
         //node.appendChild(tree.dom_node);
     }
@@ -200,7 +203,7 @@ module Arg {
                 classSet[i] = new Atom(classSet[i]);
             }
             if (classSet[i].constructor === Atom) {
-                val = classSet[i].val;
+                val = classSet[i].get();
                 if (!isDeep) {
                     classSet[i].addListener(function () {
                         applyClassSet(node, cls, classSet, true);
@@ -220,9 +223,9 @@ module Arg {
             value = new Atom<any>(value);
         }
         if (value.constructor === Atom) {
-            fn(node, value.val, param1);
+            fn(node, value.get(), param1);
             value.addListener(function () {
-                fn(node, value.val, param1);
+                fn(node, value.get(), param1);
             });
         }
         else if (!value.tag) {
@@ -239,7 +242,7 @@ module Arg {
         node[key] = val;
     }
 
-    function renderTag(node:HTMLElement, tree:Tree, nodeBefore:Node) {
+    function renderTag(node:HTMLElement, tree:Tree, nodeBefore:Node):Tree {
 
         tree.dom_node = document.createElement(tree.tag);
         if (tree._attrs) {
@@ -273,12 +276,14 @@ module Arg {
         for (var i = 0; i < childrenLen; i++) {
             render(tree.dom_node, tree.children[i]);
         }
+        return tree;
     }
 
-    function text(node:Node, text:any, nodeBefore:Node):void {
+    function text(node:Node, text:any, nodeBefore:Node):Tree {
         var domNode = document.createTextNode('');
         node.insertBefore(domNode, nodeBefore);
         setValue(text, domNode, null, renderTagDOMSet);
+        return {tag: 'text', dom_node: domNode};
     }
 
     function prepareTag(tagExpr:string, obj:Tree) {
@@ -321,34 +326,42 @@ module Arg {
         return words.join("-");
     }
 
-    export function render(node:Node, tree:Component, nodeBefore?:Node):void;
-    export function render(node:Node, tree:Tree[], nodeBefore?:Node):void;
-    export function render(node:Node, tree:Tree, nodeBefore?:Node):void;
-    export function render(node:Node, tree:any, nodeBefore:Node = null):void {
+    export function render(node:Node, tree:Component, nodeBefore?:Node):Tree;
+    export function render(node:Node, tree:Tree[], nodeBefore?:Node):Tree;
+    export function render(node:Node, tree:Tree, nodeBefore?:Node):Tree;
+    export function render(node:Node, tree:any, nodeBefore:Node = null):Tree {
         if (tree.constructor === Array) {
             walkArray(node, tree);
             return;
         }
+
         if (tree.$map) {
-            renderMap(node, tree);
-            return;
+            return renderMap(node, tree);
         }
         if (tree.tag == 'when') {
-            renderWhen(node, tree);
-            return;
+            return renderWhen(node, tree);
         }
         if (tree.tag) {
-            renderTag(<HTMLElement>node, tree, nodeBefore);
-            return;
+            return renderTag(<HTMLElement>node, tree, nodeBefore);
         }
         if (tree.render) {
             var data = tree.render();
             data.tag = prepareViewName(tree.constructor.name);
-            render(node, data, nodeBefore);
-            return;
+            return render(node, data, nodeBefore);
         }
 
-        text(node, tree, nodeBefore);
+        if (tree.constructor === Atom) {
+            var atom = <Atom<any>>tree;
+            var sub_tree = render(node, atom.get(), nodeBefore);
+            atom.addListener(()=> {
+                var _sub_tree = render(node, atom.get(), sub_tree.dom_node);
+                sub_tree.dom_node.parentNode.removeChild(sub_tree.dom_node);
+                sub_tree = _sub_tree;
+            });
+
+            return sub_tree;
+        }
+        return text(node, tree, nodeBefore);
     }
 
     export function dom(tagExpr:string, ...children:any[]) {

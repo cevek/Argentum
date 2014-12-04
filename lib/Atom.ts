@@ -1,7 +1,7 @@
 class Atom <T> {
     private static lastId = 0;
     id:number;
-    private value:T;
+    private _value:T;
     private getter:(atom:Atom<T>)=>T;
     private setter:(atom:Atom<T>)=>T;
 
@@ -10,16 +10,20 @@ class Atom <T> {
         this.getter = getter;
         this.setter = setter;
         this.id = ++Atom.lastId;
-        this.value = val;
+        this._value = val;
     }
 
     static lastCalled:Atom<any>;
 
-    get val():T {
-        if (this.value === undefined && this.getter) {
+    valueOf():T {
+        return this.get();
+    }
+
+    get():T {
+        if (this._value === undefined && this.getter) {
             var temp = Atom.lastCalled;
             Atom.lastCalled = this;
-            this.value = this.getter(this);
+            this._value = this.getter(this);
             Atom.lastCalled = temp;
         }
 
@@ -40,14 +44,18 @@ class Atom <T> {
             Atom.traverseMasters(parentAtom, 0);
         }
 
-        return this.value;
+        return this._value;
     }
 
-    set val(val:T) {
-        if (this.value !== val) {
-            this.value = val;
+    set(val:T) {
+        if (this._value !== val) {
+            this._value = val;
             Atom.sendMicrotask(this, false, val);
         }
+    }
+
+    isEqual(val:T) {
+        return this.get() === val;
     }
 
     update() {
@@ -56,7 +64,7 @@ class Atom <T> {
 
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
-        this.value = compute ? this.getter(this) : value;
+        this._value = compute ? this.getter(this) : value;
         this._update();
     }
 
@@ -73,13 +81,13 @@ class Atom <T> {
             var slave = this.slaves[Number(list[i])];
             if (!slave.computing) {
                 slave.computing = true;
-                slave.value = slave.getter(slave);
+                slave._value = slave.getter(slave);
                 slave._update();
             }
         }
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
-                this.listeners[i](this.value);
+                this.listeners[i](this._value);
             }
         }
     }
@@ -203,7 +211,7 @@ Array.prototype.__change = function () {
 window.addEventListener("message", function message(event:any) {
     var mid = event.data && event.data.arrayChangedActionId;
     if (mid == Array_actionChangeId) {
-        console.log("Array change message");
+        //console.log("Array change message");
 
         for (var i = 0; i < Array_arrays.length; i++) {
             var listeners = Array_arrays[i].listeners;
