@@ -11,6 +11,8 @@ module Arg {
         $split?: string;
         _attrs?:{[key: string]: any};
         when?: any;
+        removed?: boolean;
+        atoms?: Atom<any>[];
     }
 
     interface Attrs {
@@ -33,6 +35,62 @@ module Arg {
         (cond:any): any;
     }
 
+    function removeTree(tree:any) {
+        if (!tree) {
+            return;
+        }
+        if (tree && tree.constructor === Array) {
+            for (var i = 0; i < tree.length; i++) {
+                if (tree[i] === tree) {
+                    throw "cyclyc";
+                }
+                removeTree(tree[i]);
+            }
+        }
+        if (tree.children) {
+            for (var i = 0; i < tree.children.length; i++) {
+                if (tree.children[i] === tree) {
+                    throw "cyclyc";
+                }
+                removeTree(tree.children[i]);
+            }
+            tree.children = [];
+        }
+        tree.removed = true;
+        if (tree.dom_node) {
+            tree.dom_node.parentNode.removeChild(tree.dom_node);
+            tree.dom_node = null;
+        }
+        if (tree.dom_node2) {
+            tree.dom_node2.parentNode.removeChild(tree.dom_node2);
+            tree.dom_node2 = null;
+        }
+        if (tree.$map) {
+            if (tree.$map.constructor === Atom) {
+                tree.$map.listeners = null;
+                tree.$map.get().listeners = null;
+            }
+        }
+        if (tree.atoms) {
+            for (var i = 0; i < tree.atoms.length; i++) {
+                var atom = tree.atoms[i];
+                atom.listeners = null;
+                if (atom.slaves) {
+                    for (var j = 0; j < atom.slaves.length; j++) {
+                        if (atom.slaves[j].masters) {
+                            atom.slaves[j].masters[atom.id] = null;
+                        }
+                    }
+                }
+                atom.slaves = null;
+                atom.listeners = null;
+
+            }
+            tree.atoms = [];
+        }
+
+    }
+
     function removeBetween(from:Node, to:Node, included = false) {
         var n:Node;
         var parent = from.parentNode;
@@ -46,10 +104,12 @@ module Arg {
     }
 
     function renderWhenDOMSet(node:any, condition:any, tree:Tree) {
-        removeBetween(tree.dom_node2, tree.dom_node);
+        //removeBetween(tree.dom_node2, tree.dom_node);
+        removeTree(tree.children);
         if (condition) {
-            render(node, tree.whenFn(condition), tree.dom_node);
+            var sub_tree = render(node, tree.whenFn(condition), tree.dom_node);
         }
+        tree.children = [sub_tree];
     }
 
     function renderWhen(node:Node, tree:Tree):Tree {
@@ -57,7 +117,7 @@ module Arg {
         tree.dom_node2 = document.createComment("if");
         node.insertBefore(tree.dom_node, null);
         node.insertBefore(tree.dom_node2, tree.dom_node);
-        setValue(tree.when, node, tree, renderWhenDOMSet);
+        setValue(tree, tree.when, node, tree, renderWhenDOMSet);
         return tree;
     }
 
@@ -99,15 +159,18 @@ module Arg {
     var aaad = 0;
 
     function renderMapDOMSet(node:any, array:any[], tree:Tree) {
-        removeBetween(tree.dom_node2, tree.dom_node);
+        //removeBetween(tree.dom_node2, tree.dom_node);
+        removeTree(tree.children);
         if (array) {
 
             var domNodes:any[] = [];
             var values:any[] = [];
+            tree.children = [];
             for (var i = 0; i < array.length; i++) {
                 var child_tree = tree.fn(array[i], i);
                 render(node, child_tree, tree.dom_node);
                 domNodes.push(child_tree.dom_node);
+                tree.children[i] = child_tree;
                 values.push(array[i]);
             }
             array.addListener(()=> {
@@ -121,20 +184,33 @@ module Arg {
 
                 var _domNodes:any[] = [];
                 var _values:any[] = [];
+                var children:Tree[] = [];
                 for (var i = 0; i < array.length; i++) {
                     var index = values.indexOf(array[i]);
                     if (index > -1) {
                         _domNodes[i] = domNodes[index];
                         node.insertBefore(domNodes[index], dom_node);
+                        children[i] = tree.children[index];
+                        domNodes[index] = null;
+                        values[index] = null;
+                        tree.children[index] = null;
                     }
                     else {
                         var data = tree.fn(array[i], i);
                         render(node, data, dom_node);
                         _domNodes[i] = data.dom_node;
+                        children[i] = data;
                     }
                     _values[i] = array[i];
                 }
+                for (var i = 0; i < tree.children.length; i++) {
+                    removeTree(tree.children[i]);
+                }
+                tree.children = children;
+
                 removeBetween(tree.dom_node2, tree.dom_node, true);
+                //removeTree(tree);
+
                 domNodes = _domNodes;
                 values = _values;
                 tree.dom_node = dom_node;
@@ -166,7 +242,7 @@ module Arg {
          renderMapHelper(node, tree, array);
          }*/
 
-        setValue(tree.$map, node, tree, renderMapDOMSet);
+        setValue(tree, tree.$map, node, tree, renderMapDOMSet);
         return tree;
 
         //node.appendChild(tree.dom_node);
@@ -188,13 +264,13 @@ module Arg {
         styleNode[prop] = val;
     }
 
-    function applyStyle(node:HTMLElement, styles:any):void {
+    function applyStyle(tree:Tree, node:HTMLElement, styles:any):void {
         for (var i in styles) {
-            setValue(styles[i], node.style, i, applyStyleDOMSet);
+            setValue(tree, styles[i], node.style, i, applyStyleDOMSet);
         }
     }
 
-    function applyClassSet(node:HTMLElement, cls:string, classSet:{[index: string]: any}, isDeep = false) {
+    function applyClassSet(tree:Tree, node:HTMLElement, cls:string, classSet:{[index: string]: any}, isDeep = false) {
 
         var className = cls;
         for (var i in classSet) {
@@ -203,10 +279,13 @@ module Arg {
                 classSet[i] = new Atom(classSet[i]);
             }
             if (classSet[i].constructor === Atom) {
+                tree.atoms = tree.atoms || [];
+                tree.atoms.push(classSet[i]);
+
                 val = classSet[i].get();
                 if (!isDeep) {
                     classSet[i].addListener(function () {
-                        applyClassSet(node, cls, classSet, true);
+                        applyClassSet(tree, node, cls, classSet, true);
                     });
                 }
             }
@@ -218,15 +297,20 @@ module Arg {
         node.className = className;
     }
 
-    function setValue(value:any, node:any, param1:any, fn:(node:Node, value:any, param1:any)=>void):void {
+    function setValue(_tree:Tree, value:any, node:any, param1:any, fn:(node:Node, value:any, param1:any)=>void):void {
         if (value.constructor === Function && !value["doNotAtomize"]) {
             value = new Atom<any>(value);
         }
         if (value.constructor === Atom) {
+
             fn(node, value.get(), param1);
             value.addListener(function () {
                 fn(node, value.get(), param1);
             });
+            if (!_tree.atoms) {
+                _tree.atoms = [];
+            }
+            _tree.atoms.push(value);
         }
         else if (!value.tag) {
             fn(node, value, param1);
@@ -251,14 +335,14 @@ module Arg {
                     tree._attrs[key]["doNotAtomize"] = true;
                 }
                 if (key === "style") {
-                    applyStyle(<HTMLElement>tree.dom_node, tree._attrs['style']);
+                    applyStyle(tree, <HTMLElement>tree.dom_node, tree._attrs['style']);
                 }
                 else if (key === 'classSet') {
-                    applyClassSet(<HTMLElement>tree.dom_node, tree._attrs['className'], tree._attrs['classSet']);
+                    applyClassSet(tree, <HTMLElement>tree.dom_node, tree._attrs['className'], tree._attrs['classSet']);
                 }
                 // if key == className and not has classSets or anything else
                 else if (!tree._attrs['classSet'] || key != 'className') {
-                    setValue(tree._attrs[key], tree.dom_node, key, renderAttrDOMSet);
+                    setValue(tree, tree._attrs[key], tree.dom_node, key, renderAttrDOMSet);
                 }
             }
         }
@@ -282,8 +366,9 @@ module Arg {
     function text(node:Node, text:any, nodeBefore:Node):Tree {
         var domNode = document.createTextNode('');
         node.insertBefore(domNode, nodeBefore);
-        setValue(text, domNode, null, renderTagDOMSet);
-        return {tag: 'text', dom_node: domNode};
+        var tree = {tag: 'text', dom_node: domNode};
+        setValue(tree, text, domNode, null, renderTagDOMSet);
+        return tree;
     }
 
     function prepareTag(tagExpr:string, obj:Tree) {
@@ -350,11 +435,14 @@ module Arg {
             return render(node, data, nodeBefore);
         }
 
-        if (tree.constructor === Function){
+        if (tree.constructor === Function) {
             tree = new Atom<any>(tree);
         }
         if (tree.constructor === Atom) {
             var atom = <Atom<any>>tree;
+            tree.atoms = tree.atoms || [];
+            tree.atoms.push(atom);
+
             var sub_tree = render(node, atom.get(), nodeBefore);
             atom.addListener(()=> {
                 var _sub_tree = render(node, atom.get(), sub_tree.dom_node);

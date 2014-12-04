@@ -6,7 +6,7 @@ module wrike {
             static Inbox = 'inbox';
         }
         export class NCView implements Arg.Component {
-            static activeType = new Atom<NCTabs>(null, null, NCTabs.Inbox);
+            static activeType = new Atom<NCTabs>(null, null, NCTabs.Mentions);
 
             render() {
                 return NCViewTemplate(this);

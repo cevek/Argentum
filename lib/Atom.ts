@@ -116,6 +116,9 @@ class Atom <T> {
     }
 
     addListener(fn:(val:T)=>void) {
+        if (!this.listeners) {
+            this.listeners = [];
+        }
         this.listeners.push(fn);
     }
 
