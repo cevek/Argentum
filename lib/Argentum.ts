@@ -75,14 +75,14 @@ module Arg {
             for (var i = 0; i < tree.atoms.length; i++) {
                 var atom = tree.atoms[i];
                 atom.listeners = null;
-                if (atom.slaves) {
-                    for (var j = 0; j < atom.slaves.length; j++) {
-                        if (atom.slaves[j].masters) {
-                            atom.slaves[j].masters[atom.id] = null;
+                if (atom.masters) {
+                    for (var j = 0; j < atom.masters.length; j++) {
+                        if (atom.masters[j].slaves) {
+                            atom.masters[j].slaves[atom.id] = null;
                         }
                     }
                 }
-                atom.slaves = null;
+                atom.masters = null;
                 atom.listeners = null;
 
             }
@@ -174,8 +174,6 @@ module Arg {
                 values.push(array[i]);
             }
             array.addListener(()=> {
-                //console.log("array changed");
-
                 aaad++;
                 var dom_node = document.createComment("/for" + aaad);
                 var dom_node2 = document.createComment("for" + aaad);
@@ -303,9 +301,13 @@ module Arg {
         }
         if (value.constructor === Atom) {
 
-            fn(node, value.get(), param1);
-            value.addListener(function () {
-                fn(node, value.get(), param1);
+            var atom_val = value.get();
+            fn(node, atom_val, param1);
+            value.addListener(function (new_val: any) {
+                if (atom_val !== new_val) {
+                    fn(node, new_val, param1);
+                    atom_val = new_val;
+                }
             });
             if (!_tree.atoms) {
                 _tree.atoms = [];
