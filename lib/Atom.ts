@@ -64,8 +64,11 @@ class Atom <T> {
 
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
+        var old_value = this._value;
         this._value = compute ? this.getter(this) : value;
-        this._update();
+        if (old_value !== this._value) {
+            this._update();
+        }
     }
 
     unsetComputing() {
@@ -81,8 +84,11 @@ class Atom <T> {
             var slave = this.slaves[Number(list[i])];
             if (!slave.computing) {
                 slave.computing = true;
+                var old_val = slave._value;
                 slave._value = slave.getter(slave);
-                slave._update();
+                if (old_val !== slave._value || true) {
+                    slave._update();
+                }
             }
         }
         if (this.listeners) {
