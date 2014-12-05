@@ -2,6 +2,7 @@ class Atom <T> {
     private static lastId = 0;
     id:number;
     private _value:T;
+    private _old_value:T;
     private getter:(atom:Atom<T>)=>T;
     private setter:(atom:Atom<T>)=>T;
 
@@ -64,11 +65,11 @@ class Atom <T> {
 
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
-        var old_value = this._value;
         this._value = compute ? this.getter(this) : value;
-        if (old_value !== this._value) {
+        if (this._old_value !== this._value) {
             this._update();
         }
+        this._old_value = this._value;
     }
 
     unsetComputing() {
@@ -84,11 +85,11 @@ class Atom <T> {
             var slave = this.slaves[Number(list[i])];
             if (!slave.computing) {
                 slave.computing = true;
-                var old_val = slave._value;
                 slave._value = slave.getter(slave);
-                if (old_val !== slave._value || true) {
+                if (slave._old_value !== slave._value) {
                     slave._update();
                 }
+                slave._old_value = slave._value;
             }
         }
         if (this.listeners) {
