@@ -7,9 +7,11 @@ module wrike {
             priority:number = 1;
 
             constructor() {
+/*
                 setInterval(()=> {
                     this.marketing.set(Math.random() > 0.5 ? new Marketing() : null);
                 }, 1000)
+*/
             }
         }
     }

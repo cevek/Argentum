@@ -7,20 +7,22 @@ module wrike {
         }
         export class NCView implements Arg.Component {
             static activeType = new Atom<NCTabs>(null, null, NCTabs.Mentions);
-            interval: number;
-            start(){
+            interval:number;
+
+            start() {
                 this.interval = setInterval(function () {
                     NCView.activeType.isEqual(NCTabs.Inbox)
                         ? NCView.activeType.set(NCTabs.Mentions)
                         : NCView.activeType.set(NCTabs.Inbox);
-                }, 300);
+                });
             }
 
-            stop(){
+            stop() {
                 clearInterval(this.interval);
             }
 
-            constructor() {
+            componentWillUnmount() {
+                clearInterval(this.interval);
             }
 
             render() {
