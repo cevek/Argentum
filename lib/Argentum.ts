@@ -5,7 +5,7 @@
 /// <reference path="ClassesStyles.ts"/>
 /// <reference path="Map.ts"/>
 /// <reference path="Tag.ts"/>
-///-- <reference path="When.ts"/>
+/// <reference path="When.ts"/>
 
 module Arg {
 
@@ -31,6 +31,9 @@ module Arg {
         }
         if (tree.type === ITreeType.MAP) {
             renderMap(node, tree, nodeBefore);
+        }
+        if (tree.type === ITreeType.WHEN) {
+            renderWhen(node, tree, nodeBefore);
         }
 
 
@@ -106,6 +109,7 @@ module Arg {
          }*/
 
         export var map = mapper;
+        export var when = wheeen;
 
         export function root(...children:any[]):ITreeItem {
             children.unshift('root');

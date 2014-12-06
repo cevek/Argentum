@@ -22,9 +22,13 @@ module Arg {
         node:Node;
         node2:Node;
         atoms:Atom<any>[];
+
         mapIterator:IMapIterator<any>;
         map:Atom<any[]>;
         mapSplit:string;
+
+        whenCallback:IWhenCallback;
+        whenCondition:Atom<any>;
 
         constructor(data:ITreeItem) {
             this.type = data.type;
@@ -37,9 +41,14 @@ module Arg {
             data.node ? this.node = data.node : null;
             data.node2 ? this.node2 = data.node2 : null;
             data.atoms ? this.atoms = data.atoms : null;
+
             data.mapIterator ? this.mapIterator = data.mapIterator : null;
             data.map ? this.map = data.map : null;
             data.mapSplit ? this.mapSplit = data.mapSplit : null;
+
+            data.whenCallback ? this.whenCallback = data.whenCallback : null;
+            data.whenCondition ? this.whenCondition = data.whenCondition : null;
+
             if (data.children) {
                 for (var i = 0; i < data.children.length; i++) {
                     data.children[i] = convertToTree(data.children[i]);

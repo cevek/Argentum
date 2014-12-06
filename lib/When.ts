@@ -1,20 +1,39 @@
 module Arg {
-    export function renderWhenDOMSet(node:any, condition:any, tree:Tree) {
-        //removeBetween(tree.node2, tree.node);
-        removeTree(tree.children);
-        if (condition) {
-            var sub_tree = render(node, tree.whenFn(condition), tree.node);
-        }
-        tree.children = [sub_tree];
+    export interface IWhenCallback {
+        (): ITreeItem;
     }
 
-    export function renderWhen(node:Node, tree:ITreeItem):ITreeItem {
+    export interface ITreeItem {
+        whenCondition?:Atom<any[]>;
+        whenCallback?: IWhenCallback;
+    }
+
+    export function wheeen(condition:any, callback:()=>any):ITreeItem {
+        if (condition.constructor !== Atom) {
+            condition = new Atom<any>(null, null, condition);
+        }
+        return new TreeItem({
+            type: ITreeType.WHEN,
+            whenCondition: condition,
+            whenCallback: ()=>convertToTree(callback())
+        });
+    }
+
+    export function renderWhenDOMSet(node:any, condition:any, tree:ITreeItem) {
+        removeTree(tree.children);
+        if (condition) {
+            var sub_tree = tree.whenCallback();
+            render(node, sub_tree, tree.node);
+            tree.children = [sub_tree];
+        }
+    }
+
+    export function renderWhen(node:Node, tree:ITreeItem, nodeBefore?:Node) {
         tree.node = document.createComment("/if");
         tree.node2 = document.createComment("if");
-        node.insertBefore(tree.node, null);
+        node.insertBefore(tree.node, nodeBefore);
         node.insertBefore(tree.node2, tree.node);
-        setValue(tree, tree.when, node, tree, renderWhenDOMSet);
-        return tree;
+        setValue(tree, tree.whenCondition, node, tree, renderWhenDOMSet);
     }
 
 }
