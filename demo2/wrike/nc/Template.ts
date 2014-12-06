@@ -4,17 +4,26 @@ module wrike {
             return d.root(
                 d('button', {onclick: ()=>vm.start()}, 'start'),
                 d('button', {onclick: ()=>vm.stop()}, 'stop'),
-                d.when(new Atom(a=>NCView.activeType.isEqual(NCTabs.Mentions)), ()=>
-                    new MentionsView()),
-                d.when(new Atom(a=>NCView.activeType.isEqual(NCTabs.Inbox)), ()=>
-                    new InboxView()),
+                new Atom(()=>NCView.activeType.isEqual(NCTabs.Mentions) && new MentionsView()),
+                new Atom(()=>NCView.activeType.isEqual(NCTabs.Inbox) && new InboxView()),
+                /*
+                 d.when(new Atom(a=>
+                 NCView.activeType.isEqual(NCTabs.Mentions)),
+                 ()=>
+                 new MentionsView()),
+                 d.when(new Atom(a=>NCView.activeType.isEqual(NCTabs.Inbox)), ()=>
+                 new InboxView()),
+                 */
                 new TabsView());
         }
 
         export function MentionsViewTemplate(vm:MentionsView) {
             return d.root(
                 d('div', 'Begin'),
-                new Atom(()=>vm.message.get() ? d('div', 'Hi') : d('a', {href: 'http://yandex.ru'}, 'yep')),
+                d.when(vm.message,
+                    ()=>d('div', 'Hi'),
+                    ()=>d('a', {href: 'http://yandex.ru'}, 'yep')),
+
                 d.map('div.mentions', vm.items, (mention:Mention)=>
                     d('div.item', //{style: {display: 'none'}},
                         d('div.title', mention.task.summary),

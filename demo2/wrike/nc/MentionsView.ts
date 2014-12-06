@@ -2,11 +2,11 @@
 module wrike {
     export module nc {
         export class MentionsView implements Arg.Component {
-            items = new Atom<Mention[]>();
+            items = new Atom<Mention[]>(null, null, [new Mention()]);
             message = new Atom<boolean>(null, null, true);
 
+            interval:number;
 
-            interval: number;
             constructor() {
                 //glob.mentions = this.items;
                 //console.log(glob);
