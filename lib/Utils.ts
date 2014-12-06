@@ -11,7 +11,7 @@ module Arg {
     export function changeTree(tree:ITreeItem, newTree:ITreeItem) {
         removeTree(tree);
         tree.removed = null;
-        for (var i in newTree){
+        for (var i in newTree) {
             tree[i] = newTree[i];
         }
     }
@@ -80,39 +80,33 @@ module Arg {
         }
     }
 
-    export function walkArray(node:Node, tree:any):void {
-        for (var j = 0; j < tree.length; j++) {
-            if (tree[j]) {
-                render(node, tree[j]);
-            }
-        }
-    }
-
     export function setValue(_tree:ITreeItem,
                              value:any,
                              node:any,
                              param1:any,
                              fn:(node:Node, value:any, param1:any)=>void):void {
-        if (value.constructor === Function && !value["doNotAtomize"]) {
-            value = new Atom<any>(value);
-        }
-        if (value.constructor === Atom) {
-
-            var atom_val = value.get();
-            fn(node, atom_val, param1);
-            value.addListener(function (new_val:any) {
-                if (atom_val !== new_val) {
-                    fn(node, new_val, param1);
-                    atom_val = new_val;
-                }
-            });
-            if (!_tree.atoms) {
-                _tree.atoms = [];
+        if (value) {
+            if (value.constructor === Function && !value["doNotAtomize"]) {
+                value = new Atom<any>(value);
             }
-            _tree.atoms.push(value);
-        }
-        else if (!value.tag) {
-            fn(node, value, param1);
+            if (value.constructor === Atom) {
+
+                var atom_val = value.get();
+                fn(node, atom_val, param1);
+                value.addListener(function (new_val:any) {
+                    if (atom_val !== new_val) {
+                        fn(node, new_val, param1);
+                        atom_val = new_val;
+                    }
+                });
+                if (!_tree.atoms) {
+                    _tree.atoms = [];
+                }
+                _tree.atoms.push(value);
+            }
+            else if (!value.tag) {
+                fn(node, value, param1);
+            }
         }
         return;
     }
@@ -121,18 +115,6 @@ module Arg {
 
         if (val) {
             var constructor = val.constructor;
-            /*if (constructor === Array) {
-             for (var i = 0; i < val.length; i++) {
-             if (val[i].constructor === Array){
-             parent.children.push(convertToTree(parent, val[i]));
-             }
-             else {
-             parent.children.push(convertToTree(parent, val[i]));
-             }
-             }
-
-             //convertToTree(parent, );
-             }*/
             if (constructor === Function) {
                 val = new Atom<any>(val);
             }

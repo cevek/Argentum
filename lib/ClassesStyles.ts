@@ -14,10 +14,10 @@ module Arg {
     }
 
     export function applyClassSet(tree:ITreeItem,
-                           node:HTMLElement,
-                           cls:string,
-                           classSet:{[index: string]: any},
-                           isDeep = false) {
+                                  node:HTMLElement,
+                                  cls:string,
+                                  classSet:{[index: string]: any},
+                                  isDeep = false) {
 
         var className = cls;
         for (var i in classSet) {

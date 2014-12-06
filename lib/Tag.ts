@@ -28,8 +28,10 @@ module Arg {
         }
 
         node.insertBefore(tree.node, nodeBefore);
-        for (var i = 0; i < tree.children.length; i++) {
-            render(tree.node, tree.children[i]);
+        if (tree.children) {
+            for (var i = 0; i < tree.children.length; i++) {
+                render(tree.node, tree.children[i]);
+            }
         }
     }
 

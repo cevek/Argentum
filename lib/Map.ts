@@ -32,9 +32,12 @@ module Arg {
         node.insertBefore(tree.node, nodeBefore);
         node.insertBefore(tree.node2, tree.node);
 
+        var oldVal = tree.map.get();
         renderMapDOMSet(node, tree.map.get(), tree);
-        tree.map.addListener(()=> {
-            renderMapDOMSet(node, tree.map.get(), tree);
+        tree.map.addListener(newVal=> {
+            if (oldVal !== newVal) {
+                renderMapDOMSet(node, newVal, tree);
+            }
         });
     }
 

@@ -253,8 +253,10 @@ window.addEventListener("message", function message(event:any) {
 
         for (var i = 0; i < Array_arrays.length; i++) {
             var listeners = Array_arrays[i].listeners;
-            for (var j = 0; j < listeners.length; j++) {
-                listeners[j]();
+            if (listeners) {
+                for (var j = 0; j < listeners.length; j++) {
+                    listeners[j]();
+                }
             }
         }
         Array_arrays = [];

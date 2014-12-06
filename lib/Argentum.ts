@@ -25,15 +25,14 @@ module Arg {
         if (tree.type === ITreeType.MAP) {
             renderMap(node, tree, nodeBefore);
         }
-        if (tree.type === ITreeType.WHEN) {
-            renderWhen(node, tree, nodeBefore);
-        }
         if (tree.atom) {
+            var oldVal = tree.atom.get();
             tree.atom.addListener(newValue=> {
-                if (tree !== newValue) {
+                if (oldVal !== newValue) {
                     var newTree = convertToTree(newValue);
-                    render(node, convertToTree(newValue), tree.node);
+                    render(node, newTree, tree.node);
                     changeTree(tree, newTree);
+                    oldVal = newValue;
                 }
             });
         }
