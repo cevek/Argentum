@@ -8,12 +8,15 @@ module wrike {
             constructor() {
                 glob.mentions = this.items;
                 console.log(glob);
-
-                this.items.set([new Mention(), new Mention()]);
-                setInterval(() => {
+                var items:Mention[] = [];
+                for (var i = 0; i < 2000; i++) {
+                    items[i] = new Mention();
+                }
+                this.items.set(items);
+/*                setInterval(() => {
                     this.items.get().sort(()=>Math.random() - 0.5);
                     this.message.set(Math.random() > 0.5);
-                }, 1000);
+                }, 1000);*/
             }
 
             render() {

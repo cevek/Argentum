@@ -7,12 +7,12 @@ module wrike {
             isPinned = new Atom<boolean>(null, null, true);
 
             constructor() {
-                setInterval(()=> {
+/*                setInterval(()=> {
                     this.isRead.set(Math.random() > 0.5);
                 }, 800);
                 setInterval(()=> {
                     this.isPinned.set(Math.random() > 0.5);
-                }, 900);
+                }, 900);*/
             }
         }
     }
