@@ -26,6 +26,7 @@ module Arg {
         mapIterator:IMapIterator<any>;
         map:Atom<any[]>;
         mapSplit:string;
+        mapValues: any[];
 
         whenCallback:IWhenCallback;
         whenCondition:Atom<any>;
@@ -45,6 +46,7 @@ module Arg {
             data.mapIterator ? this.mapIterator = data.mapIterator : null;
             data.map ? this.map = data.map : null;
             data.mapSplit ? this.mapSplit = data.mapSplit : null;
+            data.mapValues ? this.mapValues = data.mapValues : null;
 
             data.whenCallback ? this.whenCallback = data.whenCallback : null;
             data.whenCondition ? this.whenCondition = data.whenCondition : null;
