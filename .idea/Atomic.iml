@@ -4,9 +4,9 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/demo1" />
       <excludeFolder url="file://$MODULE_DIR$/demo1/compiled" />
-      <excludeFolder url="file://$MODULE_DIR$/demo2" />
       <excludeFolder url="file://$MODULE_DIR$/demo2/compiled" />
       <excludeFolder url="file://$MODULE_DIR$/demo3" />
+      <excludeFolder url="file://$MODULE_DIR$/demo4" />
       <excludeFolder url="file://$MODULE_DIR$/demo4/compiled" />
     </content>
     <orderEntry type="inheritedJdk" />

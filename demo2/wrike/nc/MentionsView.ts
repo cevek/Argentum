@@ -11,7 +11,7 @@ module wrike {
                 //glob.mentions = this.items;
                 //console.log(glob);
                 var items:Mention[] = [];
-                for (var i = 0; i < 2000; i++) {
+                for (var i = 0; i < 10; i++) {
                     items[i] = new Mention();
                 }
                 this.items.set(items);

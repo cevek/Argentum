@@ -10,12 +10,17 @@ module wrike {
     console.log(new nc.NCView());
 
 //    console.profile('perf');
-    glob.vdom = Arg.render(document.body, new nc.NCView());
+    glob.vdom = Arg.publicRender(document.body, new nc.NCView());
+
+
 /*
     setTimeout(function () {
         console.profileEnd('perf');
     }, 1000);
 */
+
+
+
 
 
 

@@ -14,9 +14,9 @@ module wrike {
         export function MentionsViewTemplate(vm:MentionsView) {
             return d.root(
                 d('div', 'Begin'),
-                ()=>vm.message.get() ? d('div', 'Hi') : d('a', {href: 'http://yandex.ru'}, 'yep'),
+                new Atom(()=>vm.message.get() ? d('div', 'Hi') : d('a', {href: 'http://yandex.ru'}, 'yep')),
                 d.map('div.mentions', vm.items, (mention:Mention)=>
-                    d('div.item', {style: {display: 'none'}},
+                    d('div.item', //{style: {display: 'none'}},
                         d('div.title', mention.task.summary),
                         d('div.description', mention.task.description),
                         d('div.pin', mention.isPinned),

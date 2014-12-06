@@ -8,7 +8,7 @@ class Argy implements Arg.Component {
             [1, 2, 3],
             new Booobs(),
             d.map<number>('div', itemsAtom, item=>item),
-            new Atom(null, null, 'Hooray!'),
+            hoorayAtom,
             d.when(trueAtom, ()=>'Is it true')
         );
     }
@@ -20,6 +20,7 @@ class Booobs implements Arg.Component {
     }
 }
 
+var hoorayAtom = new Atom(null, null, 'Hooray!');
 var trueAtom = new Atom();
 var itemsAtom = new Atom(null, null, [new Booobs(), new Booobs(), new Booobs()]);
 
