@@ -8,6 +8,14 @@ module Arg {
         }
     }
 
+    export function changeTree(tree:ITreeItem, newTree:ITreeItem) {
+        removeTree(tree);
+        tree.removed = null;
+        for (var i in newTree){
+            tree[i] = newTree[i];
+        }
+    }
+
     export function removeTree(tree:ITreeItem) {
         if (!tree) {
             return;

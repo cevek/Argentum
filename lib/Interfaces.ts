@@ -11,8 +11,10 @@ module Arg {
         node2?:Node;
         atoms?:Atom<any>[];
         removed?: boolean;
+        [idx: string]: any;
     }
     export class TreeItem implements ITreeItem {
+    [idx: string]: any;
         type:ITreeType;
         tag:string;
         value:TreeItem;
@@ -27,34 +29,20 @@ module Arg {
         mapIterator:IMapIterator<any>;
         map:Atom<any[]>;
         mapSplit:string;
-        mapValues: any[];
+        mapValues:any[];
 
         whenCallback:IWhenCallback;
         whenCondition:Atom<any>;
 
         constructor(data:ITreeItem) {
-            this.type = data.type;
-            data.tag ? this.tag = data.tag : null;
-            data.value ? this.value = data.value : null;
-            data.atom ? this.atom = data.atom : null;
-            data.component ? this.component = data.component : null;
-            data.attrs ? this.attrs = data.attrs : null;
-            data.children ? this.children = data.children : null;
-            data.node ? this.node = data.node : null;
-            data.node2 ? this.node2 = data.node2 : null;
-            data.atoms ? this.atoms = data.atoms : null;
-
-            data.mapIterator ? this.mapIterator = data.mapIterator : null;
-            data.map ? this.map = data.map : null;
-            data.mapSplit ? this.mapSplit = data.mapSplit : null;
-            data.mapValues ? this.mapValues = data.mapValues : null;
-
-            data.whenCallback ? this.whenCallback = data.whenCallback : null;
-            data.whenCondition ? this.whenCondition = data.whenCondition : null;
-
-            if (data.children) {
-                for (var i = 0; i < data.children.length; i++) {
-                    data.children[i] = convertToTree(data.children[i]);
+            for (var key in data) {
+                if (data[key] !== void 0) {
+                    this[key] = data[key];
+                }
+            }
+            if (this.children) {
+                for (var i = 0; i < this.children.length; i++) {
+                    this.children[i] = convertToTree(this.children[i]);
                 }
             }
         }
