@@ -35,7 +35,15 @@ module Arg {
         if (tree.type === ITreeType.WHEN) {
             renderWhen(node, tree, nodeBefore);
         }
-
+        if (tree.atom) {
+            tree.atom.addListener(newValue=> {
+                if (tree !== newValue) {
+                    removeTree(tree);
+                    tree = convertToTree(newValue);
+                    render(node, tree, nodeBefore);
+                }
+            });
+        }
 
         /*
          if (tree.$map) {

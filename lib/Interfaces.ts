@@ -10,6 +10,7 @@ module Arg {
         node?:Node;
         node2?:Node;
         atoms?:Atom<any>[];
+        removed?: boolean;
     }
     export class TreeItem implements ITreeItem {
         type:ITreeType;

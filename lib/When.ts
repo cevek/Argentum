@@ -20,7 +20,7 @@ module Arg {
     }
 
     export function renderWhenDOMSet(node:any, condition:any, tree:ITreeItem) {
-        removeTree(tree.children);
+        removeTreeChildren(tree);
         if (condition) {
             var sub_tree = tree.whenCallback();
             render(node, sub_tree, tree.node);

@@ -39,9 +39,8 @@ module Arg {
     }
 
     export function renderMapDOMSet(parentNode:Node, array:any[], tree:ITreeItem) {
-        removeTree(tree.children);
+        removeTreeChildren(tree);
         if (array) {
-
             tree.children = [];
             tree.mapValues = [];
             for (var i = 0; i < array.length; i++) {

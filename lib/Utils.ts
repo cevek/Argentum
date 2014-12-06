@@ -1,15 +1,16 @@
 module Arg {
-    export function removeTree(tree:any) {
+
+    export function removeTreeChildren(tree:ITreeItem) {
+        if (tree && tree.children) {
+            for (var i = 0; i < tree.children.length; i++) {
+                removeTree(tree.children[i]);
+            }
+        }
+    }
+
+    export function removeTree(tree:ITreeItem) {
         if (!tree) {
             return;
-        }
-        if (tree && tree.constructor === Array) {
-            for (var i = 0; i < tree.length; i++) {
-                if (tree[i] === tree) {
-                    throw "cyclyc";
-                }
-                removeTree(tree[i]);
-            }
         }
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
@@ -20,6 +21,7 @@ module Arg {
             }
             tree.children = [];
         }
+
         tree.removed = true;
         if (tree.node) {
             tree.node.parentNode.removeChild(tree.node);
@@ -29,18 +31,19 @@ module Arg {
             tree.node2.parentNode.removeChild(tree.node2);
             tree.node2 = null;
         }
-        if (tree.$map) {
-            if (tree.$map.constructor === Atom) {
-                tree.$map.listeners = null;
-                tree.$map.get().listeners = null;
+        if (tree.map) {
+            if (tree.map.constructor === Atom) {
+                tree.map.listeners = null;
+                tree.map.get().listeners = null;
             }
         }
+
         if (tree.atoms) {
             for (var i = 0; i < tree.atoms.length; i++) {
                 var atom = tree.atoms[i];
                 atom.listeners = null;
                 if (atom.masters) {
-                    for (var j = 0; j < atom.masters.length; j++) {
+                    for (var j in atom.masters) {
                         if (atom.masters[j].slaves) {
                             atom.masters[j].slaves[atom.id] = null;
                         }
@@ -48,7 +51,6 @@ module Arg {
                 }
                 atom.masters = null;
                 atom.listeners = null;
-
             }
             tree.atoms = [];
         }
@@ -129,7 +131,9 @@ module Arg {
             if (constructor === Atom) {
                 var atom = <Atom<any>>val;
                 var atom_val = atom.get();
-                return convertToTree(atom_val);
+                var tree = convertToTree(atom_val);
+                tree.atom = atom;
+                return tree;
             }
             if (constructor === TreeItem) {
                 return val;
@@ -143,8 +147,6 @@ module Arg {
         }
         return new TreeItem({type: ITreeType.TEXT, value: val});
     }
-
-
 
     export function prepareViewName(name:string) {
         var splits = name.split(/([A-Z][a-z\d_]+)/);

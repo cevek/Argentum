@@ -147,10 +147,10 @@ class Atom <T> {
      */
 
     private computing:boolean = false;
-    private slaves:{[id: number]:Atom<any>} = {};
-    private masters:{[id: number]:Atom<any>} = {};
+    public slaves:{[id: number]:Atom<any>} = {};
+    public masters:{[id: number]:Atom<any>} = {};
     private order:{[id: number]:number} = {};
-    private listeners:{(val:T):void}[] = [];
+    public listeners:{(val:T):void}[] = [];
 
     private static microtasks:{atom: Atom<any>; compute: boolean; value: any}[] = [];
     private static lastMicrotaskId = 0;
