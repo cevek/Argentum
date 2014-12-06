@@ -13,6 +13,7 @@ module Arg {
         when?: any;
         removed?: boolean;
         atoms?: Atom<any>[];
+        component?: Component;
     }
 
     interface Attrs {
@@ -20,6 +21,10 @@ module Arg {
     }
 
     export interface Component {
+        componentWillMount?(): void;
+        componentDidMount?(node: HTMLElement): void;
+        componentWillUnmount?(): void;
+        domNode?: HTMLElement;
         render(): any;
     }
 
@@ -87,6 +92,9 @@ module Arg {
 
             }
             tree.atoms = [];
+        }
+        if (tree.component){
+            tree.component.componentWillUnmount && tree.component.componentWillUnmount();
         }
 
     }
@@ -434,7 +442,16 @@ module Arg {
         if (tree.render) {
             var data = tree.render();
             data.tag = prepareViewName(tree.constructor.name);
-            return render(node, data, nodeBefore);
+            data.component = tree;
+            if (data.component.componentWillMount){
+                data.component.componentWillMount();
+            }
+            var sub_tree = render(node, data, nodeBefore);
+            data.component.domNode = sub_tree.dom_node;
+            if (data.component.componentDidMount){
+                data.component.componentDidMount(data.component.domNode);
+            }
+            return sub_tree;
         }
 
         if (tree.constructor === Function) {
