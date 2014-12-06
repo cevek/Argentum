@@ -22,6 +22,9 @@ module Arg {
         node:Node;
         node2:Node;
         atoms:Atom<any>[];
+        mapIterator:IMapIterator<any>;
+        map:Atom<any[]>;
+        mapSplit:string;
 
         constructor(data:ITreeItem) {
             this.type = data.type;
@@ -34,6 +37,9 @@ module Arg {
             data.node ? this.node = data.node : null;
             data.node2 ? this.node2 = data.node2 : null;
             data.atoms ? this.atoms = data.atoms : null;
+            data.mapIterator ? this.mapIterator = data.mapIterator : null;
+            data.map ? this.map = data.map : null;
+            data.mapSplit ? this.mapSplit = data.mapSplit : null;
             if (data.children) {
                 for (var i = 0; i < data.children.length; i++) {
                     data.children[i] = convertToTree(data.children[i]);
@@ -44,23 +50,6 @@ module Arg {
 
     export enum ITreeType{
         TAG, MAP, WHEN, COMPONENT, TEXT
-    }
-
-    export interface Tree {
-        type?: ITreeType;
-        tag: string;
-        node?:Node;
-        node2?:Node;
-        children?: any[];
-        fn?: (item:any, i:number)=>any;
-        whenFn?: (val:any)=>any;
-        $map?: any;
-        $split?: string;
-        attrs?:{[key: string]: any};
-        when?: any;
-        removed?: boolean;
-        atoms?: Atom<any>[];
-        component?: Component;
     }
 
     export interface Attrs {
@@ -77,10 +66,6 @@ module Arg {
 
     export interface Listener<T> {
         (event:string, value:T): void;
-    }
-
-    export interface MapFn<T> {
-        (item:T, n?:number): any;
     }
 
     export interface WhenFn {

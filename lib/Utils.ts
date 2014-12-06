@@ -79,10 +79,10 @@ module Arg {
     }
 
     export function setValue(_tree:ITreeItem,
-                      value:any,
-                      node:any,
-                      param1:any,
-                      fn:(node:Node, value:any, param1:any)=>void):void {
+                             value:any,
+                             node:any,
+                             param1:any,
+                             fn:(node:Node, value:any, param1:any)=>void):void {
         if (value.constructor === Function && !value["doNotAtomize"]) {
             value = new Atom<any>(value);
         }
@@ -105,24 +105,6 @@ module Arg {
             fn(node, value, param1);
         }
         return;
-    }
-
-    export function prepareViewName(name:string) {
-        var splits = name.split(/([A-Z][a-z\d_]+)/);
-        var words:string[] = [];
-        for (var i = 0; i < splits.length; i++) {
-            var word = splits[i].toLowerCase();
-            if (word && word !== 'view') {
-                words.push(word);
-            }
-        }
-        return words.join("-");
-    }
-
-    export function publicRender(node:Node, treeItem:any) {
-        var _treeItem = convertToTree(treeItem);
-        render(node, _treeItem);
-        return _treeItem;
     }
 
     export function convertToTree(val:any):TreeItem {
@@ -154,11 +136,26 @@ module Arg {
             }
             if (val.render) {
                 var treeItem = val.render();
+                treeItem.tag = prepareViewName(val.constructor.name);
                 treeItem.type = ITreeType.TAG;
                 return new TreeItem(treeItem);
             }
         }
         return new TreeItem({type: ITreeType.TEXT, value: val});
+    }
+
+
+
+    export function prepareViewName(name:string) {
+        var splits = name.split(/([A-Z][a-z\d_]+)/);
+        var words:string[] = [];
+        for (var i = 0; i < splits.length; i++) {
+            var word = splits[i].toLowerCase();
+            if (word && word !== 'view') {
+                words.push(word);
+            }
+        }
+        return words.join("-");
     }
 
     export function parseTagExpr(tagExpr:string, obj:TreeItem):TreeItem {

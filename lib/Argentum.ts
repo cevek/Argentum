@@ -3,12 +3,17 @@
 /// <reference path="Utils.ts"/>
 /// <reference path="Attributes.ts"/>
 /// <reference path="ClassesStyles.ts"/>
-///-- <reference path="Map.ts"/>
+/// <reference path="Map.ts"/>
 /// <reference path="Tag.ts"/>
 ///-- <reference path="When.ts"/>
 
 module Arg {
 
+    export function publicRender(node:Node, treeItem:any) {
+        var _treeItem = convertToTree(treeItem);
+        render(node, _treeItem);
+        return _treeItem;
+    }
 
     export function render(node:Node, tree:ITreeItem, nodeBefore?:Node) {
         /*
@@ -24,6 +29,10 @@ module Arg {
         if (tree.type === ITreeType.TEXT) {
             text(node, tree, nodeBefore);
         }
+        if (tree.type === ITreeType.MAP) {
+            renderMap(node, tree, nodeBefore);
+        }
+
 
         /*
          if (tree.$map) {
@@ -73,8 +82,6 @@ module Arg {
         //return text(node, tree, nodeBefore);
     }
 
-
-
     export function dom(tagExpr:string, ...children:any[]) {
         var treeItem = new TreeItem({
             type: ITreeType.TAG,
@@ -88,15 +95,17 @@ module Arg {
 
     export module dom {
 
-      /*  export function map<R>(tagExpr:string, array:Atom<any>, fn:MapFn<R>, split?:string):ITreeItem;
-        export function map<R>(tagExpr:string, array:any[], fn:MapFn<R>, split?:string):ITreeItem;
-        export function map<R>(tagExpr:any, array:any, fn?:any, split?:any):ITreeItem {
-            return {tag: 'map', attrs: null, $map: array || [], $split: split, fn: fn, children: null};
-        }
+        /*  export function map<R>(tagExpr:string, array:Atom<any>, fn:MapFn<R>, split?:string):ITreeItem;
+         export function map<R>(tagExpr:string, array:any[], fn:MapFn<R>, split?:string):ITreeItem;
+         export function map<R>(tagExpr:any, array:any, fn?:any, split?:any):ITreeItem {
+         return {tag: 'map', attrs: null, $map: array || [], $split: split, fn: fn, children: null};
+         }
 
-        export function when(condition:any, fn:WhenFn):ITreeItem {
-            return {tag: 'when', attrs: null, when: condition, whenFn: fn, children: null};
-        }*/
+         export function when(condition:any, fn:WhenFn):ITreeItem {
+         return {tag: 'when', attrs: null, when: condition, whenFn: fn, children: null};
+         }*/
+
+        export var map = mapper;
 
         export function root(...children:any[]):ITreeItem {
             children.unshift('root');
