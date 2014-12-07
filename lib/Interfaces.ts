@@ -8,7 +8,6 @@ module Arg {
         attrs?: Attrs;
         children?:TreeItem[];
         node?:Node;
-        node2?:Node;
         atoms?:Atom<any>[];
 
         mapIterator?:IMapIterator<any>;
@@ -31,9 +30,6 @@ module Arg {
         attrs:Attrs;
         children:TreeItem[];
         node:Node;
-        node2:Node;
-
-
 
         atoms:Atom<any>[];
         removed: boolean;

@@ -21,9 +21,7 @@ module Arg {
 
     export function renderMap(node:Node, tree:TreeItem, nodeBefore?:Node) {
         tree.node = document.createComment("/for");
-        tree.node2 = document.createComment("for");
         node.insertBefore(tree.node, nodeBefore);
-        node.insertBefore(tree.node2, tree.node);
 
         var oldVal = tree.map.get();
         renderMapDOMSet(node, tree.map.get(), tree);
@@ -54,9 +52,8 @@ module Arg {
     export function mapArrayListener(parentNode:Node, array:any[], tree:TreeItem) {
         counter++;
         var node = document.createComment("/for" + counter);
-        var node2 = document.createComment("for" + counter);
         parentNode.insertBefore(node, tree.node.nextSibling);
-        parentNode.insertBefore(node2, node);
+        parentNode.removeChild(tree.node);
 
         var children:TreeItem[] = [];
         var values:any[] = [];
@@ -77,15 +74,10 @@ module Arg {
                 values[i] = array[i];
             }
         }
-        for (var i = 0; i < tree.children.length; i++) {
-            removeTree(tree.children[i]);
-        }
+        removeTreeChildren(tree);
         tree.children = children;
         tree.mapValues = values;
 
-        removeBetween(tree.node2, tree.node, true);
-
         tree.node = node;
-        tree.node2 = node2;
     }
 }

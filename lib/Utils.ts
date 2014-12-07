@@ -35,10 +35,7 @@ module Arg {
             tree.node.parentNode.removeChild(tree.node);
             tree.node = null;
         }
-        if (tree.node2) {
-            tree.node2.parentNode.removeChild(tree.node2);
-            tree.node2 = null;
-        }
+
         if (tree.map) {
             if (tree.map.constructor === Atom) {
                 tree.map.listeners = null;
@@ -66,18 +63,6 @@ module Arg {
             tree.component.componentWillUnmount && tree.component.componentWillUnmount();
         }
 
-    }
-
-    export function removeBetween(from:Node, to:Node, included = false) {
-        var n:Node;
-        var parent = from.parentNode;
-        while ((n = from.nextSibling) && n != to) {
-            parent.removeChild(n);
-        }
-        if (included) {
-            parent.removeChild(from);
-            parent.removeChild(to);
-        }
     }
 
     export function setValue(_tree:TreeItem,
