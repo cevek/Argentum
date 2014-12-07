@@ -2,7 +2,7 @@
 module wrike {
     export module nc {
         export class MentionsView implements Arg.Component {
-            items = new Atom<Mention[]>(null, null, [new Mention()]);
+            items:Atom<Mention[]>;
             message = new Atom<boolean>(null, null, true);
 
             interval:number;
@@ -10,6 +10,8 @@ module wrike {
             constructor() {
                 //glob.mentions = this.items;
                 //console.log(glob);
+                this.items = new Atom(null, null, [new Mention()]);
+                this.items.set([new Mention()]);
                 var items:Mention[] = [];
                 for (var i = 0; i < 10; i++) {
                     items[i] = new Mention();

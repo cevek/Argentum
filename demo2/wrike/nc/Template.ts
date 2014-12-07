@@ -24,7 +24,7 @@ module wrike {
                     ()=>d('div', 'Hi'),
                     ()=>d('a', {href: 'http://yandex.ru'}, 'yep')),
 
-                d.map('div.mentions', vm.items, (mention:Mention)=>
+                d.map(vm.items, (mention:Mention)=>
                     d('div.item', //{style: {display: 'none'}},
                         d('div.title', mention.task.summary),
                         d('div.description', mention.task.description),
@@ -37,7 +37,7 @@ module wrike {
         export function InboxViewTemplate(vm:InboxView) {
             return d.root(
                 d('div.inbox',
-                    d.map('div.item', vm.items, (inbox:Inbox)=>
+                    d.map(vm.items, (inbox:Inbox)=>
                         d('div.item',
                             d.when(inbox.assigment, ()=>
                                 d('div.assigment-item', inbox.assigment.task.summary)),
