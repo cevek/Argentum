@@ -1,14 +1,10 @@
 module Arg {
     export interface IWhenCallback {
-        (): ITreeItem;
+        (): TreeItem;
     }
 
-    export interface ITreeItem {
-        whenCondition?:Atom<any[]>;
-        whenCallback?: IWhenCallback;
-    }
 
-    export function wheeen(condition:any, callback:()=>any, negative?:()=>any):ITreeItem {
+    export function wheeen(condition:any, callback:()=>any, negative?:()=>any):TreeItem {
         if (condition.constructor !== Atom) {
             condition = new Atom<any>(null, null, condition);
         }

@@ -15,14 +15,14 @@ module Arg {
         return _treeItem;
     }
 
-    export function render(node:Node, tree:ITreeItem, nodeBefore?:Node) {
-        if (tree.type === ITreeType.TAG) {
+    export function render(node:Node, tree:TreeItem, nodeBefore?:Node) {
+        if (tree.type === TreeType.TAG) {
             renderTag(<HTMLElement>node, tree, nodeBefore);
         }
-        if (tree.type === ITreeType.TEXT) {
+        if (tree.type === TreeType.TEXT) {
             text(node, tree, nodeBefore);
         }
-        if (tree.type === ITreeType.MAP) {
+        if (tree.type === TreeType.MAP) {
             renderMap(node, tree, nodeBefore);
         }
         if (tree.atom) {
@@ -43,7 +43,7 @@ module Arg {
             var attrs = children.shift();
         }
         var treeItem = new TreeItem({
-            type: ITreeType.TAG,
+            type: TreeType.TAG,
             children: children
         });
         if (attrs) {
@@ -56,7 +56,7 @@ module Arg {
         export var map = mapper;
         export var when = wheeen;
 
-        export function root(...children:any[]):ITreeItem {
+        export function root(...children:any[]):TreeItem {
             children.unshift('root');
             return dom.apply(null, children);
         }

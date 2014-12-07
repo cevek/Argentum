@@ -1,6 +1,6 @@
 module Arg {
 
-    export function removeTreeChildren(tree:ITreeItem) {
+    export function removeTreeChildren(tree:TreeItem) {
         if (tree && tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
                 removeTree(tree.children[i]);
@@ -8,7 +8,7 @@ module Arg {
         }
     }
 
-    export function changeTree(tree:ITreeItem, newTree:ITreeItem) {
+    export function changeTree(tree:TreeItem, newTree:TreeItem) {
         removeTree(tree);
         tree.removed = null;
         for (var i in newTree) {
@@ -16,7 +16,7 @@ module Arg {
         }
     }
 
-    export function removeTree(tree:ITreeItem) {
+    export function removeTree(tree:TreeItem) {
         if (!tree) {
             return;
         }
@@ -80,7 +80,7 @@ module Arg {
         }
     }
 
-    export function setValue(_tree:ITreeItem,
+    export function setValue(_tree:TreeItem,
                              value:any,
                              node:any,
                              param1:any,
@@ -131,11 +131,11 @@ module Arg {
             if (val.render) {
                 var treeItem = val.render();
                 treeItem.tag = prepareViewName(val.constructor.name);
-                treeItem.type = ITreeType.TAG;
+                treeItem.type = TreeType.TAG;
                 return new TreeItem(treeItem);
             }
         }
-        return new TreeItem({type: ITreeType.TEXT, value: val});
+        return new TreeItem({type: TreeType.TEXT, value: val});
     }
 
     export function prepareViewName(name:string) {

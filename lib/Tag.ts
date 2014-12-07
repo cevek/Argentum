@@ -7,7 +7,7 @@ module Arg {
         node[key] = val;
     }
 
-    export function renderTag(node:HTMLElement, tree:ITreeItem, nodeBefore:Node) {
+    export function renderTag(node:HTMLElement, tree:TreeItem, nodeBefore:Node) {
         tree.node = document.createElement(tree.tag);
         if (tree.attrs) {
             for (var key in tree.attrs) {
@@ -35,7 +35,7 @@ module Arg {
         }
     }
 
-    export function text(node:Node, tree:ITreeItem, nodeBefore:Node) {
+    export function text(node:Node, tree:TreeItem, nodeBefore:Node) {
         var domNode = document.createTextNode('');
         node.insertBefore(domNode, nodeBefore);
         tree.node = domNode;

@@ -7,13 +7,13 @@ module Arg {
         styleNode[prop] = val;
     }
 
-    export function applyStyle(tree:ITreeItem, node:HTMLElement, styles:any):void {
+    export function applyStyle(tree:TreeItem, node:HTMLElement, styles:any):void {
         for (var i in styles) {
             setValue(tree, styles[i], node.style, i, applyStyleDOMSet);
         }
     }
 
-    export function applyClassSet(tree:ITreeItem,
+    export function applyClassSet(tree:TreeItem,
                                   node:HTMLElement,
                                   cls:string,
                                   classSet:{[index: string]: any},
