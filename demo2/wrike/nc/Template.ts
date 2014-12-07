@@ -52,7 +52,6 @@ module wrike {
                     d('div.button', {
                         classSet: {selected: new Atom(a=> NCView.activeType.isEqual(NCTabs.Mentions))},
                         onclick: ()=> {
-                            console.log(23324);
                             NCView.activeType.set(NCTabs.Mentions)
                         }
                     }, 'Mentions'),
