@@ -4,8 +4,8 @@ module wrike {
             return d.root(
                 d('button', {onclick: ()=>vm.start()}, 'start'),
                 d('button', {onclick: ()=>vm.stop()}, 'stop'),
-                new Atom(()=>NCView.activeType.isEqual(NCTabs.Mentions) && new MentionsView()),
-                new Atom(()=>NCView.activeType.isEqual(NCTabs.Inbox) && new InboxView()),
+                new Atom(()=> { return NCView.activeType.isEqual(NCTabs.Mentions) && new MentionsView() }),
+                new Atom(()=> { return NCView.activeType.isEqual(NCTabs.Inbox) && new InboxView() }),
                 /*
                  d.when(new Atom(a=>
                  NCView.activeType.isEqual(NCTabs.Mentions)),
@@ -24,8 +24,8 @@ module wrike {
                     ()=>d('div', 'Hi'),
                     ()=>d('a', {href: 'http://yandex.ru'}, 'yep')),
 
-                d.map(vm.items, (mention:Mention)=>
-                    d('div.item', //{style: {display: 'none'}},
+                d.map(vm.items, (mention:Mention, i:number)=>
+                    d('div.item', {style: {display1: 'none', backgroundColor: 'hsl('+i * 12345 % 255+', 80%, 90%)'}},
                         d('div.title', mention.task.summary),
                         d('div.description', mention.task.description),
                         d('div.pin', mention.isPinned),
@@ -51,7 +51,10 @@ module wrike {
                 d('div.tabs',
                     d('div.button', {
                         classSet: {selected: new Atom(a=> NCView.activeType.isEqual(NCTabs.Mentions))},
-                        onclick: ()=> NCView.activeType.set(NCTabs.Mentions)
+                        onclick: ()=> {
+                            console.log(23324);
+                            NCView.activeType.set(NCTabs.Mentions)
+                        }
                     }, 'Mentions'),
 
                     d('div.button', {
