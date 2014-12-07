@@ -13,7 +13,7 @@ module wrike {
                 this.items = new Atom(null, null, [new Mention()]);
                 this.items.set([new Mention()]);
                 var items:Mention[] = [];
-                for (var i = 0; i < 10; i++) {
+                for (var i = 0; i < 1000; i++) {
                     items[i] = new Mention();
                 }
                 this.items.set(items);
