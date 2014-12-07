@@ -8,6 +8,11 @@ module Arg {
         }
     }
 
+    export function removeAtom(atom:Atom<any>) {
+        atom.listeners = null;
+        atom.masters = null;
+    }
+
     export function removeTree(tree:TreeItem) {
         if (!tree) {
             return;
@@ -16,7 +21,7 @@ module Arg {
             for (var i = 0; i < tree.children.length; i++) {
                 removeTree(tree.children[i]);
             }
-            tree.children = [];
+            tree.children = null;
         }
 
         tree.removed = true;
@@ -24,50 +29,49 @@ module Arg {
             tree.node.parentNode.removeChild(tree.node);
             tree.node = null;
         }
+        tree.nodeBefore = null;
+        tree.parentNode = null;
+        tree.attrs = null;
+
+        if (tree.attrsAtoms) {
+            for (var key in tree.attrsAtoms) {
+                removeAtom(tree.attrsAtoms[key])
+            }
+            tree.attrsAtoms = null;
+        }
+
+        if (tree.styleAtoms) {
+            for (var key in tree.styleAtoms) {
+                removeAtom(tree.styleAtoms[key])
+            }
+            tree.styleAtoms = null;
+        }
+
+        if (tree.classSetAtoms) {
+            for (var key in tree.classSetAtoms) {
+                removeAtom(tree.classSetAtoms[key])
+            }
+            tree.classSetAtoms = null;
+        }
+
+        tree.mapValues = null;
+        tree.mapIterator = null;
 
         if (tree.map) {
-            if (tree.map.constructor === Atom) {
-                tree.map.listeners = null;
-                tree.map.get().listeners = null;
-                tree.map = null;
-            }
+            //tree.map.get().listeners = null;
+            removeAtom(tree.map);
+            tree.map = null;
         }
 
+        tree.whenCallback = null;
         if (tree.whenCondition) {
-            //todo: atom.computing
-            /*var atom = tree.whenCondition;
-            atom.listeners = null;
-            if (atom.masters) {
-                for (var j in atom.masters) {
-                    if (atom.masters[j].slaves) {
-                        //atom.masters[j].slaves[atom.id] = null;
-                    }
-                }
-            }
-            //atom.computing = false;
-            atom.masters = null;
-            atom = null;*/
+            removeAtom(tree.whenCondition)
+            tree.whenCondition = null;
         }
 
-
-        /*if (tree.atoms && false) {
-         for (var i = 0; i < tree.atoms.length; i++) {
-         var atom = tree.atoms[i];
-         atom.listeners = null;
-         if (atom.masters) {
-         for (var j in atom.masters) {
-         if (atom.masters[j].slaves) {
-         atom.masters[j].slaves[atom.id] = null;
-         }
-         }
-         }
-         atom.masters = null;
-         atom.listeners = null;
-         }
-         tree.atoms = [];
-         }*/
         if (tree.component) {
             tree.component.componentWillUnmount && tree.component.componentWillUnmount();
+            tree.component = null;
         }
     }
 
@@ -95,6 +99,7 @@ module Arg {
                 var treeItem = val.render();
                 treeItem.tag = prepareViewName(val.constructor.name);
                 treeItem.type = TreeType.TAG;
+                treeItem.component = val;
                 return new TreeItem(treeItem);
             }
         }

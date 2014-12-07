@@ -30,10 +30,10 @@ module Arg {
         classSetAtoms:{[idx: string]: Atom<any>};
         children:TreeItem[];
         node:Node;
-        parentNode: Node;
-        nodeBefore: Node;
+        parentNode:Node;
+        nodeBefore:Node;
 
-        removed: boolean;
+        removed:boolean;
 
         mapIterator:IMapIterator<any>;
         map:Atom<any[]>;
@@ -54,6 +54,19 @@ module Arg {
                     this.children[i] = convertToTree(this.children[i]);
                 }
             }
+        }
+
+        toJSON() {
+            var obj:any = {};
+            for (var i in this) {
+                if (this[i] instanceof Node) {
+                    obj[i] = '<DOMNode>';
+                }
+                else {
+                    obj[i] = this[i];
+                }
+            }
+            return obj;
         }
     }
 
@@ -81,9 +94,7 @@ module Arg {
         (cond:any): any;
     }
 
-
-
 }
-interface Node{
+interface Node {
     [idx: string]: any;
 }
