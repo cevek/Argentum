@@ -30,6 +30,8 @@ module Arg {
         attrs:Attrs;
         children:TreeItem[];
         node:Node;
+        parentNode: Node;
+        nodeBefore: Node;
 
         atoms:Atom<any>[];
         removed: boolean;

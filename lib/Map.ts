@@ -4,64 +4,93 @@ module Arg {
         (item:R, i?:number): TreeItem;
     }
 
-    export function mapper<R>(tagExpr:string,
-                              array:any,
+    export function mapper<R>(atomArray:any,
                               mapIterator:(item:R, i:number)=>any,
                               split?:string):TreeItem {
-        if (array.constructor !== Atom) {
-            array = new Atom<any>(null, null, array);
+        if (atomArray.constructor !== Atom) {
+            atomArray = new Atom<any>(null, null, atomArray);
         }
-        return parseTagExpr(tagExpr, new TreeItem({
+
+        var iterator = (item:any, i:number)=> convertToTree(mapIterator(item, i));
+        var children:TreeItem[] = [];
+        var array = atomArray.get().slice();
+        for (var i = 0; i < array.length; i++) {
+            children[i] = iterator(array[i], i);
+        }
+
+        return new TreeItem({
             type: TreeType.MAP,
-            map: array,
+            map: atomArray,
             split: split,
-            mapIterator: (item, i)=>convertToTree(mapIterator(item, i))
-        }));
+            children: children,
+            mapValues: array,
+            mapIterator: iterator
+        });
     }
 
-    export function renderMap(node:Node, tree:TreeItem, nodeBefore?:Node) {
+    export function renderMap(tree:TreeItem) {
         tree.node = document.createComment("/for");
-        node.insertBefore(tree.node, nodeBefore);
+        tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
 
-        var oldVal = tree.map.get();
-        renderMapDOMSet(node, tree.map.get(), tree);
-        tree.map.addListener(newVal=> {
-            if (oldVal !== newVal) {
-                renderMapDOMSet(node, newVal, tree);
+        for (var i = 0; i < tree.children.length; i++) {
+            var itemTree = tree.children[i];
+            itemTree.parentNode = tree.parentNode;
+            itemTree.nodeBefore = tree.node;
+            render(itemTree);
+        }
+
+        var array = tree.map.get();
+        array.addListener(newValues=> {
+            mapArrayListener(newValues, tree);
+        });
+
+        tree.map.addListener(newValues=> {
+            if (array !== newValues) {
+                renderMapDOMSet(newValues, tree);
             }
         });
     }
 
-    export function renderMapDOMSet(parentNode:Node, array:any[], tree:TreeItem) {
+    export function renderMapDOMSet(array:any[], tree:TreeItem) {
         removeTreeChildren(tree);
         if (array) {
             tree.children = [];
             tree.mapValues = [];
             for (var i = 0; i < array.length; i++) {
                 var itemTree = tree.mapIterator(array[i], i);
+                itemTree.parentNode = tree.parentNode;
+                itemTree.nodeBefore = tree.node;
                 tree.mapValues[i] = array[i];
                 tree.children[i] = itemTree;
-                render(parentNode, itemTree, tree.node);
+
+                if (itemTree.parentNode) {
+                    render(itemTree);
+                }
             }
-            array.addListener(()=>mapArrayListener(parentNode, array, tree));
+            array.addListener(()=> {
+                mapArrayListener(array, tree)
+            });
         }
     }
 
     var counter = 0;
 
-    export function mapArrayListener(parentNode:Node, array:any[], tree:TreeItem) {
+    export function mapArrayListener(array:any[], tree:TreeItem) {
         counter++;
-        var node = document.createComment("/for" + counter);
-        parentNode.insertBefore(node, tree.node.nextSibling);
-        parentNode.removeChild(tree.node);
-
+        if (tree.parentNode) {
+            var node = document.createComment("/for" + counter);
+            tree.parentNode.insertBefore(node, tree.node.nextSibling);
+            tree.parentNode.removeChild(tree.node);
+        }
         var children:TreeItem[] = [];
         var values:any[] = [];
 
         for (var i = 0; i < array.length; i++) {
             var index = tree.mapValues.indexOf(array[i]);
             if (index > -1) {
-                parentNode.insertBefore(tree.children[index].node, node);
+                if (tree.parentNode && tree.children[index].node) {
+                    tree.parentNode.insertBefore(tree.children[index].node, node);
+                }
                 children[i] = tree.children[index];
                 values[i] = tree.mapValues[index];
                 tree.children[index] = null;
@@ -69,7 +98,11 @@ module Arg {
             }
             else {
                 var itemTree = tree.mapIterator(array[i], i);
-                render(parentNode, itemTree, node);
+                if (itemTree.parentNode) {
+                    itemTree.parentNode = tree.parentNode;
+                    itemTree.nodeBefore = node;
+                }
+                render(itemTree);
                 children[i] = itemTree;
                 values[i] = array[i];
             }

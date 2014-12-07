@@ -7,7 +7,7 @@ module Arg {
         node[key] = val;
     }
 
-    export function renderTag(node:HTMLElement, tree:TreeItem, nodeBefore:Node) {
+    export function renderTag(tree:TreeItem) {
         tree.node = document.createElement(tree.tag);
         if (tree.attrs) {
             for (var key in tree.attrs) {
@@ -27,17 +27,18 @@ module Arg {
             }
         }
 
-        node.insertBefore(tree.node, nodeBefore);
+        tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
-                render(tree.node, tree.children[i]);
+                tree.children[i].parentNode = tree.node;
+                render(tree.children[i]);
             }
         }
     }
 
-    export function text(node:Node, tree:TreeItem, nodeBefore:Node) {
+    export function text(tree:TreeItem) {
         var domNode = document.createTextNode('');
-        node.insertBefore(domNode, nodeBefore);
+        tree.parentNode.insertBefore(domNode, tree.nodeBefore);
         tree.node = domNode;
         setValue(tree, tree.value, domNode, null, (node:Node, val:any) => {
             node.textContent = val === void 0 ? '' : val;

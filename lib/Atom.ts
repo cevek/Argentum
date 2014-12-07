@@ -18,13 +18,18 @@ class Atom <T> {
         this.getter = getter;
         this.setter = setter;
         this.id = ++Atom.lastId;
-        this._value = val;
+        //this._value = val;
+        this.set(val);
     }
 
     static lastCalled:Atom<any>;
 
     valueOf():T {
         return this.get();
+    }
+
+    toJSON() {
+        return '<Atom>';
     }
 
     get():T {
@@ -55,12 +60,17 @@ class Atom <T> {
         return this._value;
     }
 
-    set(val:T) {
+    set(val:T, sync = false) {
         if (this._value !== val) {
             this._value = val;
-            Atom.sendMicrotask(this, false, val);
-            //this.microtaskUpdate(false, val);
-            //this.unsetComputing();
+
+            if (sync) {
+                this.microtaskUpdate(false, val);
+                this.unsetComputing();
+            }
+            else {
+                Atom.sendMicrotask(this, false, val);
+            }
         }
     }
 
@@ -135,7 +145,9 @@ class Atom <T> {
         if (!this.listeners) {
             this.listeners = [];
         }
-        this.listeners.push(fn);
+        if (this.listeners.indexOf(fn) === -1) {
+            this.listeners.push(fn);
+        }
     }
 
     /*
@@ -210,8 +222,8 @@ else {
 }
 
 interface Array<T> {
-    addListener(fn:()=>void):void;
-    removeListener(fn:()=>void):void;
+    addListener(fn:(val?:T[])=>void):void;
+    removeListener(fn:(val?:T[])=>void):void;
     __change():void;
     __push: any;
     __unshift: any;
@@ -224,7 +236,9 @@ interface Array<T> {
 
 Array.prototype.addListener = function (fn:any) {
     this.listeners = this.listeners || [];
-    this.listeners.push(fn);
+    if (this.listeners.indexOf(fn) === -1) {
+        this.listeners.push(fn);
+    }
 };
 Array.prototype.removeListener = function (fn:any) {
     if (this.listeners) {
@@ -255,7 +269,7 @@ window.addEventListener("message", function message(event:any) {
             var listeners = Array_arrays[i].listeners;
             if (listeners) {
                 for (var j = 0; j < listeners.length; j++) {
-                    listeners[j]();
+                    listeners[j](Array_arrays[i]);
                 }
             }
         }

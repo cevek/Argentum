@@ -11,26 +11,29 @@ module Arg {
 
     export function publicRender(node:Node, treeItem:any) {
         var _treeItem = convertToTree(treeItem);
-        render(node, _treeItem);
+        _treeItem.parentNode = node;
+        render(_treeItem);
         return _treeItem;
     }
 
-    export function render(node:Node, tree:TreeItem, nodeBefore?:Node) {
+    export function render(tree:TreeItem) {
         if (tree.type === TreeType.TAG) {
-            renderTag(<HTMLElement>node, tree, nodeBefore);
+            renderTag(tree);
         }
         if (tree.type === TreeType.TEXT) {
-            text(node, tree, nodeBefore);
+            text(tree);
         }
         if (tree.type === TreeType.MAP) {
-            renderMap(node, tree, nodeBefore);
+            renderMap(tree);
         }
         if (tree.atom) {
             var oldVal = tree.atom.get();
             tree.atom.addListener(newValue=> {
                 if (oldVal !== newValue) {
                     var newTree = convertToTree(newValue);
-                    render(node, newTree, tree.node);
+                    newTree.parentNode = tree.parentNode;
+                    newTree.nodeBefore = tree.node;
+                    render(newTree);
                     changeTree(tree, newTree);
                     oldVal = newValue;
                 }
