@@ -2,7 +2,6 @@
 /// <reference path="Interfaces.ts"/>
 /// <reference path="Utils.ts"/>
 /// <reference path="Attributes.ts"/>
-/// <reference path="ClassesStyles.ts"/>
 /// <reference path="Map.ts"/>
 /// <reference path="Tag.ts"/>
 /// <reference path="When.ts"/>
@@ -21,7 +20,7 @@ module Arg {
             renderTag(tree);
         }
         if (tree.type === TreeType.TEXT) {
-            text(tree);
+            renderText(tree);
         }
         if (tree.type === TreeType.MAP) {
             renderMap(tree);
@@ -52,7 +51,8 @@ module Arg {
         if (attrs) {
             treeItem.attrs = attrs;
         }
-        return parseTagExpr(tagExpr, treeItem);
+        parseTagExpr(tagExpr, treeItem);
+        return treeItem;
     }
 
     export module dom {

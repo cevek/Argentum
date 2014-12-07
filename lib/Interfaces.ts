@@ -28,12 +28,15 @@ module Arg {
         atom:Atom<any>;
         component:Component;
         attrs:Attrs;
+        attrsAtoms:{[idx: string]: Atom<any>};
+        styleAtoms:{[idx: string]: Atom<any>};
+        classSetAtoms:{[idx: string]: Atom<any>};
         children:TreeItem[];
         node:Node;
         parentNode: Node;
         nodeBefore: Node;
 
-        atoms:Atom<any>[];
+        atoms:Atom<any>[] = [];
         removed: boolean;
 
         mapIterator:IMapIterator<any>;
@@ -82,4 +85,9 @@ module Arg {
         (cond:any): any;
     }
 
+
+
+}
+interface Node{
+    [idx: string]: any;
 }

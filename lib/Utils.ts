@@ -22,9 +22,6 @@ module Arg {
         }
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
-                if (tree.children[i] === tree) {
-                    throw "cyclyc";
-                }
                 removeTree(tree.children[i]);
             }
             tree.children = [];
@@ -43,7 +40,7 @@ module Arg {
             }
         }
 
-        if (tree.atoms) {
+        if (tree.atoms && false) {
             for (var i = 0; i < tree.atoms.length; i++) {
                 var atom = tree.atoms[i];
                 atom.listeners = null;
@@ -62,7 +59,6 @@ module Arg {
         if (tree.component) {
             tree.component.componentWillUnmount && tree.component.componentWillUnmount();
         }
-
     }
 
     export function setValue(_tree:TreeItem,
@@ -108,6 +104,7 @@ module Arg {
                 var atom_val = atom.get();
                 var tree = convertToTree(atom_val);
                 tree.atom = atom;
+                tree.atoms.push(atom);
                 return tree;
             }
             if (constructor === TreeItem) {
@@ -135,14 +132,15 @@ module Arg {
         return words.join("-");
     }
 
-    export function parseTagExpr(tagExpr:string, obj:TreeItem):TreeItem {
+    export function parseTagExpr(tagExpr:string, tree:TreeItem):TreeItem {
+
         var className = '';
         var lastDot = -1;
         var len = tagExpr.length;
         for (var i = 0; i < len + 1; i++) {
             if (i === len || tagExpr[i] === '.') {
                 if (lastDot == -1) {
-                    obj.tag = tagExpr.substring(0, i);
+                    tree.tag = tagExpr.substring(0, i);
                 }
                 else {
                     className += tagExpr.substring(lastDot + 1, i);
@@ -155,13 +153,18 @@ module Arg {
         }
 
         if (className) {
-            if (obj.attrs) {
-                obj.attrs['className'] = className;
+            if (tree.attrs) {
+                if (!tree.attrs['className']) {
+                    tree.attrs['className'] = className;
+                    tree.attrs['baseClassName'] = className;
+                }
             } else {
-                obj.attrs = {className: className};
+                tree.attrs = {className: className, baseClassName: className};
             }
         }
-        return obj;
+
+        prepareAttrs(tree);
+        return tree;
     }
 
 }
