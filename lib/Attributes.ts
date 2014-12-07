@@ -83,7 +83,6 @@ module Arg {
 
             tree.attrsAtoms = tree.attrsAtoms || {};
             tree.attrsAtoms[attr] = atom;
-            tree.atoms.push(atom);
         }
     }
 
@@ -99,7 +98,6 @@ module Arg {
 
                 tree.styleAtoms = tree.styleAtoms || {};
                 tree.styleAtoms[styleName] = atom;
-                tree.atoms.push(atom);
             }
         }
     }
@@ -117,7 +115,6 @@ module Arg {
                 classSet[i] = atom.get();
                 tree.classSetAtoms = tree.classSetAtoms || {};
                 tree.classSetAtoms[i] = atom;
-                tree.atoms.push(atom);
             }
             if (classSet[i]) {
                 cls += ' ' + i;

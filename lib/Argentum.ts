@@ -25,18 +25,9 @@ module Arg {
         if (tree.type === TreeType.MAP) {
             renderMap(tree);
         }
-        if (tree.atom) {
-            var oldVal = tree.atom.get();
-            tree.atom.addListener(newValue=> {
-                if (oldVal !== newValue) {
-                    var newTree = convertToTree(newValue);
-                    newTree.parentNode = tree.parentNode;
-                    newTree.nodeBefore = tree.node;
-                    render(newTree);
-                    changeTree(tree, newTree);
-                    oldVal = newValue;
-                }
-            });
+
+        if (tree.type === TreeType.WHEN) {
+            renderWhen(tree);
         }
     }
 
@@ -64,7 +55,6 @@ module Arg {
             return dom.apply(null, children);
         }
     }
-
 }
 
 var d = Arg.dom;

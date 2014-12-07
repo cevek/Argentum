@@ -17,8 +17,6 @@ module Arg {
         var domNode = document.createTextNode('');
         tree.parentNode.insertBefore(domNode, tree.nodeBefore);
         tree.node = domNode;
-        setValue(tree, tree.value, domNode, null, (node:Node, val:any) => {
-            node.textContent = val === void 0 ? '' : val;
-        });
+        tree.node['textContent'] = tree.value === void 0 ? '' : tree.value;
     }
 }

@@ -3,12 +3,10 @@ module Arg {
         type: TreeType;
         tag?: string;
         value?: TreeItem;
-        atom?: Atom<any>;
         component?: Component;
         attrs?: Attrs;
         children?:TreeItem[];
         node?:Node;
-        atoms?:Atom<any>[];
 
         mapIterator?:IMapIterator<any>;
         map?:Atom<any[]>;
@@ -24,8 +22,7 @@ module Arg {
     [idx: string]: any;
         type:TreeType;
         tag:string;
-        value:TreeItem;
-        atom:Atom<any>;
+        value:string;
         component:Component;
         attrs:Attrs;
         attrsAtoms:{[idx: string]: Atom<any>};
@@ -36,7 +33,6 @@ module Arg {
         parentNode: Node;
         nodeBefore: Node;
 
-        atoms:Atom<any>[] = [];
         removed: boolean;
 
         mapIterator:IMapIterator<any>;

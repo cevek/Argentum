@@ -191,7 +191,7 @@ class Atom <T> {
             }
         }
 
-        for (var i = Atom.microtasks.length - 1; i >= 0; i--) {
+        for (var i = 0; i < Atom.microtasks.length; i++) {
             Atom.microtasks[i].atom.unsetComputing();
         }
 

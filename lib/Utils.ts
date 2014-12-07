@@ -8,14 +8,6 @@ module Arg {
         }
     }
 
-    export function changeTree(tree:TreeItem, newTree:TreeItem) {
-        removeTree(tree);
-        tree.removed = null;
-        for (var i in newTree) {
-            tree[i] = newTree[i];
-        }
-    }
-
     export function removeTree(tree:TreeItem) {
         if (!tree) {
             return;
@@ -37,75 +29,64 @@ module Arg {
             if (tree.map.constructor === Atom) {
                 tree.map.listeners = null;
                 tree.map.get().listeners = null;
+                tree.map = null;
             }
         }
 
-        if (tree.atoms && false) {
-            for (var i = 0; i < tree.atoms.length; i++) {
-                var atom = tree.atoms[i];
-                atom.listeners = null;
-                if (atom.masters) {
-                    for (var j in atom.masters) {
-                        if (atom.masters[j].slaves) {
-                            atom.masters[j].slaves[atom.id] = null;
-                        }
+        if (tree.whenCondition) {
+            //todo: atom.computing
+            /*var atom = tree.whenCondition;
+            atom.listeners = null;
+            if (atom.masters) {
+                for (var j in atom.masters) {
+                    if (atom.masters[j].slaves) {
+                        //atom.masters[j].slaves[atom.id] = null;
                     }
                 }
-                atom.masters = null;
-                atom.listeners = null;
             }
-            tree.atoms = [];
+            //atom.computing = false;
+            atom.masters = null;
+            atom = null;*/
         }
+
+
+        /*if (tree.atoms && false) {
+         for (var i = 0; i < tree.atoms.length; i++) {
+         var atom = tree.atoms[i];
+         atom.listeners = null;
+         if (atom.masters) {
+         for (var j in atom.masters) {
+         if (atom.masters[j].slaves) {
+         atom.masters[j].slaves[atom.id] = null;
+         }
+         }
+         }
+         atom.masters = null;
+         atom.listeners = null;
+         }
+         tree.atoms = [];
+         }*/
         if (tree.component) {
             tree.component.componentWillUnmount && tree.component.componentWillUnmount();
         }
     }
 
-    export function setValue(_tree:TreeItem,
-                             value:any,
-                             node:any,
-                             param1:any,
-                             fn:(node:Node, value:any, param1:any)=>void):void {
-        if (value) {
-            if (value.constructor === Function && !value["doNotAtomize"]) {
-                value = new Atom<any>(value);
-            }
-            if (value.constructor === Atom) {
-
-                var atom_val = value.get();
-                fn(node, atom_val, param1);
-                value.addListener(function (new_val:any) {
-                    if (atom_val !== new_val) {
-                        fn(node, new_val, param1);
-                        atom_val = new_val;
-                    }
-                });
-                if (!_tree.atoms) {
-                    _tree.atoms = [];
-                }
-                _tree.atoms.push(value);
-            }
-            else if (!value.tag) {
-                fn(node, value, param1);
-            }
-        }
-        return;
-    }
-
     export function convertToTree(val:any):TreeItem {
-
         if (val) {
             var constructor = val.constructor;
             if (constructor === Function) {
                 val = new Atom<any>(val);
             }
             if (constructor === Atom) {
-                var atom = <Atom<any>>val;
-                var atom_val = atom.get();
-                var tree = convertToTree(atom_val);
-                tree.atom = atom;
-                tree.atoms.push(atom);
-                return tree;
+                var atom:Atom<any> = val;
+                var whenCallback = ()=>convertToTree(atom.get());
+                var child = whenCallback();
+                return new TreeItem({
+                    type: TreeType.WHEN,
+                    whenCondition: atom,
+                    children: child ? [child] : null,
+                    whenCallback: whenCallback
+                });
             }
             if (constructor === TreeItem) {
                 return val;
@@ -133,7 +114,6 @@ module Arg {
     }
 
     export function parseTagExpr(tagExpr:string, tree:TreeItem):TreeItem {
-
         var className = '';
         var lastDot = -1;
         var len = tagExpr.length;
@@ -166,5 +146,4 @@ module Arg {
         prepareAttrs(tree);
         return tree;
     }
-
 }
