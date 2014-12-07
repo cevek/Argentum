@@ -8,6 +8,9 @@ module wrike {
         export class NCView implements Arg.Component {
             static activeType = new Atom<NCTabs>(()=>true, null, NCTabs.Mentions);
             interval:number;
+            constructor(){
+
+            }
 
             start() {
                 this.interval = setInterval(function () {

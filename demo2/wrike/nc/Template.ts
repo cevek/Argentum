@@ -4,8 +4,11 @@ module wrike {
             return d.root(
                 d('button', {onclick: ()=>vm.start()}, 'start'),
                 d('button', {onclick: ()=>vm.stop()}, 'stop'),
-                new Atom(()=> { return NCView.activeType.isEqual(NCTabs.Mentions) && new MentionsView() }),
-                new Atom(()=> { return NCView.activeType.isEqual(NCTabs.Inbox) && new InboxView() }),
+                //d.when(new Atom(()=>NCView.activeType.isEqual(NCTabs.Mentions)), ()=>new MentionsView()),
+                //d.when(new Atom(()=>NCView.activeType.isEqual(NCTabs.Inbox)), ()=>new InboxView()),
+                glob.m = new Atom(()=>
+                    NCView.activeType.isEqual(NCTabs.Mentions) ? new MentionsView() : null),
+                new Atom(()=> NCView.activeType.isEqual(NCTabs.Inbox) ? new InboxView() : null),
                 /*
                  d.when(new Atom(a=>
                  NCView.activeType.isEqual(NCTabs.Mentions)),
@@ -20,12 +23,14 @@ module wrike {
         export function MentionsViewTemplate(vm:MentionsView) {
             return d.root(
                 d('div', 'Begin'),
-                d.when(vm.message,
-                    ()=>d('div', 'Hi'),
-                    ()=>d('a', {href: 'http://yandex.ru'}, 'yep')),
-
+                new Atom(()=>vm.message.get() ? d('div', 'Hi') : d('a', {href: 'http://yandex.ru'}, 'yep')),
                 d.map(vm.items, (mention:Mention, i:number)=>
-                    d('div.item', {style: {display1: 'none', backgroundColor: 'hsl('+i * 12345 % 255+', 80%, 90%)'}},
+                    d('div.item', {
+                            style: {
+                                display1: 'none',
+                                backgroundColor: 'hsl(' + i * 12345 % 255 + ', 80%, 90%)'
+                            }
+                        },
                         d('div.title', mention.task.summary),
                         d('div.description', mention.task.description),
                         d('div.pin', mention.isPinned),
