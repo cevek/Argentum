@@ -3,15 +3,58 @@ module Arg {
     export function renderAttrs(tree:TreeItem) {
         if (tree.attrs) {
             for (var key in tree.attrs) {
-                if (key == 'style') {
-                    for (var styleName in tree.attrs['style']) {
-                        tree.node['style'][styleName] = tree.attrs['style'][styleName];
-                    }
-                }
-                else {
-                    tree.node[key] = tree.attrs[key];
+                renderAttr(tree, key);
+            }
+        }
+    }
+
+    export function renderAttr(tree:TreeItem, attr:string) {
+        if (attr === 'style') {
+            for (var styleName in tree.attrs['style']) {
+                renderStyle(tree, styleName);
+            }
+        }
+        else if (attr === 'classSet') {
+            if (tree.classSetAtoms) {
+                for (var className in tree.classSetAtoms) {
+                    renderClassSet(tree, className);
                 }
             }
+        }
+        else {
+            tree.node[attr] = tree.attrs[attr];
+            if (tree.attrsAtoms && tree.attrsAtoms[attr]) {
+                tree.attrsAtoms[attr].addListener(val=> {
+                    tree.node[attr] = val;
+                });
+            }
+        }
+    }
+
+    export function renderClassSet(tree:TreeItem, className:string) {
+        //console.log(className, "changed", tree.classSetAtoms[className]);
+        tree.classSetAtoms[className].addListener(val=> {
+            var classSet = tree.attrs['classSet'];
+
+            classSet[className] = val;
+            var cls = tree.attrs['baseClassName'] || '';
+            for (var i in classSet) {
+                if (classSet[i]) {
+                    cls += ' ' + i;
+                }
+            }
+            tree.attrs['className'] = cls;
+            tree.node['className'] = cls;
+        });
+    }
+
+    export function renderStyle(tree:TreeItem, styleName:string) {
+        tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
+
+        if (tree.styleAtoms && tree.styleAtoms[styleName]) {
+            tree.styleAtoms[styleName].addListener(val=> {
+                tree.node['style'][styleName] = styleCompleter(styleName, val);
+            });
         }
     }
 
@@ -83,11 +126,11 @@ module Arg {
         tree.attrs['className'] = cls;
     }
 
-    export function applyStyleDOMSet(styleNode:any, value:any, prop:string) {
+    export function styleCompleter(prop:string, value:any) {
         var val = value;
         if (!isNaN(+val) && (prop === 'height' || prop === 'width' || prop === 'top' || prop === 'left')) {
             val += 'px';
         }
-        styleNode[prop] = val;
+        return val;
     }
 }
