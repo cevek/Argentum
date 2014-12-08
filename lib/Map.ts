@@ -4,9 +4,9 @@ module Arg {
         (item:R, i?:number): TreeItem;
     }
 
-    export function mapper<R>(atomArray:any,
-                              mapIterator:(item:R, i:number)=>any,
-                              split?:string):TreeItem {
+    export function mapper<R>(atomArray:Atom<R[]>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem;
+    export function mapper<R>(atomArray:R[], mapIterator:(item:R, i:number)=>any, split?:string):TreeItem;
+    export function mapper<R>(atomArray:any, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
         if (atomArray.constructor !== Atom) {
             atomArray = new Atom<any>(null, null, atomArray);
         }

@@ -8,6 +8,7 @@
 
 module Arg {
     export var enableAtoms = false;
+
     export function publicRender(node:Node, treeItem:any) {
         var _treeItem = convertToTree(treeItem);
         _treeItem.parentNode = node;
@@ -32,7 +33,7 @@ module Arg {
     }
 
     export function dom(tagExpr:string, ...children:any[]) {
-        if (children[0].constructor === Object) {
+        if (children[0] && children[0].constructor === Object) {
             var attrs = children.shift();
         }
         var treeItem = new TreeItem({
