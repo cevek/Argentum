@@ -1,46 +1,34 @@
-///<reference path="templater.ts"/>
-
 var defaultFields = ["projectShortName", "numberInProject", "summary", "description", "created", "updated", "resolved",
     "updaterName", "updaterFullName", "reporterName", "reporterFullName", "commentsCount", "votes", "attachments", "links"];
 
-class AUser extends Atomic<User> {}
 class User {
-    firstName = new AString;
-    lastName = new AString;
+    firstName:string;
+    lastName:string;
 
     constructor(obj:any = {}) {
-        Object.freeze(this);
-        this.firstName.set = obj.firstName;
-        this.lastName.set = obj.lastName;
+        this.firstName = obj.firstName;
+        this.lastName = obj.lastName;
     }
 }
 
 class $W {
-    issues = new AList<Issue>();
+    issues:Issue[] = [];
 
     constructor() {
-        Object.freeze(this);
+
     }
 }
 
 class UserComment {
     author:string;
-    $author = new AString;
     authorFullName:string;
-    $authorFullName = new AString;
     created:number;
-    $created = new ANumber;
     deleted:number;
-    $deleted = new ANumber;
     updated:number;
-    $updated = new ANumber;
     id:string;
-    $id = new AString;
     text:string;
-    $text = new AString;
 
     constructor(obj:any = {}) {
-        Atomic.createGetters(this);
         this.author = obj.author;
         this.authorFullName = obj.authorFullName;
         this.created = obj.created;
@@ -53,12 +41,9 @@ class UserComment {
 
 class IssueLink {
     url:string;
-    $url = new AString;
     value:string;
-    $value = new AString;
 
     constructor(obj:any = {}) {
-        Atomic.createGetters(this);
         this.url = 'http://youtrack.jetbrains.com/issue/' + obj.value;
         this.value = obj.value;
     }
@@ -66,9 +51,7 @@ class IssueLink {
 
 class IssueAttachment {
     url:string;
-    $url = new AString;
     value:string;
-    $value = new AString;
 
     constructor(obj:any = {}) {
         this.url = obj.url;
@@ -77,55 +60,33 @@ class IssueAttachment {
 }
 class Issue {
     id:number;
-    $id = new ANumber;
     projectShortName:string;
-    $projectShortName = new AString;
     numberInProject:string;
-    $numberInProject = new AString;
     summary:string;
-    $summary = new AString;
     description:string;
-    $description = new AString;
     created:number;
-    $created = new ANumber;
     updated:number;
-    $updated = new ANumber;
     updaterName:string;
-    $updaterName = new AString;
     updaterFullName:string;
-    $updaterFullName = new AString;
     reporterName:string;
-    $reporterName = new AString;
     reporterFullName:string;
-    $reporterFullName = new AString;
     priority:string;
-    $priority = new AString;
     type:string;
-    $type = new AString;
     state:string;
-    $state = new AString;
     assignee:string;
-    $assignee = new AString;
     subsystem:string;
-    $subsystem = new AString;
     fixVersions:string;
-    $fixVersions = new AString;
     affectedVersion:string;
-    $affectedVersion = new AString;
     severity:string;
-    $severity = new AString;
 
     votes:number;
-    $votes = new ANumber;
     commentsCount:number;
-    $commentsCount = new ANumber;
 
-    comments = new AList<UserComment>();
-    links = new AList<IssueLink>();
-    attachments = new AList<IssueAttachment>();
+    comments:UserComment[] = [];
+    links:IssueLink[] = [];
+    attachments:IssueAttachment[] = [];
 
     constructor(obj:any = {}) {
-        Atomic.createGetters(this);
         var fields = obj.fields;
         this.id = obj.id;
         this.summary = fields.summary;
@@ -151,18 +112,18 @@ class Issue {
         this.severity = fields.Severity;
 
         for (var i = 0; i < obj.comment.length; i++) {
-            this.comments.add(new UserComment(obj.comment[i]));
+            this.comments.push(new UserComment(obj.comment[i]));
         }
 
         if (obj.fields.attachments) {
             for (var i = 0; i < obj.fields.attachments.length; i++) {
-                this.attachments.add(new IssueAttachment(obj.fields.attachments[i]));
+                this.attachments.push(new IssueAttachment(obj.fields.attachments[i]));
             }
         }
 
         if (obj.fields.links) {
             for (var i = 0; i < obj.fields.links.length; i++) {
-                this.links.add(new IssueLink(obj.fields.links[i]));
+                this.links.push(new IssueLink(obj.fields.links[i]));
             }
         }
 
@@ -219,10 +180,10 @@ first.fields.links = [{value: '12312312'}];
 //$w.issues.add(new Issue(first));
 
 for (var i = 0; i < data.length; i++) {
-    $w.issues.add(new Issue(data[i]));
+    $w.issues.push(new Issue(data[i]));
 }
 
-function wrapText(text, len) {
+function wrapText(text: string, len: number) {
     return text && text.length > len ? text.substr(0, len) + '...' : text;
 }
 
@@ -240,129 +201,126 @@ function wrapText(text, len) {
  }
  */
 
-
 class PanelView {
-    template: any;
-    issues = [];
-    constructor(){
-        this.template = doLayout(this);
+    template:any;
+    issues: Issue[] = [];
+
+    constructor() {
+        this.template = doLayout();
     }
 
-    itemTemplate(issue){
-        if (issue.id == 1)
-
-        return this.itemTemplate;
-    }
+    /*itemTemplate(issue: Issue) {
+        if (issue.id == 1) {
+            return this.itemTemplate;
+        }
+    }*/
 
 }
-
 
 function abc() {
-    return $a('div.hello', null, 'ABC');
+    return d('div.hello', 'ABC');
 }
 
-
-function doLayout(vm) {
+/*function doLayout(vm) {
     document.getElementById('test').innerHTML = '';
     console.profile('perf');
     console.time('perf');
     render(document.getElementById('test'),
-        $a('div', null,
+        d('div', null,
             //document.createElement('div'),
             map(vm.issues, (issue) => vm.itemTemplate(issue))
         )
     );
 
-
     console.log(insertBeforeCount);
 
     console.timeEnd('perf');
     console.profileEnd('perf');
-}
-function doLayout(vm) {
+}*/
+function doLayout() {
     document.getElementById('test').innerHTML = '';
-    //console.profile('perf');
+    console.profile('perf');
     console.time('perf');
-    render(document.getElementById('test'),
-        $a('div', null,
+    Arg.publicRender(document.getElementById('test'),
+        d('div', null,
             //document.createElement('div'),
-            map($w.issues, (issue)=>
-                    $a('div.issue', null,
-                        $a('div.line', null,
-                            $a('span.field', null, 'ID:'),
-                            $a('span', null, ()=>issue.id + ' / ' + issue.summary)
+            d.map($w.issues, issue=>
+                    d('div.issue', null,
+                        d('div.line', null,
+                            d('span.field', 'ID:'),
+                            d('span', issue.id + ' / ' + issue.summary)
                         ),
-                        $a('div.line', null,
-                            $a('span.field', null, 'Summary:'),
-                            $a('span', null, ()=>issue.summary)
+                        d('div.line', null,
+                            d('span.field', 'Summary:'),
+                            d('span', issue.summary)
                         ),
-                        $a('div.line', null,
-                            $a('span.field', null, 'Description:'),
-                            $a('span', null, ()=>wrapText(issue.description, 100))
-                        ),
-
-                        $a("div.line", null,
-                            $a("span.field", null, "Reporter:"),
-                            $a("span.value", null, ()=>issue.reporterFullName)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Updater:"),
-                            $a("span.value", null, ()=>issue.updaterFullName)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Priority:"),
-                            $a("span.value", null, ()=>issue.priority)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Type:"),
-                            $a("span.value", null, ()=>issue.type)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "State:"),
-                            $a("span.value", null, ()=>issue.state)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Assignee:"),
-                            $a("span.value", null, ()=>issue.assignee)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Subsystem:"),
-                            $a("span.value", null, ()=>issue.subsystem)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Fix versions:"),
-                            $a("span.value", null, ()=>issue.fixVersions)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Affected versions:"),
-                            $a("span.value", null, ()=>issue.affectedVersion)
-                        ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Severity:"),
-                            $a("span.value", null, ()=>issue.severity)
+                        d('div.line', null,
+                            d('span.field', 'Description:'),
+                            d('span', wrapText(issue.description, 100))
                         ),
 
-                        $a("div.line", null,
-                            $a("span.field", null, "Links:"),
-                            $a("span.value", null,
-                                map(issue.links, (link)=>
-                                    $a("a", {target: "_blank", href: link.url}, ()=>link.value), ', ')
+                        d("div.line", null,
+                            d("span.field", "Reporter:"),
+                            d("span.value", issue.reporterFullName)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Updater:"),
+                            d("span.value", issue.updaterFullName)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Priority:"),
+                            d("span.value", issue.priority)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Type:"),
+                            d("span.value", issue.type)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "State:"),
+                            d("span.value", issue.state)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Assignee:"),
+                            d("span.value", issue.assignee)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Subsystem:"),
+                            d("span.value", issue.subsystem)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Fix versions:"),
+                            d("span.value", issue.fixVersions)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Affected versions:"),
+                            d("span.value", issue.affectedVersion)
+                        ),
+                        d("div.line", null,
+                            d("span.field", "Severity:"),
+                            d("span.value", issue.severity)
+                        ),
+
+                        d("div.line", null,
+                            d("span.field", "Links:"),
+                            d("span.value", null,
+                                d.map(issue.links, (link)=>
+                                    d("a", {target: "_blank", href: link.url}, link.value), ', ')
                             )
                         ),
-                        $a("div.line", null,
-                            $a("span.field", null, "Attachments:"),
-                            $a("span.value", null,
-                                map(issue.attachments, (attach) =>
-                                    $a("a", {target: "_blank", href: attach.url}, ()=>attach.value), ', ')
+                        d("div.line", null,
+                            d("span.field", "Attachments:"),
+                            d("span.value", null,
+                                d.map(issue.attachments, (attach) =>
+                                    d("a", {target: "_blank", href: attach.url}, attach.value), ', ')
                             )
                         ),
 
-                        $a("div.comments", null,
-                            $a("div.title", null, "Comments"),
-                            map(issue.comments, (comment) =>
-                                    $a("div.comment", null,
-                                        $a("div.author", null, ()=>comment.authorFullName),
-                                        $a("div.text", null, ()=>comment.text)
+                        d("div.comments", null,
+                            d("div.title", "Comments"),
+                            d.map(issue.comments, (comment) =>
+                                    d("div.comment", null,
+                                        d("div.author", comment.authorFullName),
+                                        d("div.text", comment.text)
                                     )
                             )
                         )
@@ -374,45 +332,44 @@ function doLayout(vm) {
     //console.log(insertBeforeCount);
 
     console.timeEnd('perf');
-    //console.profileEnd('perf');
+    console.profileEnd('perf');
 }
 
 //setInterval(doLayout, 1000);
 
-//doLayout();
-
+doLayout();
 
 /*
 
-var getOwn = Object.getOwnPropertyNames;
-Object.getOwnPropertyNames = function (obj) {
-    //console.log(obj.join(","));
-    var props = getOwn(obj);
-    var newProps = [];
-    for (var i = 0; i < props.length; i++) {
-        if (props[i][0] === '$') {
-            continue;
-        }
-        //console.log(props[i]);
+ var getOwn = Object.getOwnPropertyNames;
+ Object.getOwnPropertyNames = function (obj) {
+ //console.log(obj.join(","));
+ var props = getOwn(obj);
+ var newProps = [];
+ for (var i = 0; i < props.length; i++) {
+ if (props[i][0] === '$') {
+ continue;
+ }
+ //console.log(props[i]);
 
-        newProps.push(props[i]);
-    }
+ newProps.push(props[i]);
+ }
 
-    return newProps;
-};
+ return newProps;
+ };
 
-var getOwnDescr = Object.getOwnPropertyDescriptor;
-Object.getOwnPropertyDescriptor = function (obj, prop) {
-    var d = getOwnDescr(obj, prop);
-    if (d.get) {
-        d.value = d.get();
-    }
-    delete d.get;
-    delete d.set;
-    return d;
-}
-*/
+ var getOwnDescr = Object.getOwnPropertyDescriptor;
+ Object.getOwnPropertyDescriptor = function (obj, prop) {
+ var d = getOwnDescr(obj, prop);
+ if (d.get) {
+ d.value = d.get();
+ }
+ delete d.get;
+ delete d.set;
+ return d;
+ }
+ */
 
-interface Console {
-    profileEnd(name:string);
+interface console {
+    profileEnd(name:string): void;
 }
