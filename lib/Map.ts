@@ -39,15 +39,8 @@ module Arg {
         }
 
         var array = tree.map.get();
-        array.addListener(mapArrayListenerWrap, tree);
-
-        tree.map.addListener(renderMapDOMSetWrap, tree);
-    }
-
-
-    //todo: check for double run
-    export function renderMapDOMSetWrap(newValues: any[], tree: TreeItem) {
-        renderMapDOMSet(newValues, tree);
+        array.addListener(mapArrayListener, tree);
+        tree.map.addListener(renderMapDOMSet, tree);
     }
 
     export function renderMapDOMSet(array:any[], tree:TreeItem) {
@@ -66,12 +59,8 @@ module Arg {
                     render(itemTree);
                 }
             }
-            array.addListener(mapArrayListenerWrap, tree);
+            array.addListener(mapArrayListener, tree);
         }
-    }
-
-    export function mapArrayListenerWrap(array:any[], tree:TreeItem) {
-        mapArrayListener(array, tree);
     }
 
     var counter = 0;

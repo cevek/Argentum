@@ -10,6 +10,7 @@ interface AtomListeners<T> {
     arg1: any;
     arg2: any;
     arg3: any;
+    firstValue: T;
 }
 
 class Atom <T> {
@@ -123,7 +124,13 @@ class Atom <T> {
         }
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
-                this.listeners[i].callback(this._value, this.listeners[i].arg1, this.listeners[i].arg2, this.listeners[i].arg3);
+                var listener = this.listeners[i];
+                if (listener.firstValue === this._value && false) {
+                    listener.firstValue = null;
+                }
+                else {
+                    listener.callback(this._value, listener.arg1, listener.arg2, listener.arg3);
+                }
             }
         }
     }
@@ -155,7 +162,7 @@ class Atom <T> {
             this.listeners = [];
         }
         //if (this.listeners.indexOf(fn) === -1) {
-        this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3});
+        this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3, firstValue: this._value});
         //}
     }
 
