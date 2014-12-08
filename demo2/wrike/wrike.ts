@@ -8,11 +8,12 @@ var glob:any = {};
 module wrike {
     console.log(new nc.NCView());
 
-//    console.profile('perf');
+    console.profile('perf');
     glob.vdom = Arg.convertToTree(new nc.NCView());
+    Arg.publicRender(document.body, glob.vdom);
+    console.profileEnd('perf');
 
     setTimeout(function () {
-        Arg.publicRender(document.body, glob.vdom);
     }, 10);
     //glob.vdom = Arg.publicRender(document.body, new nc.NCView());
 

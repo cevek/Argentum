@@ -13,12 +13,12 @@ module wrike {
                 this.items = new Atom(null, null, [new Mention()]);
                 this.items.set([new Mention()]);
                 var items:Mention[] = [];
-                for (var i = 0; i < 100; i++) {
+                for (var i = 0; i < 1000; i++) {
                     items[i] = new Mention();
                 }
                 this.items.set(items);
                 this.interval = setInterval(() => {
-                    this.items.get().sort(()=>Math.random() - 0.5);
+                    //this.items.get().sort(()=>Math.random() - 0.5);
                     this.message.set(Math.random() > 0.5);
                 }, 1000);
             }
