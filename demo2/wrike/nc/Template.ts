@@ -4,11 +4,13 @@ module wrike {
             return d.root(
                 d('button', {onclick: ()=>vm.start()}, 'start'),
                 d('button', {onclick: ()=>vm.stop()}, 'stop'),
-                //d.when(new Atom(()=>NCView.activeType.isEqual(NCTabs.Mentions)), ()=>new MentionsView()),
-                //d.when(new Atom(()=>NCView.activeType.isEqual(NCTabs.Inbox)), ()=>new InboxView()),
+                d.when(new Atom(()=>NCView.activeType.isEqual(NCTabs.Mentions)), ()=>new MentionsView()),
+                d.when(new Atom(()=>NCView.activeType.isEqual(NCTabs.Inbox)), ()=>new InboxView()),
+/*
                 glob.m = new Atom(()=>
                     NCView.activeType.isEqual(NCTabs.Mentions) ? new MentionsView() : null),
                 new Atom(()=> NCView.activeType.isEqual(NCTabs.Inbox) ? new InboxView() : null),
+*/
                 /*
                  d.when(new Atom(a=>
                  NCView.activeType.isEqual(NCTabs.Mentions)),
