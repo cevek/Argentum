@@ -67,10 +67,12 @@ module Arg {
                     render(itemTree);
                 }
             }
-            array.addListener(()=> {
-                mapArrayListener(array, tree)
-            });
+            array.addListener(mapArrayListenerWrap, tree);
         }
+    }
+
+    function mapArrayListenerWrap(array:any[], tree:TreeItem) {
+        mapArrayListener(array, tree);
     }
 
     var counter = 0;

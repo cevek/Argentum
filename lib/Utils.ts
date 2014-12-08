@@ -8,11 +8,6 @@ module Arg {
         }
     }
 
-    export function removeAtom(atom:Atom<any>) {
-        atom.listeners = null;
-        atom.masters = null;
-    }
-
     export function removeTree(tree:TreeItem) {
         if (!tree) {
             return;
@@ -35,21 +30,22 @@ module Arg {
 
         if (tree.attrsAtoms) {
             for (var key in tree.attrsAtoms) {
-                removeAtom(tree.attrsAtoms[key])
+                tree.attrsAtoms[key].destroy();
             }
             tree.attrsAtoms = null;
         }
 
+
         if (tree.styleAtoms) {
             for (var key in tree.styleAtoms) {
-                removeAtom(tree.styleAtoms[key])
+                tree.styleAtoms[key].destroy();
             }
             tree.styleAtoms = null;
         }
 
         if (tree.classSetAtoms) {
             for (var key in tree.classSetAtoms) {
-                removeAtom(tree.classSetAtoms[key])
+                tree.classSetAtoms[key].destroy();
             }
             tree.classSetAtoms = null;
         }
@@ -59,13 +55,13 @@ module Arg {
 
         if (tree.map) {
             //tree.map.get().listeners = null;
-            removeAtom(tree.map);
+            tree.map.destroy();
             tree.map = null;
         }
 
         tree.whenCallback = null;
         if (tree.whenCondition) {
-            removeAtom(tree.whenCondition)
+            tree.whenCondition.destroy();
             tree.whenCondition = null;
         }
 

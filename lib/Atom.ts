@@ -5,6 +5,11 @@ interface Console {
     profileEnd(name:string):void;
 }
 
+interface AtomListeners<T, R> {
+    callback: (atom:T, arg?:R)=>void;
+    arg: R;
+}
+
 class Atom <T> {
     private static lastId = 0;
     id:number;
@@ -12,6 +17,7 @@ class Atom <T> {
     private _old_value:T;
     private getter:(atom:Atom<T>)=>T;
     private setter:(atom:Atom<T>)=>T;
+    private removed:boolean;
 
     constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
     constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>T, val?:T) {
@@ -94,7 +100,9 @@ class Atom <T> {
     unsetComputing() {
         this.computing = false;
         for (var id in this.slaves) {
-            this.slaves[id].unsetComputing();
+            if (this.slaves[id]) {
+                this.slaves[id].unsetComputing();
+            }
         }
     }
 
@@ -102,7 +110,7 @@ class Atom <T> {
         var list = Object.keys(this.order).sort((a, b)=>this.order[Number(b)] - this.order[Number(a)]);
         for (var i = 0; i < list.length; i++) {
             var slave = this.slaves[Number(list[i])];
-            if (!slave.computing) {
+            if (slave && !slave.computing) {
                 slave.computing = true;
                 slave._value = slave.getter(slave);
                 if (slave._old_value !== slave._value) {
@@ -113,7 +121,7 @@ class Atom <T> {
         }
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
-                this.listeners[i](this._value);
+                this.listeners[i].callback(this._value, this.listeners[i].arg);
             }
         }
     }
@@ -121,9 +129,8 @@ class Atom <T> {
     static traverseMasters(atom:Atom<any>, depth:number) {
         var ndepth = depth + 1;
         for (var i in atom.masters) {
-
             var master = atom.masters[i];
-            if (master.order[atom.id] < ndepth) {
+            if (master && master.order[atom.id] < ndepth) {
                 //console.log("traverse", master.id, ndepth);
                 master.order[atom.id] = ndepth;
                 Atom.traverseMasters(master, ndepth);
@@ -141,13 +148,36 @@ class Atom <T> {
         return this;
     }
 
-    addListener(fn:(val:T)=>void) {
+    addListener(fn:(val:T)=>void, arg?:any) {
         if (!this.listeners) {
             this.listeners = [];
         }
-        if (this.listeners.indexOf(fn) === -1) {
-            this.listeners.push(fn);
+        //if (this.listeners.indexOf(fn) === -1) {
+        this.listeners.push({callback: fn, arg: arg});
+        //}
+    }
+
+    destroy() {
+        for (var i in this.masters) {
+            var master = this.masters[i];
+            if (master && master.slaves) {
+                delete master.slaves[this.id];
+                delete master.order[this.id];
+            }
         }
+        for (var i in this.slaves) {
+            var slave = this.slaves[i];
+            if (slave && slave.masters) {
+                delete slave.masters[this.id];
+            }
+        }
+        this._old_value = null;
+        this._value = null;
+        this.masters = null;
+        this.order = null;
+        this.slaves = null;
+        this.listeners = null;
+        this.removed = true;
     }
 
     /*
@@ -162,19 +192,21 @@ class Atom <T> {
     public slaves:{[id: number]:Atom<any>} = {};
     public masters:{[id: number]:Atom<any>} = {};
     private order:{[id: number]:number} = {};
-    public listeners:{(val:T):void}[] = [];
+    public listeners:AtomListeners<T, any>[] = [];
 
     private static microtasks:{atom: Atom<any>; compute: boolean; value: any}[] = [];
     private static lastMicrotaskId = 0;
 
     private static observer = {microtaskId: 0};
 
+    static useObjectObserver = true;
+
     static sendMicrotask(atom:Atom<any>, compute:boolean, value:any = null) {
         //console.log("sendmicrotask", atom.id);
         var mid = ++Atom.lastMicrotaskId;
         Atom.microtasks.push({atom: atom, compute: compute, value: value});
         Atom.observer.microtaskId = mid;
-        if (!Object.observe) {
+        if (!Object.observe || !Atom.useObjectObserver) {
             window.postMessage({atomMicrotaskId: mid}, '*');
         }
     }
@@ -184,7 +216,7 @@ class Atom <T> {
         var doneAtoms:{[index: number]: boolean} = {};
         for (var i = Atom.microtasks.length - 1; i >= 0; i--) {
             var microtask = Atom.microtasks[i];
-            if (!doneAtoms[microtask.atom.id]) {
+            if (!doneAtoms[microtask.atom.id] && !microtask.atom.removed) {
                 //console.log("do microtask", microtask, microtask.atom.id);
                 microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
                 doneAtoms[microtask.atom.id] = true;
@@ -214,15 +246,19 @@ class Atom <T> {
     }
 }
 
-if (Object.observe) {
+if (Object.observe && Atom.useObjectObserver) {
     Atom.listenMicrotaskObjectObserver();
 }
 else {
     Atom.listenMicrotaskPostMessage();
 }
 
+interface ArrayListener {
+    callback: ()=>void;
+    arg: any;
+}
 interface Array<T> {
-    addListener(fn:(val?:T[])=>void):void;
+    addListener<R>(fn:(val?:T[], arg?: R)=>void, arg?:R):void;
     removeListener(fn:(val?:T[])=>void):void;
     __change():void;
     __push: any;
@@ -231,22 +267,22 @@ interface Array<T> {
     __shift: any;
     __sort: any;
     __splice: any;
-    listeners: {():void}[];
+    listeners: ArrayListener[];
 }
 
-Array.prototype.addListener = function (fn:any) {
+Array.prototype.addListener = function (fn:any, arg?:any) {
     this.listeners = this.listeners || [];
-    if (this.listeners.indexOf(fn) === -1) {
-        this.listeners.push(fn);
-    }
+    //if (this.listeners.indexOf(fn) === -1) {
+    this.listeners.push({callback: fn, arg: arg});
+    //}
 };
 Array.prototype.removeListener = function (fn:any) {
-    if (this.listeners) {
-        var index = this.listeners.indexOf(fn);
-        if (index > -1) {
-            this.splice(index, 1);
-        }
-    }
+    /*if (this.listeners) {
+     var index = this.listeners.indexOf(fn);
+     if (index > -1) {
+     this.splice(index, 1);
+     }
+     }*/
 };
 
 var Array_actionChangeId = 0;
@@ -269,7 +305,7 @@ window.addEventListener("message", function message(event:any) {
             var listeners = Array_arrays[i].listeners;
             if (listeners) {
                 for (var j = 0; j < listeners.length; j++) {
-                    listeners[j](Array_arrays[i]);
+                    listeners[j].callback(Array_arrays[i], listeners[j].arg);
                 }
             }
         }
