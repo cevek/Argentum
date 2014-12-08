@@ -56,7 +56,7 @@ module Arg {
         }
         else {
             tree.node[attr] = tree.attrs[attr];
-            if (tree.attrsAtoms && tree.attrsAtoms[attr]) {
+            if (tree.attrsAtoms && tree.attrsAtoms[attr] && Arg.enableAtoms) {
                 tree.attrsAtoms[attr].addListener(renderAttrAtomListener, tree, attr);
             }
         }
@@ -91,7 +91,7 @@ module Arg {
     export function renderStyle(tree:TreeItem, styleName:string) {
         tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
 
-        if (tree.styleAtoms && tree.styleAtoms[styleName]) {
+        if (tree.styleAtoms && tree.styleAtoms[styleName] && Arg.enableAtoms) {
             tree.styleAtoms[styleName].addListener(applyStyleListener, tree, styleName);
         }
     }
@@ -136,7 +136,9 @@ module Arg {
 
     export function renderClassSet(tree:TreeItem, className:string) {
         //console.log(className, "changed", tree.classSetAtoms[className]);
-        tree.classSetAtoms[className].addListener(classSetAtomListener, tree, className);
+        if (Arg.enableAtoms) {
+            tree.classSetAtoms[className].addListener(classSetAtomListener, tree, className);
+        }
     }
 
     export function classSetAtomListener(val:any, tree:TreeItem, className:string) {

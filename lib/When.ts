@@ -29,8 +29,11 @@ module Arg {
             tree.children[0].nodeBefore = tree.node;
             render(tree.children[0]);
         }
-        tree.whenCondition.addListener(renderWhenListener, tree);
+        if (Arg.enableAtoms) {
+            tree.whenCondition.addListener(renderWhenListener, tree);
+        }
     }
+
 
     export function renderWhenListener(condition:boolean, tree:TreeItem) {
         removeTreeChildren(tree);

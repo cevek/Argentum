@@ -39,8 +39,10 @@ module Arg {
         }
 
         var array = tree.map.get();
-        array.addListener(mapArrayListener, tree);
-        tree.map.addListener(renderMapDOMSet, tree);
+        if (Arg.enableAtoms) {
+            array.addListener(mapArrayListener, tree);
+            tree.map.addListener(renderMapDOMSet, tree);
+        }
     }
 
     export function renderMapDOMSet(array:any[], tree:TreeItem) {
@@ -59,7 +61,9 @@ module Arg {
                     render(itemTree);
                 }
             }
-            array.addListener(mapArrayListener, tree);
+            if (Arg.enableAtoms) {
+                array.addListener(mapArrayListener, tree);
+            }
         }
     }
 
