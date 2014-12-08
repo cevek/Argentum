@@ -5,9 +5,11 @@ interface Console {
     profileEnd(name:string):void;
 }
 
-interface AtomListeners<T, R> {
-    callback: (atom:T, arg?:R)=>void;
-    arg: R;
+interface AtomListeners<T> {
+    callback: (atom:T, arg1?:any, arg2?:any, arg3?:any)=>void;
+    arg1: any;
+    arg2: any;
+    arg3: any;
 }
 
 class Atom <T> {
@@ -121,7 +123,7 @@ class Atom <T> {
         }
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
-                this.listeners[i].callback(this._value, this.listeners[i].arg);
+                this.listeners[i].callback(this._value, this.listeners[i].arg1, this.listeners[i].arg2, this.listeners[i].arg3);
             }
         }
     }
@@ -148,12 +150,12 @@ class Atom <T> {
         return this;
     }
 
-    addListener(fn:(val:T)=>void, arg?:any) {
+    addListener<R1, R2, R3>(fn:(val:T, arg1?:R1, arg2?:R2, arg3?:R3)=>void, arg1?:R1, arg2?:R2, arg3?:R3) {
         if (!this.listeners) {
             this.listeners = [];
         }
         //if (this.listeners.indexOf(fn) === -1) {
-        this.listeners.push({callback: fn, arg: arg});
+        this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3});
         //}
     }
 
@@ -192,7 +194,7 @@ class Atom <T> {
     public slaves:{[id: number]:Atom<any>} = {};
     public masters:{[id: number]:Atom<any>} = {};
     private order:{[id: number]:number} = {};
-    public listeners:AtomListeners<T, any>[] = [];
+    public listeners:AtomListeners<T>[] = [];
 
     private static microtasks:{atom: Atom<any>; compute: boolean; value: any}[] = [];
     private static lastMicrotaskId = 0;
@@ -254,11 +256,13 @@ else {
 }
 
 interface ArrayListener {
-    callback: ()=>void;
-    arg: any;
+    callback: (array?:any, arg1?:any, arg2?:any, arg3?:any)=>void;
+    arg1: any;
+    arg2: any;
+    arg3: any;
 }
 interface Array<T> {
-    addListener<R>(fn:(val?:T[], arg?: R)=>void, arg?:R):void;
+    addListener<R1,R2,R3>(fn:(val?:T[], arg1?:R1, arg2?:R2, arg3?:R3)=>void, arg1?:R1, arg2?:R2, arg3?:R3):void;
     removeListener(fn:(val?:T[])=>void):void;
     __change():void;
     __push: any;
@@ -270,10 +274,10 @@ interface Array<T> {
     listeners: ArrayListener[];
 }
 
-Array.prototype.addListener = function (fn:any, arg?:any) {
+Array.prototype.addListener = function (fn:any, arg1?:any, arg2?:any, arg3?:any) {
     this.listeners = this.listeners || [];
     //if (this.listeners.indexOf(fn) === -1) {
-    this.listeners.push({callback: fn, arg: arg});
+    this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3});
     //}
 };
 Array.prototype.removeListener = function (fn:any) {
@@ -305,7 +309,7 @@ window.addEventListener("message", function message(event:any) {
             var listeners = Array_arrays[i].listeners;
             if (listeners) {
                 for (var j = 0; j < listeners.length; j++) {
-                    listeners[j].callback(Array_arrays[i], listeners[j].arg);
+                    listeners[j].callback(Array_arrays[i], listeners[j].arg1, listeners[j].arg2, listeners[j].arg3);
                 }
             }
         }

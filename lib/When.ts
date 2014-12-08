@@ -12,13 +12,12 @@ module Arg {
             atomCondition = new Atom<any>(null, null, condition);
         }
 
-        var whenCallback = ()=>convertToTree(callback());
-        var child = atomCondition.get() ? whenCallback() : null;
+        var child = atomCondition.get() ? convertToTree(callback()) : null;
         return new TreeItem({
             type: TreeType.WHEN,
             whenCondition: atomCondition,
             children: child ? [child] : null,
-            whenCallback: whenCallback
+            whenCallback: callback
         });
     }
 
@@ -30,15 +29,13 @@ module Arg {
             tree.children[0].nodeBefore = tree.node;
             render(tree.children[0]);
         }
-        tree.whenCondition.addListener(condition=> {
-            renderWhenListener(tree, condition);
-        });
+        tree.whenCondition.addListener(renderWhenListener, tree);
     }
 
-    export function renderWhenListener(tree:TreeItem, condition:boolean) {
+    export function renderWhenListener(condition:boolean, tree:TreeItem) {
         removeTreeChildren(tree);
         if (condition) {
-            var sub_tree = tree.whenCallback();
+            var sub_tree = convertToTree(tree.whenCallback());
             sub_tree.parentNode = tree.parentNode;
             sub_tree.nodeBefore = tree.node;
             tree.children = sub_tree ? [sub_tree] : null;

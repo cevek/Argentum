@@ -11,11 +11,10 @@ module Arg {
             atomArray = new Atom<any>(null, null, atomArray);
         }
 
-        var iterator = (item:any, i:number)=> convertToTree(mapIterator(item, i));
         var children:TreeItem[] = [];
         var array = atomArray.get().slice();
         for (var i = 0; i < array.length; i++) {
-            children[i] = iterator(array[i], i);
+            children[i] = convertToTree(mapIterator(array[i], i));
         }
 
         return new TreeItem({
@@ -24,7 +23,7 @@ module Arg {
             split: split,
             children: children,
             mapValues: array,
-            mapIterator: iterator
+            mapIterator: mapIterator
         });
     }
 
@@ -40,15 +39,15 @@ module Arg {
         }
 
         var array = tree.map.get();
-        array.addListener(newValues=> {
-            mapArrayListener(newValues, tree);
-        });
+        array.addListener(mapArrayListenerWrap, tree);
 
-        tree.map.addListener(newValues=> {
-            if (array !== newValues) {
-                renderMapDOMSet(newValues, tree);
-            }
-        });
+        tree.map.addListener(renderMapDOMSetWrap, tree);
+    }
+
+
+    //todo: check for double run
+    export function renderMapDOMSetWrap(newValues: any[], tree: TreeItem) {
+        renderMapDOMSet(newValues, tree);
     }
 
     export function renderMapDOMSet(array:any[], tree:TreeItem) {
@@ -57,7 +56,7 @@ module Arg {
             tree.children = [];
             tree.mapValues = [];
             for (var i = 0; i < array.length; i++) {
-                var itemTree = tree.mapIterator(array[i], i);
+                var itemTree = convertToTree(tree.mapIterator(array[i], i));
                 itemTree.parentNode = tree.parentNode;
                 itemTree.nodeBefore = tree.node;
                 tree.mapValues[i] = array[i];
@@ -71,7 +70,7 @@ module Arg {
         }
     }
 
-    function mapArrayListenerWrap(array:any[], tree:TreeItem) {
+    export function mapArrayListenerWrap(array:any[], tree:TreeItem) {
         mapArrayListener(array, tree);
     }
 

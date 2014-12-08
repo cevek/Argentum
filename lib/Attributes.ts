@@ -1,63 +1,10 @@
 module Arg {
 
-    export function renderAttrs(tree:TreeItem) {
-        if (tree.attrs) {
-            for (var key in tree.attrs) {
-                renderAttr(tree, key);
-            }
-        }
-    }
-
-    export function renderAttr(tree:TreeItem, attr:string) {
-        if (attr === 'style') {
-            for (var styleName in tree.attrs['style']) {
-                renderStyle(tree, styleName);
-            }
-        }
-        else if (attr === 'classSet') {
-            if (tree.classSetAtoms) {
-                for (var className in tree.classSetAtoms) {
-                    renderClassSet(tree, className);
-                }
-            }
-        }
-        else {
-            tree.node[attr] = tree.attrs[attr];
-            if (tree.attrsAtoms && tree.attrsAtoms[attr]) {
-                tree.attrsAtoms[attr].addListener(val=> {
-                    tree.node[attr] = val;
-                });
-            }
-        }
-    }
-
-    export function renderClassSet(tree:TreeItem, className:string) {
-        //console.log(className, "changed", tree.classSetAtoms[className]);
-        tree.classSetAtoms[className].addListener(val=> {
-            var classSet = tree.attrs['classSet'];
-
-            classSet[className] = val;
-            var cls = tree.attrs['baseClassName'] || '';
-            for (var i in classSet) {
-                if (classSet[i]) {
-                    cls += ' ' + i;
-                }
-            }
-            tree.attrs['className'] = cls;
-            tree.node['className'] = cls;
-        });
-    }
-
-    export function renderStyle(tree:TreeItem, styleName:string) {
-        tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
-
-        if (tree.styleAtoms && tree.styleAtoms[styleName]) {
-            tree.styleAtoms[styleName].addListener(val=> {
-                tree.node['style'][styleName] = styleCompleter(styleName, val);
-            });
-        }
-    }
-
+    /*
+     *===========================
+     *    Simple Attributes
+     *===========================
+     */
     export function prepareAttrs(tree:TreeItem) {
         if (tree.attrs) {
             for (var key in tree.attrs) {
@@ -86,6 +33,45 @@ module Arg {
         }
     }
 
+    export function renderAttrs(tree:TreeItem) {
+        if (tree.attrs) {
+            for (var key in tree.attrs) {
+                renderAttr(tree, key);
+            }
+        }
+    }
+
+    export function renderAttr(tree:TreeItem, attr:string) {
+        if (attr === 'style') {
+            for (var styleName in tree.attrs['style']) {
+                renderStyle(tree, styleName);
+            }
+        }
+        else if (attr === 'classSet') {
+            if (tree.classSetAtoms) {
+                for (var className in tree.classSetAtoms) {
+                    renderClassSet(tree, className);
+                }
+            }
+        }
+        else {
+            tree.node[attr] = tree.attrs[attr];
+            if (tree.attrsAtoms && tree.attrsAtoms[attr]) {
+                tree.attrsAtoms[attr].addListener(renderAttrAtomListener, tree, attr);
+            }
+        }
+    }
+
+    export function renderAttrAtomListener(val:any, tree:TreeItem, attr:string) {
+        tree.node[attr] = val;
+    }
+
+    /*
+     *===========================
+     *   Styles
+     *===========================
+     */
+
     export function prepareStyles(tree:TreeItem) {
         var styles = tree.attrs['style'];
         for (var styleName in styles) {
@@ -102,6 +88,31 @@ module Arg {
         }
     }
 
+    export function renderStyle(tree:TreeItem, styleName:string) {
+        tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
+
+        if (tree.styleAtoms && tree.styleAtoms[styleName]) {
+            tree.styleAtoms[styleName].addListener(applyStyleListener, tree, styleName);
+        }
+    }
+
+    export function applyStyleListener(val:any, tree:TreeItem, styleName:string) {
+        tree.node['style'][styleName] = styleCompleter(styleName, val);
+    }
+
+    export function styleCompleter(prop:string, value:any) {
+        var val = value;
+        if (!isNaN(+val) && (prop === 'height' || prop === 'width' || prop === 'top' || prop === 'left')) {
+            val += 'px';
+        }
+        return val;
+    }
+
+    /*
+     *===========================
+     *   ClassSets
+     *===========================
+     */
     export function prepareClassSet(tree:TreeItem) {
         var cls = tree.attrs['baseClassName'] || '';
         var classSet = tree.attrs['classSet'];
@@ -123,11 +134,23 @@ module Arg {
         tree.attrs['className'] = cls;
     }
 
-    export function styleCompleter(prop:string, value:any) {
-        var val = value;
-        if (!isNaN(+val) && (prop === 'height' || prop === 'width' || prop === 'top' || prop === 'left')) {
-            val += 'px';
-        }
-        return val;
+    export function renderClassSet(tree:TreeItem, className:string) {
+        //console.log(className, "changed", tree.classSetAtoms[className]);
+        tree.classSetAtoms[className].addListener(classSetAtomListener, tree, className);
     }
+
+    export function classSetAtomListener(val:any, tree:TreeItem, className:string) {
+        var classSet = tree.attrs['classSet'];
+
+        classSet[className] = val;
+        var cls = tree.attrs['baseClassName'] || '';
+        for (var i in classSet) {
+            if (classSet[i]) {
+                cls += ' ' + i;
+            }
+        }
+        tree.attrs['className'] = cls;
+        tree.node['className'] = cls;
+    }
+
 }

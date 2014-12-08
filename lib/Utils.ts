@@ -79,7 +79,8 @@ module Arg {
             }
             if (constructor === Atom) {
                 var atom:Atom<any> = val;
-                var whenCallback = ()=>convertToTree(atom.get());
+                var atomVal = atom.get();
+                var whenCallback = ()=>convertToTree(atomVal);
                 var child = whenCallback();
                 return new TreeItem({
                     type: TreeType.WHEN,
