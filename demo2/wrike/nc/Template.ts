@@ -27,43 +27,43 @@ module wrike {
                 d('div', 'Begin'),
                 new Atom(()=>vm.message.get() ? d('div', 'Hi') : d('a', {href: 'http://yandex.ru'}, 'yep')),
                 d.map(vm.items, (mention:Mention, i:number)=>
-                    d('div.item', {
+                    d('.item', {
                             style: {
                                 display1: 'none',
                                 backgroundColor: 'hsl(' + i * 12345 % 255 + ', 80%, 90%)'
                             }
                         },
-                        d('div.title', mention.task.summary),
-                        d('div.description', mention.task.description),
-                        d('div.pin', mention.isPinned),
-                        d('div.read', mention.isRead))),
+                        d('.title', mention.task.summary),
+                        d('.description', mention.task.description),
+                        d('.pin', mention.isPinned),
+                        d('.read', mention.isRead))),
                 d('div', 'End')
             )
         }
 
         export function InboxViewTemplate(vm:InboxView) {
             return d.root(
-                d('div.inbox',
+                d('.inbox',
                     d.map(vm.items, (inbox:Inbox)=>
-                        d('div.item',
+                        d('.item',
                             d.when(inbox.assigment, ()=>
-                                d('div.assigment-item', inbox.assigment.task.summary)),
+                                d('.assigment-item', inbox.assigment.task.summary)),
                             d.when(inbox.marketing, ()=>
-                                d('div.marketing-item', inbox.marketing.get().title))))))
+                                d('.marketing-item', inbox.marketing.get().title))))))
 
         }
 
         export function TabsViewTemplate(vm:TabsView) {
             return d.root(
-                d('div.tabs',
-                    d('div.button', {
+                d('.tabs',
+                    d('.button', {
                         classSet: {selected: new Atom(a=> NCView.activeType.isEqual(NCTabs.Mentions))},
                         onclick: ()=> {
                             NCView.activeType.set(NCTabs.Mentions)
                         }
                     }, 'Mentions'),
 
-                    d('div.button', {
+                    d('.button', {
                         classSet: {selected: new Atom(a=> NCView.activeType.isEqual(NCTabs.Inbox))},
                         onclick: ()=> NCView.activeType.set(NCTabs.Inbox)
                     }, 'Inbox')))
