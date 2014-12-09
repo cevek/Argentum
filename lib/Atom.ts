@@ -19,11 +19,11 @@ class Atom <T> {
     private _value:T;
     private _old_value:T;
     private getter:(atom:Atom<T>)=>T;
-    private setter:(atom:Atom<T>)=>T;
+    private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
 
-    constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>T, val?:T) {
+    //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
+    constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>void, val?:T) {
         this.getter = getter;
         this.setter = setter;
         this.id = ++Atom.lastId;
@@ -69,10 +69,9 @@ class Atom <T> {
         return this._value;
     }
 
-    set(val:T, sync = false) {
-        if (this._value !== val) {
+    set(val:T, force = false, sync = false) {
+        if (this._value !== val || force) {
             this._value = val;
-
             if (sync) {
                 this.microtaskUpdate(false, val);
                 this.unsetComputing();
@@ -83,8 +82,17 @@ class Atom <T> {
         }
     }
 
+    setNull() {
+        this.set(null);
+    }
+
     isEqual(val:T) {
         return this.get() === val;
+    }
+
+    isEmpty() {
+        var val:any = this.get();
+        return !val || val.length === 0;
     }
 
     update() {
@@ -94,17 +102,21 @@ class Atom <T> {
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
         this._value = compute && this.getter ? this.getter(this) : value;
-        if (this._old_value !== this._value) {
+        //if (this._old_value !== this._value) {
             this._update();
-        }
+        //}
         this._old_value = this._value;
     }
 
     unsetComputing() {
         this.computing = false;
+        this.setter && this.setter(this);
+
         for (var id in this.slaves) {
             if (this.slaves[id]) {
                 this.slaves[id].unsetComputing();
+                this.slaves[id].setter && this.slaves[id].setter(this.slaves[id]);
+                //console.log(this.slaves[id].setter);
             }
         }
     }
@@ -223,8 +235,10 @@ class Atom <T> {
     static applyUpdates() {
         //console.log("message", event.data, Atom.microtasks);
         var doneAtoms:{[index: number]: boolean} = {};
-        for (var i = Atom.microtasks.length - 1; i >= 0; i--) {
-            var microtask = Atom.microtasks[i];
+        var mt = Atom.microtasks.slice();
+        Atom.microtasks = [];
+        for (var i = mt.length - 1; i >= 0; i--) {
+            var microtask = mt[i];
             if (!doneAtoms[microtask.atom.id] && !microtask.atom.removed) {
                 //console.log("do microtask", microtask, microtask.atom.id);
                 microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
@@ -232,11 +246,9 @@ class Atom <T> {
             }
         }
 
-        for (var i = 0; i < Atom.microtasks.length; i++) {
-            Atom.microtasks[i].atom.unsetComputing();
+        for (var i = 0; i < mt.length; i++) {
+            mt[i].atom.unsetComputing();
         }
-
-        Atom.microtasks = [];
     }
 
     static listenMicrotaskPostMessage() {
