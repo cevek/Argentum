@@ -12,7 +12,7 @@ module Arg {
         }
 
         var children:TreeItem[] = [];
-        var array = atomArray.get().slice();
+        var array = (atomArray.get() || []).slice();
         for (var i = 0; i < array.length; i++) {
             children[i] = convertToTree(mapIterator(array[i], i));
         }
@@ -38,7 +38,7 @@ module Arg {
             render(itemTree);
         }
 
-        var array = tree.map.get();
+        var array = tree.map.get() || [];
         if (Arg.enableAtoms) {
             array.addListener(mapArrayListener, tree);
             tree.map.addListener(renderMapDOMSet, tree);

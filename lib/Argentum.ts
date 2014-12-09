@@ -7,7 +7,7 @@
 /// <reference path="When.ts"/>
 
 module Arg {
-    export var enableAtoms = false;
+    export var enableAtoms = true;
 
     export function publicRender(node:Node, treeItem:any) {
         var _treeItem = convertToTree(treeItem);

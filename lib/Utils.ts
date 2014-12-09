@@ -35,7 +35,6 @@ module Arg {
             tree.attrsAtoms = null;
         }
 
-
         if (tree.styleAtoms) {
             for (var key in tree.styleAtoms) {
                 tree.styleAtoms[key].destroy();
@@ -93,7 +92,7 @@ module Arg {
                 return val;
             }
             if (val.render) {
-                var treeItem = val.render();
+                var treeItem = convertToTree(val.render());
                 treeItem.tag = prepareViewName(val.constructor.name);
                 treeItem.type = TreeType.TAG;
                 treeItem.component = val;
@@ -108,7 +107,7 @@ module Arg {
         var words:string[] = [];
         for (var i = 0; i < splits.length; i++) {
             var word = splits[i].toLowerCase();
-            if (word && word !== 'view') {
+            if (word && word !== 'view' && word !== 'v') {
                 words.push(word);
             }
         }
@@ -133,6 +132,9 @@ module Arg {
                 lastDot = i;
             }
         }
+        if (!tree.tag) {
+            tree.tag = 'div';
+        }
 
         if (className) {
             if (tree.attrs) {
@@ -143,6 +145,12 @@ module Arg {
             } else {
                 tree.attrs = {className: className, baseClassName: className};
             }
+        }
+        else {
+            if (tree.attrs && tree.attrs['className']) {
+                tree.attrs['baseClassName'] = tree.attrs['className'];
+            }
+
         }
 
         prepareAttrs(tree);

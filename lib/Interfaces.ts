@@ -1,22 +1,28 @@
 module Arg {
     export interface ITreeItem {
-        type: TreeType;
-        tag?: string;
-        value?: TreeItem;
-        component?: Component;
-        attrs?: Attrs;
+        [idx: string]: any;
+        type:TreeType;
+        tag?:string;
+        value?:string;
+        component?:Component;
+        attrs?:Attrs;
+        attrsAtoms?:{[idx: string]: Atom<any>};
+        styleAtoms?:{[idx: string]: Atom<any>};
+        classSetAtoms?:{[idx: string]: Atom<any>};
         children?:TreeItem[];
         node?:Node;
+        parentNode?:Node;
+        nodeBefore?:Node;
+
+        removed?:boolean;
 
         mapIterator?:IMapIterator<any>;
         map?:Atom<any[]>;
         mapSplit?:string;
-        mapValues?: any[];
+        mapValues?:any[];
 
-        whenCondition?:Atom<any[]>;
-        whenCallback?: IWhenCallback;
-
-        [idx: string]: any;
+        whenCallback?:IWhenCallback;
+        whenCondition?:Atom<any>;
     }
     export class TreeItem {
     [idx: string]: any;
