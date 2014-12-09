@@ -1,5 +1,5 @@
-var defaultFields = ["projectShortName", "numberInProject", "summary", "description", "created", "updated", "resolved",
-    "updaterName", "updaterFullName", "reporterName", "reporterFullName", "commentsCount", "votes", "attachments", "links"];
+var defaultFields = ['projectShortName', 'numberInProject', 'summary', 'description', 'created', 'updated', 'resolved',
+    'updaterName', 'updaterFullName', 'reporterName', 'reporterFullName', 'commentsCount', 'votes', 'attachments', 'links'];
 
 class User {
     firstName:string;
@@ -133,7 +133,7 @@ class Issue {
 
  var $w = new $W;
 
- //$w.issues.get.push(new Issue({id: 1, title: "lala1"}));
+ //$w.issues.get.push(new Issue({id: 1, title: 'lala1'}));
  $w.issues.add(new Issue({id: 1, title: '123', description: '123', created: 3324545, updated: 23423}));
  $w.issues.get(0).users.add(new User({firstName: 'bababa', lastName: 'asbababa'}));
 
@@ -145,7 +145,7 @@ class Issue {
 
  var c = new Atomic(()=>$w.issues.get(0).user.get.firstName.get);
  c.addListener(function (val) {
- console.log("Changed", val);
+ console.log('Changed', val);
 
  });
 
@@ -183,7 +183,7 @@ for (var i = 0; i < data.length; i++) {
     $w.issues.push(new Issue(data[i]));
 }
 
-function wrapText(text: string, len: number) {
+function wrapText(text:string, len:number) {
     return text && text.length > len ? text.substr(0, len) + '...' : text;
 }
 
@@ -203,124 +203,129 @@ function wrapText(text: string, len: number) {
 
 class PanelView {
     template:any;
-    issues: Issue[] = [];
+    issues:Issue[] = [];
 
     constructor() {
         this.template = doLayout();
     }
 
     /*itemTemplate(issue: Issue) {
-        if (issue.id == 1) {
-            return this.itemTemplate;
-        }
-    }*/
+     if (issue.id == 1) {
+     return this.itemTemplate;
+     }
+     }*/
 
 }
 
 function abc() {
-    return d('div.hello', 'ABC');
+    return d('.hello', 'ABC');
 }
 
 /*function doLayout(vm) {
-    document.getElementById('test').innerHTML = '';
-    console.profile('perf');
-    console.time('perf');
-    render(document.getElementById('test'),
-        d('div', null,
-            //document.createElement('div'),
-            map(vm.issues, (issue) => vm.itemTemplate(issue))
-        )
-    );
+ document.getElementById('test').innerHTML = '';
+ console.profile('perf');
+ console.time('perf');
+ render(document.getElementById('test'),
+ d('',
+ //document.createElement(''),
+ map(vm.issues, (issue) => vm.itemTemplate(issue))
+ )
+ );
 
-    console.log(insertBeforeCount);
+ console.log(insertBeforeCount);
 
-    console.timeEnd('perf');
-    console.profileEnd('perf');
-}*/
+ console.timeEnd('perf');
+ console.profileEnd('perf');
+ }*/
+
 function doLayout() {
+
     document.getElementById('test').innerHTML = '';
     console.profile('perf');
     console.time('perf');
     Arg.publicRender(document.getElementById('test'),
-        d('div', null,
-            //document.createElement('div'),
-            d.map($w.issues, issue=>
-                    d('div.issue', null,
-                        d('div.line', null,
+        d('.issues',
+            d.map($w.issues,
+                issue =>
+                    d('.issue',
+                        d('.line',
                             d('span.field', 'ID:'),
                             d('span', issue.id + ' / ' + issue.summary)
                         ),
-                        d('div.line', null,
+                        d('.line',
                             d('span.field', 'Summary:'),
                             d('span', issue.summary)
                         ),
-                        d('div.line', null,
+                        d('.line',
                             d('span.field', 'Description:'),
                             d('span', wrapText(issue.description, 100))
                         ),
 
-                        d("div.line", null,
-                            d("span.field", "Reporter:"),
-                            d("span.value", issue.reporterFullName)
+                        d('.line',
+                            d('span.field', 'Reporter:'),
+                            d('span.value', issue.reporterFullName)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Updater:"),
-                            d("span.value", issue.updaterFullName)
+                        d('.line',
+                            d('span.field', 'Updater:'),
+                            d('span.value', issue.updaterFullName)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Priority:"),
-                            d("span.value", issue.priority)
+                        d('.line',
+                            d('span.field', 'Priority:'),
+                            d('span.value', issue.priority)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Type:"),
-                            d("span.value", issue.type)
+                        d('.line',
+                            d('span.field', 'Type:'),
+                            d('span.value', issue.type)
                         ),
-                        d("div.line", null,
-                            d("span.field", "State:"),
-                            d("span.value", issue.state)
+                        d('.line',
+                            d('span.field', 'State:'),
+                            d('span.value', issue.state)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Assignee:"),
-                            d("span.value", issue.assignee)
+                        d('.line',
+                            d('span.field', 'Assignee:'),
+                            d('span.value', issue.assignee)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Subsystem:"),
-                            d("span.value", issue.subsystem)
+                        d('.line',
+                            d('span.field', 'Subsystem:'),
+                            d('span.value', issue.subsystem)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Fix versions:"),
-                            d("span.value", issue.fixVersions)
+                        d('.line',
+                            d('span.field', 'Fix versions:'),
+                            d('span.value', issue.fixVersions)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Affected versions:"),
-                            d("span.value", issue.affectedVersion)
+                        d('.line',
+                            d('span.field', 'Affected versions:'),
+                            d('span.value', issue.affectedVersion)
                         ),
-                        d("div.line", null,
-                            d("span.field", "Severity:"),
-                            d("span.value", issue.severity)
-                        ),
-
-                        d("div.line", null,
-                            d("span.field", "Links:"),
-                            d("span.value", null,
-                                d.map(issue.links, (link)=>
-                                    d("a", {target: "_blank", href: link.url}, link.value), ', ')
-                            )
-                        ),
-                        d("div.line", null,
-                            d("span.field", "Attachments:"),
-                            d("span.value", null,
-                                d.map(issue.attachments, (attach) =>
-                                    d("a", {target: "_blank", href: attach.url}, attach.value), ', ')
-                            )
+                        d('.line',
+                            d('span.field', 'Severity:'),
+                            d('span.value', issue.severity)
                         ),
 
-                        d("div.comments", null,
-                            d("div.title", "Comments"),
-                            d.map(issue.comments, (comment) =>
-                                    d("div.comment", null,
-                                        d("div.author", comment.authorFullName),
-                                        d("div.text", comment.text)
+                        d('.line',
+                            d('span.field', 'Links:'),
+                            d('span.value',
+                                d.map(issue.links,
+                                    link =>
+                                        d('a', {target: '_blank', href: link.url}, link.value), ', ')
+                            )
+                        ),
+                        d('.line',
+                            d('span.field', 'Attachments:'),
+                            d('span.value',
+                                d.map(issue.attachments,
+                                    attach =>
+                                        d('a', {target: '_blank', href: attach.url}, attach.value), ', ')
+                            )
+                        ),
+
+                        d('.comments',
+                            d('.title', 'Comments'),
+                            d.map(issue.comments,
+                                comment =>
+                                    d('.comment',
+                                        d('.author', comment.authorFullName),
+                                        d('.text', comment.text)
                                     )
                             )
                         )
@@ -343,7 +348,7 @@ doLayout();
 
  var getOwn = Object.getOwnPropertyNames;
  Object.getOwnPropertyNames = function (obj) {
- //console.log(obj.join(","));
+ //console.log(obj.join(','));
  var props = getOwn(obj);
  var newProps = [];
  for (var i = 0; i < props.length; i++) {
