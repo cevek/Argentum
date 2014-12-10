@@ -10,7 +10,7 @@ interface AtomListeners<T> {
     arg1: any;
     arg2: any;
     arg3: any;
-    firstValue: T;
+    firstValue: any;
 }
 
 class Atom <T> {
@@ -21,17 +21,20 @@ class Atom <T> {
     private getter:(atom:Atom<T>)=>T;
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
+    public name:string;
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>void, val?:T) {
+    constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>void, val?:T, name?:string) {
         this.getter = getter;
         this.setter = setter;
         this.id = ++Atom.lastId;
-        //this._value = val;
-        this.set(val);
+        this.name = name;
+        this._value = val === null ? void 0 : val;
+        //this.set(val === null ? void 0 : val);
     }
 
     static lastCalled:Atom<any>;
+    static firstValueObj = {};
 
     valueOf():T {
         return this.get();
@@ -103,7 +106,7 @@ class Atom <T> {
         this.computing = true;
         this._value = compute && this.getter ? this.getter(this) : value;
         //if (this._old_value !== this._value) {
-            this._update();
+        this._update();
         //}
         this._old_value = this._value;
     }
@@ -137,12 +140,12 @@ class Atom <T> {
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
                 var listener = this.listeners[i];
-                if (listener.firstValue === this._value && false) {
-                    listener.firstValue = null;
-                }
-                else {
+                if (listener.firstValue !== this._value) {
+                    console.log(this.name || this.id, "listener callback");
+
                     listener.callback(this._value, listener.arg1, listener.arg2, listener.arg3);
                 }
+                listener.firstValue =  Atom.firstValueObj;
             }
         }
     }
