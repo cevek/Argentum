@@ -1,23 +1,15 @@
 module rc {
     export class VStations implements Arg.Component {
-        stations = new Atom<Station[]>(()=>
-                stationsStore.filter(station=>
-                    activeTag.get() && station.tagsIds.indexOf(activeTag.get().id) > -1
-                )
-        );
-
-        isEmpty = new Atom(()=>this.stations.isEmpty());
-
-
+        isEmpty = new Atom(()=>stationsList.isEmpty(), null, null, 'VStations.isEmpty');
 
         render() {
             return d.root({className: "panel", classSet: {empty: this.isEmpty}},
                 d.when(this.isEmpty, ()=>
                     d('.empty-text', 'Please select tag at first')),
-                d.map(this.stations,
+                d.map(stationsList,
                     (station:Station) =>
                         d('.item', {
-                            classSet: {selected: new Atom(()=>activeStation.isEqual(station))},
+                            classSet: {selected: new Atom(()=>activeStation.isEqual(station), null, null, 'VStations.isEqual')},
                             onclick: ()=> {activeStation.set(station)}
                         }, station.name)
                 )

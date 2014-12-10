@@ -11,18 +11,18 @@
 var glob:any = {};
 module rc {
 
-    export var activeTag = new Atom<Tag>(null, ()=> {activeStation.setNull()});
-    export var activeStation = new Atom<Station>(null, ()=> {activeTrack.setNull()});
+    export var activeTag = new Atom<Tag>(null, ()=> {activeStation.setNull()}, null, 'activeTag');
+    export var activeStation = new Atom<Station>(null, ()=> {activeTrack.setNull()}, null, 'activeStation');
     export var stationsList = new Atom<Station[]>(()=>
             stationsStore.filter(station=>
                 activeTag.get() && station.tagsIds.indexOf(activeTag.get().id) > -1
-            )
+            ), null, null, 'stationsList'
     );
 
-    export var tracksList = new Atom(()=>activeStation.get() ? activeStation.get().tracks : null);
+    export var tracksList = new Atom(()=>activeStation.get() ? activeStation.get().tracks : null, null, null, 'tracksList');
 
-    export var activeTrack = new Atom<Track>();
-    export var keyPress = new Atom<KeyCodes>();
+    export var activeTrack = new Atom<Track>(null, null, null, 'activeTrack');
+    export var keyPress = new Atom<KeyCodes>(null, null, null, 'keyPress');
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];
@@ -36,5 +36,8 @@ module rc {
 
     glob.vdom = Arg.publicRender(document.body, new VLister());
 }
+
+
+
 
 

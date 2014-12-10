@@ -28,7 +28,7 @@ module rc {
                 d.map(tagsStore,
                     (tag:Tag) =>
                         d('.item', {
-                            classSet: {selected: new Atom(()=>activeTag.isEqual(tag))},
+                            classSet: {selected: new Atom(()=>activeTag.isEqual(tag), null, null, 'VTags.isEqual')},
                             onclick: ()=>activeTag.set(tag)
                         }, tag.name)
                 )

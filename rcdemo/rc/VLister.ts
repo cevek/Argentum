@@ -10,8 +10,6 @@ module rc {
     export class VLister implements Arg.Component {
 
         onKeyDown(e:KeyboardEvent) {
-            e.preventDefault();
-
             switch (e.keyCode) {
                 case 37:
                     keyPress.set(KeyCodes.LEFT, true);

@@ -1,6 +1,6 @@
 module rc {
     export class VTracks implements Arg.Component {
-        isEmpty = new Atom(()=>tracksList.isEmpty());
+        isEmpty = new Atom(()=>tracksList.isEmpty(), null, null, 'VTracks.isEmpty');
 
         render() {
             return d.root({className: "panel", classSet: {empty: this.isEmpty}},
@@ -9,7 +9,7 @@ module rc {
                 d.map(tracksList,
                     (track:Track) =>
                         d('.item', {
-                            classSet: {selected: new Atom(()=>activeTrack.isEqual(track))},
+                            classSet: {selected: new Atom(()=>activeTrack.isEqual(track), null, null, 'VTracks.isEqual')},
                             onclick: ()=>activeTrack.set(track)
                         }, track.created)
                 )
