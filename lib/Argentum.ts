@@ -8,6 +8,7 @@
 
 module Arg {
     export var enableAtoms = true;
+    export var ns = ()=>Arg;
 
     export function publicRender(node:Node, treeItem:any) {
         var _treeItem = convertToTree(treeItem);

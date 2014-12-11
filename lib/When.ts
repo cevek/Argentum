@@ -6,10 +6,16 @@ module Arg {
     export function wheeen(condition:any, callback:()=>any) {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
-            atomCondition = new Atom<any>(condition, null, null, 'Arg.whenCondition');
+            atomCondition = new Atom<any>(Arg, {
+                getter: condition,
+                name: 'whenCondition'
+            });
         }
         if (condition.constructor !== Atom) {
-            atomCondition = new Atom<any>(null, null, condition, 'Arg.whenCondition');
+            atomCondition = new Atom<any>(Arg, {
+                value: condition,
+                name: 'whenCondition'
+            });
         }
 
         var child = atomCondition.get() ? convertToTree(callback()) : null;
@@ -33,7 +39,6 @@ module Arg {
             tree.whenCondition.addListener(renderWhenListener, tree);
         }
     }
-
 
     export function renderWhenListener(condition:boolean, tree:TreeItem) {
         removeTreeChildren(tree);
