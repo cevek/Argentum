@@ -13,24 +13,43 @@ interface AtomListeners<T> {
     firstValue: any;
 }
 
+interface IAtom<T> {
+    getter?: (prevValue:T)=>T;
+    setter?: (atom:Atom<T>)=>void;
+    value?: T;
+    name?: string;
+}
+
 class Atom <T> {
     private static lastId = 0;
     id:number;
-    private _value:T;
-    private _old_value:T;
-    private getter:(prevValue: T)=>T;
+    private value:T;
+    private old_value:T;
+    private getter:(prevValue:T)=>T;
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
     public name:string;
+    private owner:any;
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(getter?:(prevValue: T)=>T, setter?:(atom:Atom<T>)=>void, val?:T, name?:string) {
-        this.getter = getter;
-        this.setter = setter;
+    constructor(owner:any, obj:IAtom<T>) {
         this.id = ++Atom.lastId;
-        this.name = name;
-        this._value = val === null ? void 0 : val;
+        this.owner = owner;
+
+        if (obj) {
+            this.getter = obj.getter;
+            this.setter = obj.setter;
+            this.name = obj.name;
+            this.value = obj.value === null ? void 0 : obj.value;
+        }
         //this.set(val === null ? void 0 : val);
+    }
+
+    getName() {
+        if (!this.name) {
+            this.name = Object.keys(this.owner).filter(key => this.owner[key] == this).pop();
+        }
+        return this.name;
     }
 
     static lastCalled:Atom<any>;
@@ -45,10 +64,10 @@ class Atom <T> {
     }
 
     get():T {
-        if (this._value === undefined && this.getter) {
+        if (this.value === undefined && this.getter) {
             var temp = Atom.lastCalled;
             Atom.lastCalled = this;
-            this._value = this.getter(this._value);
+            this.value = this.getter(this.value);
             Atom.lastCalled = temp;
         }
 
@@ -69,12 +88,12 @@ class Atom <T> {
             Atom.traverseMasters(parentAtom, 0);
         }
 
-        return this._value;
+        return this.value;
     }
 
     set(val:T, force = false, sync = false) {
-        if (this._value !== val || force) {
-            this._value = val;
+        if (this.value !== val || force) {
+            this.value = val;
             if (sync) {
                 this.microtaskUpdate(false, val);
                 this.unsetComputing();
@@ -104,11 +123,11 @@ class Atom <T> {
 
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
-        this._value = compute && this.getter ? this.getter(this._value) : value;
-        //if (this._old_value !== this._value) {
+        this.value = compute && this.getter ? this.getter(this.value) : value;
+        //if (this.old_value !== this.value) {
         this._update();
         //}
-        this._old_value = this._value;
+        this.old_value = this.value;
     }
 
     unsetComputing() {
@@ -130,22 +149,22 @@ class Atom <T> {
             var slave = this.slaves[Number(list[i])];
             if (slave && !slave.computing) {
                 slave.computing = true;
-                slave._value = slave.getter(slave);
-                if (slave._old_value !== slave._value) {
+                slave.value = slave.getter(slave);
+                if (slave.old_value !== slave.value) {
                     slave._update();
                 }
-                slave._old_value = slave._value;
+                slave.old_value = slave.value;
             }
         }
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
                 var listener = this.listeners[i];
-                if (listener.firstValue !== this._value) {
+                if (listener.firstValue !== this.value) {
                     console.log(this.name || this.id, "listener callback");
 
-                    listener.callback(this._value, listener.arg1, listener.arg2, listener.arg3);
+                    listener.callback(this.value, listener.arg1, listener.arg2, listener.arg3);
                 }
-                listener.firstValue =  Atom.firstValueObj;
+                listener.firstValue = Atom.firstValueObj;
             }
         }
     }
@@ -177,7 +196,7 @@ class Atom <T> {
             this.listeners = [];
         }
         //if (this.listeners.indexOf(fn) === -1) {
-        this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3, firstValue: this._value});
+        this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3, firstValue: this.value});
         //}
     }
 
@@ -195,8 +214,8 @@ class Atom <T> {
                 delete slave.masters[this.id];
             }
         }
-        this._old_value = null;
-        this._value = null;
+        this.old_value = null;
+        this.value = null;
         this.masters = null;
         this.order = null;
         this.slaves = null;
@@ -390,6 +409,38 @@ Array.prototype.splice = function (start:number, deleteCount?:number) {
         return this.__splice(start, deleteCount);
     }
 };
+
+var getDescr = Object.getOwnPropertyDescriptor;
+Object.getOwnPropertyDescriptor = function (o, p) {
+    var data = getDescr(o, p);
+    if (o[p] && o[p] instanceof Atom) {
+        var atom = o[p];
+        if (atom.owner) {
+            var owner:any = atom.owner;
+            var constr = atom.owner.constructor;
+            var ns = constr.ns;
+            if (typeof constr.ns == 'function') {
+                ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
+            }
+            if (owner.ns){
+                if (typeof owner.ns == 'function') {
+                    ns = owner.ns.toString().replace('function () { return ', '').replace('; }', '');
+                }
+            }
+
+            var atomPropName = atom.getName();
+            var name = (ns ? ns : constr.name ) + "." + atomPropName;
+            var fn = eval("var Atom = {'" + name + "': function (){}}; Atom['" + name + "']");
+            var obj = new fn;
+            obj.original = atom;
+            Object.keys(atom).forEach(key=>obj[key] = atom[key]);
+
+            data.value = obj;
+        }
+    }
+    return data;
+};
+
 /*
 
  function log(a:Atom<any>, val:any) {
