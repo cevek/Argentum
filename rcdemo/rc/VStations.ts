@@ -1,6 +1,8 @@
 module rc {
     export class VStations implements Arg.Component {
-        isEmpty = new Atom(()=>stationsList.isEmpty(), null, null, 'VStations.isEmpty');
+        isEmpty = new Atom(this, {
+            getter: ()=>stationsList.isEmpty()
+        });
 
         render() {
             return d.root('.panel', {classSet: {empty: this.isEmpty}},
@@ -9,7 +11,12 @@ module rc {
                 d.map(stationsList,
                     (station:Station) =>
                         d('.item', {
-                            classSet: {selected: new Atom(()=>activeStation.isEqual(station), null, null, 'VStations.isEqual')},
+                            classSet: {
+                                selected: new Atom(this, {
+                                    getter: ()=>activeStation.isEqual(station),
+                                    name: 'isEqual'
+                                })
+                            },
                             onclick: ()=> {activeStation.set(station)}
                         }, station.name)
                 )

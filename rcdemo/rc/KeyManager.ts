@@ -8,7 +8,7 @@ module rc {
     }
 
     export class KeyManager {
-        static events = new Atom<KeyCodes>(null, null, null, 'KeyManager.events');
+        static events = new Atom<KeyCodes>(KeyManager, {});
 
         static upDownSelectedItem<R>(store:Atom<R[]>, selected:Atom<R>) {
             KeyManager.events.addListener(keyCode=> {

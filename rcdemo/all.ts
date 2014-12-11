@@ -11,18 +11,27 @@
 
 var glob:any = {};
 module rc {
+    export var ns = ()=> rc;
 
-    export var activeTag = new Atom<Tag>(null, ()=> {activeStation.set(stationsList.get()[0])}, null, 'activeTag');
-    export var activeStation = new Atom<Station>(null, ()=> {activeTrack.setNull()}, null, 'activeStation');
-    export var stationsList = new Atom<Station[]>(()=>
-            stationsStore.filter(station=>
-                activeTag.get() && station.tagsIds.indexOf(activeTag.get().id) > -1
-            ), null, null, 'stationsList'
+    export var activeTag = new Atom<Tag>(rc, {
+        setter: ()=> {activeStation.set(stationsList.get()[0])}
+    });
+    export var activeStation = new Atom<Station>(rc, {
+        setter: ()=> {activeTrack.setNull()}
+    });
+    export var stationsList = new Atom<Station[]>(rc, {
+            getter: ()=>
+                stationsStore.filter(station=>
+                    activeTag.get() && station.tagsIds.indexOf(activeTag.get().id) > -1
+                )
+        }
     );
 
-    export var tracksList = new Atom(()=>activeStation.get() ? activeStation.get().tracks : null, null, null, 'tracksList');
+    export var tracksList = new Atom(rc, {
+        getter: ()=>activeStation.get() ? activeStation.get().tracks : null
+    });
 
-    export var activeTrack = new Atom<Track>(null, null, null, 'activeTrack');
+    export var activeTrack = new Atom<Track>(rc, {});
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];

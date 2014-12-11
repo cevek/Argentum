@@ -5,7 +5,12 @@ module rc {
                 d.map(tagsStore,
                     (tag:Tag) =>
                         d('.item', {
-                            classSet: {selected: new Atom(()=>activeTag.isEqual(tag), null, null, 'VTags.isEqual')},
+                            classSet: {
+                                selected: new Atom(this, {
+                                    getter: ()=>activeTag.isEqual(tag),
+                                    name: 'isEqual'
+                                })
+                            },
                             onclick: ()=>activeTag.set(tag)
                         }, tag.name)
                 )
