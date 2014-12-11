@@ -51,8 +51,8 @@ module Arg {
         export var map = mapper;
         export var when = wheeen;
 
-        export function root(...children:any[]):TreeItem {
-            children.unshift('root');
+        export function root(tagExpr:string, ...children:any[]):TreeItem {
+            children.unshift(tagExpr.replace(/^[^.\[\#]+/, 'root'));
             return dom.apply(null, children);
         }
     }
