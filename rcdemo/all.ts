@@ -11,7 +11,7 @@
 var glob:any = {};
 module rc {
 
-    export var activeTag = new Atom<Tag>(null, ()=> {activeStation.setNull()}, null, 'activeTag');
+    export var activeTag = new Atom<Tag>(null, ()=> {activeStation.set(stationsList.get()[0])}, null, 'activeTag');
     export var activeStation = new Atom<Station>(null, ()=> {activeTrack.setNull()}, null, 'activeStation');
     export var stationsList = new Atom<Station[]>(()=>
             stationsStore.filter(station=>
