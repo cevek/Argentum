@@ -1,7 +1,8 @@
 module rc {
     export class VStations implements Arg.Component {
         isEmpty = new Atom(this, {
-            getter: ()=>stationsList.isEmpty()
+            getter: ()=>stationsList.isEmpty(),
+            name: 'isEmpty'
         });
 
         render() {

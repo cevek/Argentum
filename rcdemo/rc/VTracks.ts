@@ -1,7 +1,8 @@
 module rc {
     export class VTracks implements Arg.Component {
         isEmpty = new Atom(this, {
-            getter: ()=>tracksList.isEmpty()
+            getter: ()=>tracksList.isEmpty(),
+            name: 'isEmpty'
         });
 
         render() {
@@ -18,7 +19,8 @@ module rc {
         constructor(private track:Track) {}
 
         isSelected = new Atom(this, {
-            getter: ()=>activeTrack.isEqual(this.track)
+            getter: ()=>activeTrack.isEqual(this.track),
+            name: 'isSelected'
         });
 
         render() {
