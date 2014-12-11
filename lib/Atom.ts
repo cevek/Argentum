@@ -18,13 +18,13 @@ class Atom <T> {
     id:number;
     private _value:T;
     private _old_value:T;
-    private getter:(atom:Atom<T>)=>T;
+    private getter:(prevValue: T)=>T;
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
     public name:string;
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(getter?:(atom:Atom<T>)=>T, setter?:(atom:Atom<T>)=>void, val?:T, name?:string) {
+    constructor(getter?:(prevValue: T)=>T, setter?:(atom:Atom<T>)=>void, val?:T, name?:string) {
         this.getter = getter;
         this.setter = setter;
         this.id = ++Atom.lastId;
@@ -48,7 +48,7 @@ class Atom <T> {
         if (this._value === undefined && this.getter) {
             var temp = Atom.lastCalled;
             Atom.lastCalled = this;
-            this._value = this.getter(this);
+            this._value = this.getter(this._value);
             Atom.lastCalled = temp;
         }
 
@@ -104,7 +104,7 @@ class Atom <T> {
 
     private microtaskUpdate(compute:boolean, value:T) {
         this.computing = true;
-        this._value = compute && this.getter ? this.getter(this) : value;
+        this._value = compute && this.getter ? this.getter(this._value) : value;
         //if (this._old_value !== this._value) {
         this._update();
         //}
