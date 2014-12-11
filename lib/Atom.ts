@@ -17,7 +17,7 @@ interface IAtom<T> {
     getter?: (prevValue:T)=>T;
     setter?: (atom:Atom<T>)=>void;
     value?: T;
-    name?: string;
+    name: string;
 }
 
 class Atom <T> {
@@ -160,7 +160,7 @@ class Atom <T> {
             for (var i = 0; i < this.listeners.length; i++) {
                 var listener = this.listeners[i];
                 if (listener.firstValue !== this.value) {
-                    console.log(this.name || this.id, "listener callback");
+                    console.log(this, "listener callback");
 
                     listener.callback(this.value, listener.arg1, listener.arg2, listener.arg3);
                 }
