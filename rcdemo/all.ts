@@ -7,6 +7,7 @@
 /// <reference path="rc/VTags.ts"/>
 /// <reference path="rc/VTracks.ts"/>
 /// <reference path="rc/VStations.ts"/>
+/// <reference path="rc/KeyManager.ts"/>
 
 var glob:any = {};
 module rc {
@@ -22,7 +23,6 @@ module rc {
     export var tracksList = new Atom(()=>activeStation.get() ? activeStation.get().tracks : null, null, null, 'tracksList');
 
     export var activeTrack = new Atom<Track>(null, null, null, 'activeTrack');
-    export var keyPress = new Atom<KeyCodes>(null, null, null, 'keyPress');
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];

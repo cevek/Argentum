@@ -3,7 +3,7 @@ module rc {
         isEmpty = new Atom(()=>stationsList.isEmpty(), null, null, 'VStations.isEmpty');
 
         render() {
-            return d.root({className: "panel", classSet: {empty: this.isEmpty}},
+            return d.root('.panel', {classSet: {empty: this.isEmpty}},
                 d.when(this.isEmpty, ()=>
                     d('.empty-text', 'Please select tag at first')),
                 d.map(stationsList,
