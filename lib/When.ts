@@ -6,10 +6,10 @@ module Arg {
     export function wheeen(condition:any, callback:()=>any) {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
-            atomCondition = new Atom<any>(condition);
+            atomCondition = new Atom<any>(condition, null, null, 'Arg.whenCondition');
         }
         if (condition.constructor !== Atom) {
-            atomCondition = new Atom<any>(null, null, condition);
+            atomCondition = new Atom<any>(null, null, condition, 'Arg.whenCondition');
         }
 
         var child = atomCondition.get() ? convertToTree(callback()) : null;

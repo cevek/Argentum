@@ -8,7 +8,7 @@ module Arg {
     export function mapper<R>(atomArray:R[], mapIterator:(item:R, i:number)=>any, split?:string):TreeItem;
     export function mapper<R>(atomArray:any, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
         if (atomArray.constructor !== Atom) {
-            atomArray = new Atom<any>(null, null, atomArray);
+            atomArray = new Atom<any>(null, null, atomArray, 'Arg.map');
         }
 
         var children:TreeItem[] = [];
