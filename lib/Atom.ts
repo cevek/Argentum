@@ -93,15 +93,14 @@ class Atom<T> {
                 //this.unsetComputing();
             }
             else {
-/*
-                if (AtomHelpers.lastCalledSetter) {
+
+/*                if (AtomHelpers.lastCalledSetter) {
                     this.stack = AtomHelpers.lastCalledSetter.stack.slice();
                     this.stack.push(this);
                 }
                 else {
                     this.stack = [];
-                }
-*/
+                }*/
                 AtomHelpers.sendMicrotask(this, false, val);
             }
         }

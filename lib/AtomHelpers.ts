@@ -9,7 +9,7 @@ interface Microtask {
     atom: Atom<any>;
     compute: boolean;
     value: any;
-    stack?: Atom<any>[];
+    stack?: any;
 }
 class AtomHelpers {
     static lastCalledGetter:Atom<any>;
@@ -38,15 +38,26 @@ class AtomHelpers {
     static sendMicrotask(atom:Atom<any>, compute:boolean, value:any = null) {
         //console.log("sendmicrotask", atom.id);
         var mid = ++AtomHelpers.lastMicrotaskId;
-        AtomHelpers.microtasks.push({atom: atom, compute: compute, value: value, stack: atom.stack});
+        AtomHelpers.microtasks.push({atom: atom, compute: compute, value: value, stack: AtomHelpers.lastCalledSetter});
         AtomHelpers.observer.microtaskId = mid;
         if (!Object.observe || !AtomHelpers.useObjectObserver) {
             window.postMessage({atomMicrotaskId: mid}, '*');
         }
     }
 
+    static getTime() {
+        var d = new Date();
+        return ('0' + d.getHours()).substr(-2) + ':' + ('0' + d.getMinutes()).substr(-2) + ':' + ('0' + d.getSeconds()).substr(-2);
+    }
+
     static applyUpdates() {
-        Atom.debugMode && console.groupCollapsed("Atom updates");
+        if (Atom.debugMode) {
+            if (!AtomHelpers.microtasks[0] || !AtomHelpers.microtasks[0].stack) {
+                console.log("");
+            }
+
+            console.groupCollapsed("Atom updates[" + AtomHelpers.getTime() + "]");
+        }
 
         //console.log("message", event.data, Atom.microtasks);
         var doneAtoms:{[index: number]: boolean} = {};
