@@ -1,4 +1,3 @@
-
 interface ArrayListener {
     callback: (array?:any, arg1?:any, arg2?:any, arg3?:any)=>void;
     arg1: any;
@@ -8,14 +7,9 @@ interface ArrayListener {
 interface Array<T> {
     addListener<R1,R2,R3>(fn:(val?:T[], arg1?:R1, arg2?:R2, arg3?:R3)=>void, arg1?:R1, arg2?:R2, arg3?:R3):void;
     removeListener(fn:(val?:T[])=>void):void;
-    __change():void;
-    __push: any;
-    __unshift: any;
-    __pop: any;
-    __shift: any;
-    __sort: any;
-    __splice: any;
+    changed():void;
     listeners: ArrayListener[];
+    [idx: string]: any;
 }
 
 Array.prototype.addListener = function (fn:any, arg1?:any, arg2?:any, arg3?:any) {
@@ -35,7 +29,7 @@ Array.prototype.removeListener = function (fn:any) {
 
 var Array_actionChangeId = 0;
 var Array_arrays:any[] = [];
-Array.prototype.__change = function () {
+Array.prototype.changed = function () {
     if (this.listeners && this.listeners.length) {
         if (Array_arrays.indexOf(this) === -1) {
             Array_arrays.push(this);
@@ -61,51 +55,52 @@ window.addEventListener("message", function message(event:any) {
     }
 });
 
-Array.prototype.__push = Array.prototype.push;
+Object.defineProperty(Array.prototype, "__push", {
+    value: Array.prototype.push
+});
 Array.prototype.push = function (item:any) {
-    this.__change();
+    this.changed();
     return this.__push(item);
 };
 
-Array.prototype.__unshift = Array.prototype.unshift;
+Object.defineProperty(Array.prototype, "__unshift", {
+    value: Array.prototype.unshift
+});
 Array.prototype.unshift = function (item:any) {
-    this.__change();
+    this.changed();
     return this.__unshift(item);
 };
 
-Array.prototype.__pop = Array.prototype.pop;
+Object.defineProperty(Array.prototype, "__pop", {
+    value: Array.prototype.pop
+});
 Array.prototype.pop = function () {
-    this.__change();
+    this.changed();
     return this.__pop();
 };
 
-Array.prototype.__shift = Array.prototype.shift;
+Object.defineProperty(Array.prototype, "__shift", {
+    value: Array.prototype.shift
+});
 Array.prototype.shift = function () {
-    this.__change();
+    this.changed();
     return this.__shift();
 };
 
-Array.prototype.__sort = Array.prototype.sort;
+Object.defineProperty(Array.prototype, "__sort", {
+    value: Array.prototype.sort
+});
 Array.prototype.sort = function (fn:any) {
-    this.__change();
+    this.changed();
     return this.__sort(fn);
 };
 
-Array.prototype.__splice = Array.prototype.splice;
+Object.defineProperty(Array.prototype, "__splice", {
+    value: Array.prototype.splice
+});
 Array.prototype.splice = function (start:number, deleteCount?:number) {
-    this.__change();
-    /*
-     if (deleteCount) {
-     for (var i = start; i < start + deleteCount; i++) {
-     }
-     }
-     */
+    this.changed();
     if (arguments.length > 2) {
-        /*
-         for (var i = start; i < start + arguments.length - 2; i++) {
-         this.callListeners('added', this[i], i);
-         }
-         */
         return this.__splice.apply(this, arguments);
     }
     else {
