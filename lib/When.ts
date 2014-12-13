@@ -3,7 +3,9 @@ module Arg {
         (): TreeItem;
     }
 
-    export function wheeen(condition:any, callback:()=>any) {
+    export function wheeen(condition:Atom<any>, callback:()=>any):TreeItem;
+    export function wheeen(condition:()=>any, callback:()=>any):TreeItem;
+    export function wheeen(condition:any, callback:()=>any):TreeItem {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
             atomCondition = new Atom<any>(Arg, {
