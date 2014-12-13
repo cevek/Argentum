@@ -141,16 +141,18 @@ class Atom<T> {
         AtomHelpers.lastCalledSetter = temp;
 
         if (this.slaves) {
-            this.slaves.forEach((slave)=> {
-                if (slave) {
-                    slave.unsetComputing();
+            this.slaves.forEach(this.unsetAtomAndRunSetter, this);
+        }
+    }
 
-                    var temp = AtomHelpers.lastCalledSetter;
-                    AtomHelpers.lastCalledSetter = slave;
-                    slave.setter && slave.setter(slave);
-                    AtomHelpers.lastCalledSetter = temp;
-                }
-            });
+    unsetAtomAndRunSetter(slave: Atom<any>) {
+        if (slave) {
+            slave.unsetComputing();
+
+            var temp = AtomHelpers.lastCalledSetter;
+            AtomHelpers.lastCalledSetter = slave;
+            slave.setter && slave.setter(slave);
+            AtomHelpers.lastCalledSetter = temp;
         }
     }
 
@@ -168,6 +170,7 @@ class Atom<T> {
         }
 
         if (this.order) {
+            //TODO: get outside closure
             var list = AtomHelpers.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(b) - this.order.get(a));
             for (var i = 0; i < list.length; i++) {
                 var slave = this.slaves.get(list[i]);
@@ -195,6 +198,7 @@ class Atom<T> {
         Atom.debugMode && console.groupEnd();
     }
 
+    //TODO: callback thisArg?
     addListener<R1, R2, R3>(fn:(val:T, arg1?:R1, arg2?:R2, arg3?:R3)=>void, arg1?:R1, arg2?:R2, arg3?:R3) {
         if (!this.listeners) {
             this.listeners = [];
@@ -204,21 +208,25 @@ class Atom<T> {
         //}
     }
 
+    private destroyMaster(master: Atom<any>){
+        if (master && master.slaves) {
+            master.slaves.delete(this.id);
+            master.order.delete(this.id);
+        }
+    }
+
+    private destroySlave(slave: Atom<any>){
+        if (slave && slave.masters) {
+            slave.masters.delete(this.id);
+        }
+    }
+
     destroy() {
         if (this.masters) {
-            this.masters.forEach((master)=> {
-                if (master && master.slaves) {
-                    master.slaves.delete(this.id);
-                    master.order.delete(this.id);
-                }
-            });
+            this.masters.forEach(this.destroyMaster, this);
         }
         if (this.slaves) {
-            this.slaves.forEach((slave)=> {
-                if (slave && slave.masters) {
-                    slave.masters.delete(this.id);
-                }
-            });
+            this.slaves.forEach(this.destroySlave, this);
         }
         this.old_value = null;
         this.value = null;

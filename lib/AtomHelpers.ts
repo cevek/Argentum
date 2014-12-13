@@ -19,6 +19,7 @@ class AtomHelpers {
     static traverseMasters(atom:Atom<any>, depth:number) {
         var ndepth = depth + 1;
         if (atom.masters) {
+            //TODO: get outside closure
             atom.masters.forEach((master)=> {
                 if (master && master.order.get(atom.id) < ndepth) {
                     //console.log("traverse", master.id, ndepth);
@@ -138,9 +139,13 @@ module AtomHelpers {
             this.hash = {};
         }
 
-        forEach(fn:(val:T, key:number)=>any) {
+        forEach(fn:(val:T, key:number)=>any, thisArg?:any) {
             for (var key in this.hash) {
-                fn(this.hash[key], key);
+                if (thisArg) {
+                    fn.call(thisArg, this.hash[key], key);
+                } else {
+                    fn(this.hash[key], key);
+                }
             }
         }
 
