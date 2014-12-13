@@ -29,9 +29,9 @@ class Atom<T> {
     public owner:any;
 
     private computing:boolean = false;
-    public slaves:{[id: number]:Atom<any>} = {};
-    public masters:{[id: number]:Atom<any>} = {};
-    public order:{[id: number]:number} = {};
+    public slaves:AtomHelpers.AtomMap<Atom<any>>;
+    public masters:AtomHelpers.AtomMap<Atom<any>>;
+    public order:AtomHelpers.AtomMap<number>;
     public listeners:AtomListeners<T>[] = [];
     public stack:Atom<any>[] = [];
 
@@ -68,17 +68,21 @@ class Atom<T> {
         var parentAtom = AtomHelpers.lastCalledGetter;
         if (parentAtom) {
             if (!this.slaves) {
-                this.slaves = {};
+                this.slaves = new AtomHelpers.AtomMap<Atom<any>>();
             }
 
-            this.slaves[parentAtom.id] = parentAtom;
+            this.slaves.set(parentAtom.id, parentAtom);
             if (!parentAtom.masters) {
-                parentAtom.masters = {};
+                parentAtom.masters = new AtomHelpers.AtomMap<Atom<any>>();
             }
 
-            parentAtom.masters[this.id] = this;
+            parentAtom.masters.set(this.id, this);
 
-            this.order[parentAtom.id] = 0;
+            if (!this.order) {
+                this.order = new AtomHelpers.AtomMap<number>();
+            }
+
+            this.order.set(parentAtom.id, 0);
             AtomHelpers.traverseMasters(parentAtom, 0);
         }
 
@@ -94,13 +98,13 @@ class Atom<T> {
             }
             else {
 
-/*                if (AtomHelpers.lastCalledSetter) {
-                    this.stack = AtomHelpers.lastCalledSetter.stack.slice();
-                    this.stack.push(this);
-                }
-                else {
-                    this.stack = [];
-                }*/
+                /*                if (AtomHelpers.lastCalledSetter) {
+                 this.stack = AtomHelpers.lastCalledSetter.stack.slice();
+                 this.stack.push(this);
+                 }
+                 else {
+                 this.stack = [];
+                 }*/
                 AtomHelpers.sendMicrotask(this, false, val);
             }
         }
@@ -136,23 +140,24 @@ class Atom<T> {
         this.setter && this.setter(this);
         AtomHelpers.lastCalledSetter = temp;
 
-        for (var id in this.slaves) {
-            if (this.slaves[id]) {
-                this.slaves[id].unsetComputing();
-                var temp = AtomHelpers.lastCalledSetter;
-                AtomHelpers.lastCalledSetter = this.slaves[id];
-                this.slaves[id].setter && this.slaves[id].setter(this.slaves[id]);
-                AtomHelpers.lastCalledSetter = temp;
-            }
+        if (this.slaves) {
+            this.slaves.forEach((slave)=> {
+                if (slave) {
+                    slave.unsetComputing();
+
+                    var temp = AtomHelpers.lastCalledSetter;
+                    AtomHelpers.lastCalledSetter = slave;
+                    slave.setter && slave.setter(slave);
+                    AtomHelpers.lastCalledSetter = temp;
+                }
+            });
         }
     }
 
     private _update() {
         if (Atom.debugMode) {
             var tt = typeof this.value;
-            var isPrimitive = false;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
-                isPrimitive = true;
                 console.groupCollapsed(this.name + ' = ' + this.value);
             }
             else {
@@ -162,16 +167,18 @@ class Atom<T> {
             console.dir(this);
         }
 
-        var list = Object.keys(this.order).sort((a, b)=>this.order[Number(b)] - this.order[Number(a)]);
-        for (var i = 0; i < list.length; i++) {
-            var slave = this.slaves[Number(list[i])];
-            if (slave && !slave.computing) {
-                slave.computing = true;
-                slave.value = slave.getter(slave);
-                if (slave.old_value !== slave.value) {
-                    slave._update();
+        if (this.order) {
+            var list = this.order.keys().sort((a, b)=>this.order.get(b) - this.order.get(a));
+            for (var i = 0; i < list.length; i++) {
+                var slave = this.slaves.get(list[i]);
+                if (slave && !slave.computing) {
+                    slave.computing = true;
+                    slave.value = slave.getter(slave);
+                    if (slave.old_value !== slave.value) {
+                        slave._update();
+                    }
+                    slave.old_value = slave.value;
                 }
-                slave.old_value = slave.value;
             }
         }
         if (this.listeners) {
@@ -198,18 +205,20 @@ class Atom<T> {
     }
 
     destroy() {
-        for (var i in this.masters) {
-            var master = this.masters[i];
-            if (master && master.slaves) {
-                delete master.slaves[this.id];
-                delete master.order[this.id];
-            }
+        if (this.masters) {
+            this.masters.forEach((master)=> {
+                if (master && master.slaves) {
+                    master.slaves.delete(this.id);
+                    master.order.delete(this.id);
+                }
+            });
         }
-        for (var i in this.slaves) {
-            var slave = this.slaves[i];
-            if (slave && slave.masters) {
-                delete slave.masters[this.id];
-            }
+        if (this.slaves) {
+            this.slaves.forEach((slave)=> {
+                if (slave && slave.masters) {
+                    slave.masters.delete(this.id);
+                }
+            });
         }
         this.old_value = null;
         this.value = null;

@@ -18,13 +18,14 @@ class AtomHelpers {
 
     static traverseMasters(atom:Atom<any>, depth:number) {
         var ndepth = depth + 1;
-        for (var i in atom.masters) {
-            var master = atom.masters[i];
-            if (master && master.order[atom.id] < ndepth) {
-                //console.log("traverse", master.id, ndepth);
-                master.order[atom.id] = ndepth;
-                AtomHelpers.traverseMasters(master, ndepth);
-            }
+        if (atom.masters) {
+            atom.masters.forEach((master)=> {
+                if (master && master.order.get(atom.id) < ndepth) {
+                    //console.log("traverse", master.id, ndepth);
+                    master.order.set(atom.id, ndepth);
+                    AtomHelpers.traverseMasters(master, ndepth);
+                }
+            });
         }
     }
 
@@ -152,6 +153,44 @@ Object.getOwnPropertyDescriptor = function (o, p) {
     }
     return data;
 };
+
+module AtomHelpers {
+    export class AtomMap<T> {
+        hash:{[idx: number]: T} = {};
+
+        get(key:number) {
+            return this.hash[key];
+        }
+
+        set(key:number, value:T) {
+            this.hash[key] = value;
+        }
+
+        delete(key:number) {
+            delete this.hash[key];
+        }
+
+        clear() {
+            this.hash = {};
+        }
+
+        keys():number[] {
+            return <any[]>Object.keys(this.hash);
+        }
+
+        forEach(fn:(val:T, key:number)=>any) {
+            for (var key in this.hash) {
+                fn(this.hash[key], key);
+            }
+        }
+    }
+    if (Map) {
+        //AtomHelpers.AtomMap = <any>Map;
+    }
+
+    //export var AtomMap:{new _AtomMap} = Map ? Map : _AtomMap;
+    //new AtomMap();
+}
 
 /*
 
