@@ -53,11 +53,13 @@ class AtomHelpers {
 
     static applyUpdates() {
         if (Atom.debugMode) {
-            if (!AtomHelpers.microtasks[0] || !AtomHelpers.microtasks[0].stack) {
-                console.log("");
+            var isStack = AtomHelpers.microtasks[0] && AtomHelpers.microtasks[0].stack;
+            if (isStack) {
+                console.groupCollapsed("  Stack updates");
             }
-
-            console.groupCollapsed("Atom updates[" + AtomHelpers.getTime() + "]");
+            else {
+                console.groupCollapsed("Atom updates[" + AtomHelpers.getTime() + "]");
+            }
         }
 
         //console.log("message", event.data, Atom.microtasks);
@@ -185,7 +187,7 @@ module AtomHelpers {
         }
     }
     if (Map) {
-        //AtomHelpers.AtomMap = <any>Map;
+        AtomHelpers.AtomMap = <any>Map;
     }
 
     //export var AtomMap:{new _AtomMap} = Map ? Map : _AtomMap;
