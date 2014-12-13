@@ -118,44 +118,6 @@ class AtomHelpers {
     }
 }
 
-if (Object.observe && AtomHelpers.useObjectObserver) {
-    AtomHelpers.listenMicrotaskObjectObserver();
-}
-else {
-    AtomHelpers.listenMicrotaskPostMessage();
-}
-
-var getDescr = Object.getOwnPropertyDescriptor;
-Object.getOwnPropertyDescriptor = function (o, p) {
-    var data = getDescr(o, p);
-    if (o[p] && o[p] instanceof Atom) {
-        var atom = o[p];
-        if (atom.owner) {
-            var owner:any = atom.owner;
-            var constr = atom.owner.constructor;
-            var ns = constr.ns;
-            if (typeof constr.ns == 'function') {
-                ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
-            }
-            if (owner.ns) {
-                if (typeof owner.ns == 'function') {
-                    ns = owner.ns.toString().replace('function () { return ', '').replace('; }', '');
-                }
-            }
-
-            var atomPropName = atom.name;
-            var name = (ns ? ns : constr.name ) + "." + atomPropName;
-            var fn = eval("var Atom = {'" + name + "': function (){}}; Atom['" + name + "']");
-            var obj = new fn;
-            obj.original = atom;
-            Object.keys(atom).forEach(key=>obj[key] = atom[key]);
-
-            data.value = obj;
-        }
-    }
-    return data;
-};
-
 module AtomHelpers {
     export class AtomMap<T> {
         hash:{[idx: number]: T} = {};
@@ -176,24 +138,71 @@ module AtomHelpers {
             this.hash = {};
         }
 
-        keys():number[] {
-            return <any[]>Object.keys(this.hash);
-        }
-
         forEach(fn:(val:T, key:number)=>any) {
             for (var key in this.hash) {
                 fn(this.hash[key], key);
             }
         }
+
     }
+    export function getAtomMapKeys(map:any) {
+        var keys:number[];
+        if (map.hash) {
+            keys = <any>Object.keys(map.hash);
+        }
+        else {
+            keys = [];
+            var k = map.keys();
+            var v:any;
+            while ((v = k.next()) && !v.done) keys.push(v.value);
+        }
+        return keys;
+    }
+
     if (Map) {
         AtomHelpers.AtomMap = <any>Map;
     }
-
-    //export var AtomMap:{new _AtomMap} = Map ? Map : _AtomMap;
-    //new AtomMap();
 }
 
+if (Object.observe && AtomHelpers.useObjectObserver) {
+    AtomHelpers.listenMicrotaskObjectObserver();
+}
+else {
+    AtomHelpers.listenMicrotaskPostMessage();
+}
+/*
+
+ var getDescr = Object.getOwnPropertyDescriptor;
+ Object.getOwnPropertyDescriptor = function (o, p) {
+ var data = getDescr(o, p);
+ if (o[p] && o[p] instanceof Atom) {
+ var atom = o[p];
+ if (atom.owner) {
+ var owner:any = atom.owner;
+ var constr = atom.owner.constructor;
+ var ns = constr.ns;
+ if (typeof constr.ns == 'function') {
+ ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
+ }
+ if (owner.ns) {
+ if (typeof owner.ns == 'function') {
+ ns = owner.ns.toString().replace('function () { return ', '').replace('; }', '');
+ }
+ }
+
+ var atomPropName = atom.name;
+ var name = (ns ? ns : constr.name ) + "." + atomPropName;
+ var fn = eval("var Atom = {'" + name + "': function (){}}; Atom['" + name + "']");
+ var obj = new fn;
+ obj.original = atom;
+ Object.keys(atom).forEach(key=>obj[key] = atom[key]);
+
+ data.value = obj;
+ }
+ }
+ return data;
+ };
+ */
 /*
 
  function log(a:Atom<any>, val:any) {

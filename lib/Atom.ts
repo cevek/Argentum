@@ -168,11 +168,7 @@ class Atom<T> {
         }
 
         if (this.order) {
-            var keys:number[] = [];
-            this.order.forEach((val, k)=>{
-                keys.push(k);
-            });
-            var list = keys.sort((a, b)=>this.order.get(b) - this.order.get(a));
+            var list = AtomHelpers.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(b) - this.order.get(a));
             for (var i = 0; i < list.length; i++) {
                 var slave = this.slaves.get(list[i]);
                 if (slave && !slave.computing) {
