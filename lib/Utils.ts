@@ -8,6 +8,7 @@ module Arg {
         }
     }
 
+    //TODO: remove only Arg and this component atoms
     export function removeTree(tree:TreeItem) {
         if (!tree) {
             return;
