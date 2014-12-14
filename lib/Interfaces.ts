@@ -104,3 +104,6 @@ module Arg {
 interface Node {
     [idx: string]: any;
 }
+interface StyleSheet {
+    insertRule(selector:string, index?:number): void;
+}

@@ -10,7 +10,17 @@ module Arg {
     export var enableAtoms = true;
     export var ns = ()=>Arg;
 
+    export var cssDom:HTMLStyleElement = null;
+    export var createdCSSRules:{[idx: string]: boolean} = {};
+
     export function publicRender(node:Node, treeItem:any) {
+
+        if (!cssDom) {
+            cssDom = document.createElement("style");
+            cssDom.type = "text/css";
+            document.head.appendChild(cssDom);
+        }
+
         var _treeItem = convertToTree(treeItem);
         _treeItem.parentNode = node;
         render(_treeItem);
@@ -18,6 +28,13 @@ module Arg {
     }
 
     export function render(tree:TreeItem) {
+        if (tree.component) {
+            if (!createdCSSRules[tree.tag]) {
+                //todo: check for ie
+                cssDom.sheet.insertRule(tree.tag + '{display: block}', 0);
+                createdCSSRules[tree.tag] = true;
+            }
+        }
         if (tree.type === TreeType.TAG) {
             renderTag(tree);
         }
