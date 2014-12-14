@@ -25,7 +25,9 @@ module rc {
                 name: "Nature",
                 site: "http://di.fm/nature/",
                 cover: "http://di.fm/picnature.png",
-                tagsIds: ["relax", "lounge", "nature"],
+                tag1: "relax",
+                tag2: "lounge",
+                tag3: "nature",
                 tracks: [
                     {
                         id: 1,
@@ -42,7 +44,7 @@ module rc {
                 name: "House",
                 site: "http://di.fm/house/",
                 cover: "http://di.fm/pichouse.png",
-                tagsIds: ["house"],
+                tag1: "house",
                 tracks: [
                     {
                         id: 2,
