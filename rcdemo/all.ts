@@ -8,11 +8,16 @@
 /// <reference path="rc/VTags.ts"/>
 /// <reference path="rc/VRecords.ts"/>
 /// <reference path="rc/VStations.ts"/>
+/// <reference path="rc/VPlayer.ts"/>
 /// <reference path="rc/KeyManager.ts"/>
 
 var glob:any = {};
 module rc {
     export var ns = ()=> rc;
+
+    export var playerUrl = new Atom<string>(rc, {
+        name: 'playerUrl'
+    });
 
     export var activeTag = new Atom<Tag>(rc, {
         setter: ()=> {activeStation.set(stationsList.get()[0])},

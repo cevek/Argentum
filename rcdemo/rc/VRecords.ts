@@ -26,14 +26,12 @@ module rc {
         render() {
             return d.root('.item', {
                     classSet: {selected: this.isSelected},
-                    onclick: ()=>activeTrack.set(this.track)
+                    onclick: ()=> {
+                        activeTrack.set(this.track);
+                        playerUrl.set(this.track.link)
+                    }
                 },
-
-                d('span.title', this.track.start.toLocaleDateString()),
-                " ",
-                d('a', {href: this.track.link}, 'Play'),
-                ", ",
-                d('a', {href: this.track.link}, 'Download')
+                d('span.title', this.track.start.toLocaleDateString())
             );
         }
     }
