@@ -19,7 +19,7 @@ module rc {
         constructor(private track:Record) {}
 
         isSelected = new Atom(this, {
-            getter: ()=>activeTrack.isEqual(this.track),
+            getter: ()=>activeRecord.isEqual(this.track),
             name: 'isSelected'
         });
 
@@ -27,7 +27,7 @@ module rc {
             return d.root('.item', {
                     classSet: {selected: this.isSelected},
                     onclick: ()=> {
-                        activeTrack.set(this.track);
+                        activeRecord.set(this.track);
                         playerUrl.set(this.track.link)
                     }
                 },

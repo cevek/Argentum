@@ -24,7 +24,7 @@ module rc {
         name: 'activeTag'
     });
     export var activeStation = new Atom<Station>(rc, {
-        setter: ()=> {activeTrack.setNull()},
+        setter: ()=> {activeRecord.setNull()},
         name: 'activeStation'
     });
     export var stationsList = new Atom<Station[]>(rc, {
@@ -39,7 +39,7 @@ module rc {
         name: 'tracksList'
     });
 
-    export var activeTrack = new Atom<Record>(rc, {name: 'activeTrack'});
+    export var activeRecord = new Atom<Record>(rc, {name: 'activeTrack'});
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];
