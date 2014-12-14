@@ -164,7 +164,7 @@ module AtomHelpers {
         return keys;
     }
 
-    if (Map) {
+    if (window && window['Map']) {
         AtomHelpers.AtomMap = <any>Map;
     }
 }
