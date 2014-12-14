@@ -6,7 +6,7 @@ module rc {
         site:string;
         cover:string;
         tagsIds:string[];
-        tracks:Track[] = [];
+        records:Track[] = [];
 
         constructor(obj:any = {}) {
             this.id = obj.id;
@@ -14,10 +14,14 @@ module rc {
             this.site = obj.site;
             this.brand = obj.brand;
             this.cover = obj.cover;
-            this.tagsIds = obj.tagsIds;
-            if (obj.tracks) {
-                for (var i = 0; i < obj.tracks.length; i++) {
-                    this.tracks.push(new Track(obj.tracks[i]));
+            this.tagsIds = [];
+            obj.tag1 && this.tagsIds.push(obj.tag1);
+            obj.tag2 && this.tagsIds.push(obj.tag2);
+            obj.tag3 && this.tagsIds.push(obj.tag3);
+
+            if (obj.records) {
+                for (var i = 0; i < obj.records.length; i++) {
+                    this.records.push(new Track(obj.records[i]));
                 }
             }
         }
