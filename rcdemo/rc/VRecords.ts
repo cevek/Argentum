@@ -1,7 +1,7 @@
 module rc {
     export class VTracks implements Arg.Component {
         isEmpty = new Atom(this, {
-            getter: ()=>tracksList.isEmpty(),
+            getter: ()=>recordsList.isEmpty(),
             name: 'isEmpty'
         });
 
@@ -9,7 +9,7 @@ module rc {
             return d.root('.panel', {classSet: {empty: this.isEmpty}},
                 d.when(this.isEmpty, ()=>
                     d('.empty-text', 'Please select station')),
-                d.map(tracksList,
+                d.map(recordsList,
                     track => new VTrackItem(track))
             )
         }

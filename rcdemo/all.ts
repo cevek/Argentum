@@ -34,7 +34,7 @@ module rc {
         }
     );
 
-    export var tracksList = new Atom(rc, {
+    export var recordsList = new Atom(rc, {
         getter: ()=>activeStation.get() ? activeStation.get().records : null,
         name: 'tracksList'
     });
