@@ -1,3 +1,4 @@
+/// <reference path="lib/HTTP.ts"/>
 /// <reference path="../lib/Argentum.ts"/>
 /// <reference path="rc/jsonData.ts"/>
 /// <reference path="rc/Station.ts"/>
@@ -22,16 +23,14 @@ module rc {
         name: 'activeStation'
     });
     export var stationsList = new Atom<Station[]>(rc, {
-            getter: ()=>
-                stationsStore.filter(station=>
-                    activeTag.get() && station.tagsIds.indexOf(activeTag.get().id) > -1
-                ),
-            name: 'stationsList'
+            getter: ()=>activeTag.get() && stationsStore.filter(station=>
+                station.tagsIds.indexOf(activeTag.get().id) > -1
+            ), name: 'stationsList'
         }
     );
 
     export var tracksList = new Atom(rc, {
-        getter: ()=>activeStation.get() ? activeStation.get().tracks : null,
+        getter: ()=>activeStation.get() ? activeStation.get().records : null,
         name: 'tracksList'
     });
 
@@ -39,13 +38,14 @@ module rc {
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];
-
-    for (var i = 0; i < jsonData.stations.length; i++) {
-        stationsStore.push(new Station(jsonData.stations[i]));
-    }
-    for (var i = 0; i < jsonData.tags.length; i++) {
-        tagsStore.push(new Tag(jsonData.tags[i]));
-    }
+    HTTP.get('http://localhost:8125/data/').then((data:any) => {
+        for (var i = 0; i < data.stations.length; i++) {
+            stationsStore.push(new Station(data.stations[i]));
+        }
+        for (var i = 0; i < data.tags.length; i++) {
+            tagsStore.push(new Tag(data.tags[i]));
+        }
+    });
 
     glob.vdom = Arg.publicRender(document.body, new VLister());
 }
