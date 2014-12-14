@@ -107,3 +107,6 @@ interface Node {
 interface StyleSheet {
     insertRule(selector:string, index?:number): void;
 }
+interface Window {
+    [idx:string]:any;
+}
