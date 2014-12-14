@@ -6,7 +6,7 @@
 /// <reference path="rc/Track.ts"/>
 /// <reference path="rc/VLister.ts"/>
 /// <reference path="rc/VTags.ts"/>
-/// <reference path="rc/VTracks.ts"/>
+/// <reference path="rc/VRecords.ts"/>
 /// <reference path="rc/VStations.ts"/>
 /// <reference path="rc/KeyManager.ts"/>
 
@@ -34,7 +34,7 @@ module rc {
         name: 'tracksList'
     });
 
-    export var activeTrack = new Atom<Track>(rc, {name: 'activeTrack'});
+    export var activeTrack = new Atom<Record>(rc, {name: 'activeTrack'});
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];

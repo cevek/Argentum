@@ -6,7 +6,7 @@ module rc {
         site:string;
         cover:string;
         tagsIds:string[];
-        records:Track[] = [];
+        records:Record[] = [];
 
         constructor(obj:any = {}) {
             this.id = obj.id;
@@ -21,7 +21,7 @@ module rc {
 
             if (obj.records) {
                 for (var i = 0; i < obj.records.length; i++) {
-                    this.records.push(new Track(obj.records[i]));
+                    this.records.push(new Record(obj.records[i]));
                 }
             }
         }

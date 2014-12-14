@@ -1,5 +1,5 @@
 module rc {
-    export class Track {
+    export class Record {
         id:number;
         start:Date;
         duration:number;

@@ -16,7 +16,7 @@ module rc {
     }
 
     export class VTrackItem implements Arg.Component {
-        constructor(private track:Track) {}
+        constructor(private track:Record) {}
 
         isSelected = new Atom(this, {
             getter: ()=>activeTrack.isEqual(this.track),
