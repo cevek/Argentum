@@ -25,9 +25,16 @@ module rc {
 
         render() {
             return d.root('.item', {
-                classSet: {selected: this.isSelected},
-                onclick: ()=>activeTrack.set(this.track)
-            }, this.track.created);
+                    classSet: {selected: this.isSelected},
+                    onclick: ()=>activeTrack.set(this.track)
+                },
+
+                d('span.title', this.track.start.toLocaleDateString()),
+                " ",
+                d('a', {href: this.track.link}, 'Play'),
+                ", ",
+                d('a', {href: this.track.link}, 'Download')
+            );
         }
     }
 }
