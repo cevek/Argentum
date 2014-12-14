@@ -74,20 +74,16 @@ module Arg {
 
     export function mapArrayListener(array:any[], tree:TreeItem) {
         counter++;
-        if (tree.parentNode) {
-            var node = document.createComment("/for" + counter);
-            tree.parentNode.insertBefore(node, tree.node.nextSibling);
-            tree.parentNode.removeChild(tree.node);
-        }
+        var node = document.createComment("/for" + counter);
+        tree.parentNode.insertBefore(node, tree.node.nextSibling);
+        tree.parentNode.removeChild(tree.node);
         var children:TreeItem[] = [];
         var values:any[] = [];
 
         for (var i = 0; i < array.length; i++) {
             var index = tree.mapValues.indexOf(array[i]);
             if (index > -1) {
-                if (tree.parentNode && tree.children[index].node) {
-                    tree.parentNode.insertBefore(tree.children[index].node, node);
-                }
+                tree.parentNode.insertBefore(tree.children[index].node, node);
                 children[i] = tree.children[index];
                 values[i] = tree.mapValues[index];
                 tree.children[index] = null;
@@ -95,10 +91,8 @@ module Arg {
             }
             else {
                 var itemTree = tree.mapIterator(array[i], i);
-                if (itemTree.parentNode) {
-                    itemTree.parentNode = tree.parentNode;
-                    itemTree.nodeBefore = node;
-                }
+                itemTree.parentNode = tree.parentNode;
+                itemTree.nodeBefore = node;
                 render(itemTree);
                 children[i] = itemTree;
                 values[i] = array[i];
