@@ -12,31 +12,44 @@ interface Array<T> {
     [idx: string]: any;
 }
 
-Array.prototype.addListener = function (fn:any, arg1?:any, arg2?:any, arg3?:any) {
+Object.defineProperties(Array.prototype, {
+    addListener: {value: ArrayAddListener},
+    removeListener: {value: ArrayRemoveListener},
+    changed: {value: ArrayChanged},
+    __push: {value: Array.prototype.push},
+    __unshift: {value: Array.prototype.unshift},
+    __shift: {value: Array.prototype.shift},
+    __pop: {value: Array.prototype.pop},
+    __sort: {value: Array.prototype.sort},
+    __splice: {value: Array.prototype.splice}
+});
+
+function ArrayAddListener(fn:any, arg1?:any, arg2?:any, arg3?:any) {
     this.listeners = this.listeners || [];
     //if (this.listeners.indexOf(fn) === -1) {
     this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3});
     //}
-};
-Array.prototype.removeListener = function (fn:any) {
+}
+
+function ArrayRemoveListener(fn:any) {
     /*if (this.listeners) {
      var index = this.listeners.indexOf(fn);
      if (index > -1) {
      this.splice(index, 1);
      }
      }*/
-};
+}
 
 var Array_actionChangeId = 0;
 var Array_arrays:any[] = [];
-Array.prototype.changed = function () {
+function ArrayChanged() {
     if (this.listeners && this.listeners.length) {
         if (Array_arrays.indexOf(this) === -1) {
             Array_arrays.push(this);
         }
         window.postMessage({arrayChangedActionId: ++Array_actionChangeId}, '*');
     }
-};
+}
 
 window.addEventListener("message", function message(event:any) {
     var mid = event.data && event.data.arrayChangedActionId;
@@ -55,49 +68,31 @@ window.addEventListener("message", function message(event:any) {
     }
 });
 
-Object.defineProperty(Array.prototype, "__push", {
-    value: Array.prototype.push
-});
 Array.prototype.push = function (item:any) {
     this.changed();
     return this.__push(item);
 };
 
-Object.defineProperty(Array.prototype, "__unshift", {
-    value: Array.prototype.unshift
-});
 Array.prototype.unshift = function (item:any) {
     this.changed();
     return this.__unshift(item);
 };
 
-Object.defineProperty(Array.prototype, "__pop", {
-    value: Array.prototype.pop
-});
 Array.prototype.pop = function () {
     this.changed();
     return this.__pop();
 };
 
-Object.defineProperty(Array.prototype, "__shift", {
-    value: Array.prototype.shift
-});
 Array.prototype.shift = function () {
     this.changed();
     return this.__shift();
 };
 
-Object.defineProperty(Array.prototype, "__sort", {
-    value: Array.prototype.sort
-});
 Array.prototype.sort = function (fn:any) {
     this.changed();
     return this.__sort(fn);
 };
 
-Object.defineProperty(Array.prototype, "__splice", {
-    value: Array.prototype.splice
-});
 Array.prototype.splice = function (start:number, deleteCount?:number) {
     this.changed();
     if (arguments.length > 2) {
