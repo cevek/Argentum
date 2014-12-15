@@ -13,10 +13,8 @@ module rc {
                     (station:Station) =>
                         d('.item', {
                             classSet: {
-                                selected: new Atom(this, {
-                                    getter: ()=>activeStation.isEqual(station),
-                                    name: 'isEqual'
-                                })
+                                playing: ()=>playingStation.get() && playingStation.isEqual(station),
+                                selected: ()=>activeStation.isEqual(station)
                             },
                             onclick: ()=> {activeStation.set(station)}
                         }, station.name)

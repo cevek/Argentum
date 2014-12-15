@@ -6,10 +6,8 @@ module rc {
                     (tag:Tag) =>
                         d('.item', {
                             classSet: {
-                                selected: new Atom(this, {
-                                    getter: ()=>activeTag.isEqual(tag),
-                                    name: 'isEqual'
-                                })
+                                playing: ()=>playingTag.get() && playingTag.isEqual(tag),
+                                selected:()=>activeTag.isEqual(tag)
                             },
                             onclick: ()=>activeTag.set(tag)
                         }, tag.name)
