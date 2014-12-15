@@ -23,7 +23,7 @@ module Arg {
     export function prepareAttr(tree:TreeItem, attr:string) {
         if (tree.attrs[attr].constructor === Function && attr.substr(0, 2) !== 'on') {
             tree.attrs[attr] = new Atom(Arg, {
-                getter:tree.attrs[attr],
+                getter: tree.attrs[attr],
                 name: 'attr'
             });
         }
@@ -58,7 +58,7 @@ module Arg {
             }
         }
         else {
-            tree.node[attr] = tree.attrs[attr];
+            renderAttrAtomListener(tree.attrs[attr], tree, attr);
             if (tree.attrsAtoms && tree.attrsAtoms[attr] && Arg.enableAtoms) {
                 tree.attrsAtoms[attr].addListener(renderAttrAtomListener, tree, attr);
             }
@@ -66,7 +66,9 @@ module Arg {
     }
 
     export function renderAttrAtomListener(val:any, tree:TreeItem, attr:string) {
-        tree.node[attr] = val;
+        if (val !== void 0) {
+            tree.node[attr] = val;
+        }
     }
 
     /*
@@ -95,7 +97,8 @@ module Arg {
     }
 
     export function renderStyle(tree:TreeItem, styleName:string) {
-        tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
+        //tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
+        applyStyleListener(tree.attrs['style'][styleName], tree, styleName);
 
         if (tree.styleAtoms && tree.styleAtoms[styleName] && Arg.enableAtoms) {
             tree.styleAtoms[styleName].addListener(applyStyleListener, tree, styleName);
@@ -103,7 +106,9 @@ module Arg {
     }
 
     export function applyStyleListener(val:any, tree:TreeItem, styleName:string) {
-        tree.node['style'][styleName] = styleCompleter(styleName, val);
+        if (val !== void 0) {
+            tree.node['style'][styleName] = styleCompleter(styleName, val)
+        }
     }
 
     export function styleCompleter(prop:string, value:any) {
