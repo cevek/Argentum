@@ -24,9 +24,25 @@ module rc {
         name: 'activeTag'
     });
     export var activeStation = new Atom<Station>(rc, {
-        setter: ()=> {activeRecord.setNull()},
+        setter: ()=> {},
         name: 'activeStation'
     });
+    export var activeRecord = new Atom<Record>(rc, {
+        setter: ()=> {
+            playingStation.set(activeStation.get());
+            playingTag.set(activeTag.get());
+        },
+        name: 'activeTrack'
+    });
+
+    export var playingTag = new Atom<Tag>(rc, {
+        name: 'playingTag'
+    });
+
+    export var playingStation = new Atom<Station>(rc, {
+        name: 'playingStation'
+    });
+
     export var stationsList = new Atom<Station[]>(rc, {
             getter: ()=>activeTag.get() && stationsStore.filter(station=>
                 station.tagsIds.indexOf(activeTag.get().id) > -1
@@ -38,8 +54,6 @@ module rc {
         getter: ()=>activeStation.get() ? activeStation.get().records : null,
         name: 'tracksList'
     });
-
-    export var activeRecord = new Atom<Record>(rc, {name: 'activeTrack'});
 
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];
