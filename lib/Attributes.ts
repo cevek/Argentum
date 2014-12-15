@@ -66,7 +66,7 @@ module Arg {
     }
 
     export function renderAttrAtomListener(val:any, tree:TreeItem, attr:string) {
-        if (val !== void 0) {
+        if (!tree.removed && val !== void 0) {
             tree.node[attr] = val;
         }
     }
@@ -106,7 +106,7 @@ module Arg {
     }
 
     export function applyStyleListener(val:any, tree:TreeItem, styleName:string) {
-        if (val !== void 0) {
+        if (!tree.removed && val !== void 0) {
             tree.node['style'][styleName] = styleCompleter(styleName, val)
         }
     }
@@ -156,6 +156,9 @@ module Arg {
     }
 
     export function classSetAtomListener(val:any, tree:TreeItem, className:string) {
+        if (tree.removed) {
+            return;
+        }
         var classSet = tree.attrs['classSet'];
 
         classSet[className] = val;
