@@ -145,7 +145,7 @@ class Atom<T> {
         }
     }
 
-    unsetAtomAndRunSetter(slave: Atom<any>) {
+    unsetAtomAndRunSetter(slave:Atom<any>) {
         if (slave) {
             slave.unsetComputing();
 
@@ -157,7 +157,7 @@ class Atom<T> {
     }
 
     private _update() {
-        if (Atom.debugMode) {
+        if (Atom.debugMode && this.owner !== Arg) {
             var tt = typeof this.value;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
                 console.groupCollapsed(this.name + ' = ' + this.value);
@@ -167,6 +167,9 @@ class Atom<T> {
                 console.log(this.value);
             }
             console.dir(this);
+            console.groupCollapsed("trace");
+            console.trace();
+            console.groupEnd();
         }
 
         if (this.order) {
@@ -195,7 +198,7 @@ class Atom<T> {
                 listener.firstValue = AtomHelpers.firstValueObj;
             }
         }
-        Atom.debugMode && console.groupEnd();
+        Atom.debugMode && this.owner !== Arg && console.groupEnd();
     }
 
     //TODO: callback thisArg?
@@ -208,14 +211,14 @@ class Atom<T> {
         //}
     }
 
-    private destroyMaster(master: Atom<any>){
+    private destroyMaster(master:Atom<any>) {
         if (master && master.slaves) {
             master.slaves.delete(this.id);
             master.order.delete(this.id);
         }
     }
 
-    private destroySlave(slave: Atom<any>){
+    private destroySlave(slave:Atom<any>) {
         if (slave && slave.masters) {
             slave.masters.delete(this.id);
         }
