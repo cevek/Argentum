@@ -20,7 +20,7 @@ module rc {
     });
 
     export var activeTag = new Atom<Tag>(rc, {
-        setter: ()=> {activeStation.set(stationsList.get()[0])},
+        //setter: ()=> {activeStation.set(stationsList.get()[0])},
         name: 'activeTag'
     });
     export var activeStation = new Atom<Station>(rc, {
@@ -29,10 +29,9 @@ module rc {
     });
     export var activeRecord = new Atom<Record>(rc, {
         setter: ()=> {
-            playingStation.set(activeStation.get());
-            playingTag.set(activeTag.get());
+            playerUrl.set(activeRecord.get().link);
         },
-        name: 'activeTrack'
+        name: 'activeRecord'
     });
 
     export var playingTag = new Atom<Tag>(rc, {

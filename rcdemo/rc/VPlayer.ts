@@ -1,8 +1,18 @@
 module rc {
     export class VPlayer implements Arg.Component {
-        onEnd() {
-            console.log("player end");
+        nextRandom() {
+            var recordList:{record: Record; station: Station; tag: Tag}[] = [];
+            stationsStore.forEach(station=> {
+                station.records.forEach(record=> {
+                    var tag = tagsStore.filter(tag => tag.id === station.tagsIds[0]).pop();
+                    recordList.push({record: record, station: station, tag: tag});
+                })
+            });
+            var randomRecord = recordList[recordList.length * Math.random() | 0];
 
+            playingStation.set(randomRecord.station);
+            playingTag.set(randomRecord.tag);
+            activeRecord.set(randomRecord.record);
         }
 
         render() {
@@ -16,9 +26,10 @@ module rc {
                     controls: true,
                     autoplay: true,
                     src: playerUrl,
-                    onended: ()=>this.onEnd()
+                    onended: ()=>this.nextRandom()
                 }),
-                d('a', {href: playerUrl}, 'Download')
+                d('a', {onclick: ()=>this.nextRandom()}, 'Next Random')
+                //d('a', {href: playerUrl}, 'Download')
             );
         }
     }
