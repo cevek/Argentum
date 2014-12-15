@@ -79,11 +79,11 @@ module Arg {
                     getter: val,
                     name: 'whenConditionAuto'
                 });
+                constructor = Atom;
             }
             if (constructor === Atom) {
                 var atom:Atom<any> = val;
-                var atomVal = atom.get();
-                var whenCallback = ()=>convertToTree(atomVal);
+                var whenCallback = ()=>atom.get();
                 var child = whenCallback();
                 return new TreeItem({
                     type: TreeType.WHEN,
