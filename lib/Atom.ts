@@ -266,6 +266,11 @@ class Atom<T> {
         this.listeners = null;
         this.removed = true;
     }
+
+    /********************
+     *   Statics
+     *******************/
+
     static lastCalledGetter:Atom<any>;
     static lastCalledSetter:Atom<any>;
     static firstValueObj = {};
@@ -287,7 +292,6 @@ class Atom<T> {
     static microtasks:Microtask[] = [];
     static lastMicrotaskId = 0;
 
-
     static observer = {microtaskId: 0};
 
     static useObjectObserver = true;
@@ -298,10 +302,10 @@ class Atom<T> {
     }
 
     static applyUpdates() {
+        var setterAtom = Atom.microtasks[0] && Atom.microtasks[0].stack;
         if (Atom.debugMode) {
-            var isStack = Atom.microtasks[0] && Atom.microtasks[0].stack;
-            if (isStack) {
-                console.groupCollapsed("  Stack updates");
+            if (setterAtom) {
+                console.groupCollapsed(Atom.depthSpaces(1) + setterAtom.name + ".setter");
             }
             else {
                 console.groupCollapsed("Atom updates[" + Atom.getTime() + "]");
@@ -320,9 +324,8 @@ class Atom<T> {
 
                 atom.computing = true;
                 atom.value = microtask.compute && atom.getter ? atom.getter(atom.value) : microtask.value;
-                atom.update(0);
+                atom.update(setterAtom ? 1 : 0);
                 atom.old_value = atom.value;
-
 
                 doneAtoms[microtask.atom.id] = true;
             }
