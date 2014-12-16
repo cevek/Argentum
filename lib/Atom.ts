@@ -305,10 +305,10 @@ class Atom<T> {
         var setterAtom = Atom.microtasks[0] && Atom.microtasks[0].stack;
         if (Atom.debugMode) {
             if (setterAtom) {
-                console.groupCollapsed(Atom.depthSpaces(1) + setterAtom.name + ".setter");
+                console.group(Atom.depthSpaces(1) + setterAtom.name + ".setter");
             }
             else {
-                console.groupCollapsed("Atom updates[" + Atom.getTime() + "]");
+                console.group("Atom updates[" + Atom.getTime() + "]");
             }
         }
 
