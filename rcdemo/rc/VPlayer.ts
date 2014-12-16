@@ -8,11 +8,13 @@ module rc {
                     recordList.push({record: record, station: station, tag: tag});
                 })
             });
-            var randomRecord = recordList[recordList.length * Math.random() | 0];
 
-            playingStation.set(randomRecord.station);
-            playingTag.set(randomRecord.tag);
-            activeRecord.set(randomRecord.record);
+            if (recordList.length) {
+                var randomRecord = recordList[recordList.length * Math.random() | 0];
+                playingStation.set(randomRecord.station);
+                playingTag.set(randomRecord.tag);
+                activeRecord.set(randomRecord.record);
+            }
         }
 
         render() {
