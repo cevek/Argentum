@@ -3,6 +3,7 @@ interface Object {
 }
 interface Console {
     profileEnd(name:string):void;
+    trace(name?:string):void;
 }
 
 interface Microtask {
@@ -69,8 +70,16 @@ class AtomHelpers {
         AtomHelpers.microtasks = [];
         for (var i = mt.length - 1; i >= 0; i--) {
             var microtask = mt[i];
-            if (!doneAtoms[microtask.atom.id] && !microtask.atom.removed) {
-                microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
+            var atom = microtask.atom;
+            if (!doneAtoms[atom.id] && !atom.removed) {
+                //microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
+
+                atom.computing = true;
+                atom.value = microtask.compute && atom.getter ? atom.getter(atom.value) : microtask.value;
+                atom.update(0);
+                atom.old_value = atom.value;
+
+
                 doneAtoms[microtask.atom.id] = true;
             }
         }
@@ -91,9 +100,15 @@ class AtomHelpers {
     }
 
     static listenMicrotaskObjectObserver() {
-        Object.observe(AtomHelpers.observer, () => {
-            AtomHelpers.applyUpdates();
-        });
+        Object.observe(AtomHelpers.observer, AtomHelpers.applyUpdates);
+    }
+
+    static depthSpaces(depth:number) {
+        var s = '';
+        for (var i = 0; i < depth; i++) {
+            s += '  ';
+        }
+        return s;
     }
 
     static makeName(owner:any, name:string) {

@@ -20,15 +20,15 @@ class Atom<T> {
     static debugMode = true;
     private static lastId = 0;
     id:number;
-    private value:T;
-    private old_value:T;
-    private getter:(prevValue:T)=>T;
-    private setter:(atom:Atom<T>)=>void;
+    public value:T;
+    public old_value:T;
+    public getter:(prevValue:T)=>T;
+    public setter:(atom:Atom<T>)=>void;
     public removed:boolean;
     public name:string;
     public owner:any;
 
-    private computing:boolean = false;
+    public computing:boolean = false;
     public slaves:AtomHelpers.AtomMap<Atom<any>>;
     public masters:AtomHelpers.AtomMap<Atom<any>>;
     public order:AtomHelpers.AtomMap<number>;
@@ -123,15 +123,6 @@ class Atom<T> {
         return !val || val.length === 0;
     }
 
-    microtaskUpdate(compute:boolean, value:T) {
-        this.computing = true;
-        this.value = compute && this.getter ? this.getter(this.value) : value;
-        //if (this.old_value !== this.value) {
-        this._update();
-        //}
-        this.old_value = this.value;
-    }
-
     unsetComputing() {
         this.computing = false;
 
@@ -156,19 +147,29 @@ class Atom<T> {
         }
     }
 
-    private _update() {
+    microtaskUpdate(compute:boolean, value:T) {
+        this.computing = true;
+        this.value = compute && this.getter ? this.getter(this.value) : value;
+        //if (this.old_value !== this.value) {
+        this.update(0);
+        //}
+        this.old_value = this.value;
+    }
+
+    update(depth:number) {
         if (Atom.debugMode && this.owner !== Arg) {
             var tt = typeof this.value;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
-                console.groupCollapsed(this.name + ' = ' + this.value);
+                console.groupCollapsed(AtomHelpers.depthSpaces(depth) + this.name + ' = ' + this.value);
             }
             else {
-                console.groupCollapsed(this.name);
+                console.groupCollapsed(AtomHelpers.depthSpaces(depth) + this.name);
                 console.log(this.value);
             }
             console.dir(this);
             console.groupCollapsed("trace");
-            console.trace();
+            console.trace('');
+            console.groupEnd();
             console.groupEnd();
         }
 
@@ -181,7 +182,7 @@ class Atom<T> {
                     slave.computing = true;
                     slave.value = slave.getter(slave);
                     if (slave.old_value !== slave.value) {
-                        slave._update();
+                        slave.update(depth + 1);
                     }
                     slave.old_value = slave.value;
                 }
@@ -198,7 +199,6 @@ class Atom<T> {
                 listener.firstValue = AtomHelpers.firstValueObj;
             }
         }
-        Atom.debugMode && this.owner !== Arg && console.groupEnd();
     }
 
     //TODO: callback thisArg?
