@@ -31,22 +31,13 @@ class AtomHelpers {
         }
     }
 
-    private static microtasks:Microtask[] = [];
-    private static lastMicrotaskId = 0;
+    static microtasks:Microtask[] = [];
+    static lastMicrotaskId = 0;
 
-    private static observer = {microtaskId: 0};
+
+    static observer = {microtaskId: 0};
 
     static useObjectObserver = true;
-
-    static sendMicrotask(atom:Atom<any>, compute:boolean, value:any = null) {
-        //console.log("sendmicrotask", atom.id);
-        var mid = ++AtomHelpers.lastMicrotaskId;
-        AtomHelpers.microtasks.push({atom: atom, compute: compute, value: value, stack: AtomHelpers.lastCalledSetter});
-        AtomHelpers.observer.microtaskId = mid;
-        if (!Object.observe || !AtomHelpers.useObjectObserver) {
-            window.postMessage({atomMicrotaskId: mid}, '*');
-        }
-    }
 
     static getTime() {
         var d = new Date();

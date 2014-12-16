@@ -105,7 +105,18 @@ class Atom<T> {
                  else {
                  this.stack = [];
                  }*/
-                AtomHelpers.sendMicrotask(this, false, val);
+
+                var mid = ++AtomHelpers.lastMicrotaskId;
+                AtomHelpers.microtasks.push({
+                    atom: this,
+                    compute: false,
+                    value: val,
+                    stack: AtomHelpers.lastCalledSetter
+                });
+                AtomHelpers.observer.microtaskId = mid;
+                if (!Object.observe || !AtomHelpers.useObjectObserver) {
+                    window.postMessage({atomMicrotaskId: mid}, '*');
+                }
             }
         }
     }
