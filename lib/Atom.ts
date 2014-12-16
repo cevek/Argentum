@@ -1,5 +1,21 @@
-/// <reference path="AtomHelpers.ts"/>
+/// <reference path="Atom.ts"/>
 /// <reference path="Array.ts"/>
+
+
+interface Object {
+    observe(beingObserved:any, callback:(update:any) => any) : void;
+}
+interface Console {
+    profileEnd(name:string):void;
+    trace(name?:string):void;
+}
+
+interface Microtask {
+    atom: Atom<any>;
+    compute: boolean;
+    value: any;
+    stack?: any;
+}
 
 interface AtomListeners<T> {
     callback: (atom:T, arg1?:any, arg2?:any, arg3?:any)=>void;
@@ -29,9 +45,9 @@ class Atom<T> {
     public owner:any;
 
     public computing:boolean = false;
-    public slaves:AtomHelpers.AtomMap<Atom<any>>;
-    public masters:AtomHelpers.AtomMap<Atom<any>>;
-    public order:AtomHelpers.AtomMap<number>;
+    public slaves:Atom.AtomMap<Atom<any>>;
+    public masters:Atom.AtomMap<Atom<any>>;
+    public order:Atom.AtomMap<number>;
     public listeners:AtomListeners<T>[] = [];
     public stack:Atom<any>[] = [];
 
@@ -43,7 +59,7 @@ class Atom<T> {
         if (obj) {
             this.getter = obj.getter;
             this.setter = obj.setter;
-            this.name = AtomHelpers.makeName(owner, obj.name);
+            this.name = Atom.makeName(owner, obj.name);
             this.value = obj.value === null ? void 0 : obj.value;
         }
         //this.set(val === null ? void 0 : val);
@@ -59,31 +75,31 @@ class Atom<T> {
 
     get():T {
         if (this.value === undefined && this.getter) {
-            var temp = AtomHelpers.lastCalledGetter;
-            AtomHelpers.lastCalledGetter = this;
+            var temp = Atom.lastCalledGetter;
+            Atom.lastCalledGetter = this;
             this.value = this.getter(this.value);
-            AtomHelpers.lastCalledGetter = temp;
+            Atom.lastCalledGetter = temp;
         }
 
-        var parentAtom = AtomHelpers.lastCalledGetter;
+        var parentAtom = Atom.lastCalledGetter;
         if (parentAtom) {
             if (!this.slaves) {
-                this.slaves = new AtomHelpers.AtomMap<Atom<any>>();
+                this.slaves = new Atom.AtomMap<Atom<any>>();
             }
 
             this.slaves.set(parentAtom.id, parentAtom);
             if (!parentAtom.masters) {
-                parentAtom.masters = new AtomHelpers.AtomMap<Atom<any>>();
+                parentAtom.masters = new Atom.AtomMap<Atom<any>>();
             }
 
             parentAtom.masters.set(this.id, this);
 
             if (!this.order) {
-                this.order = new AtomHelpers.AtomMap<number>();
+                this.order = new Atom.AtomMap<number>();
             }
 
             this.order.set(parentAtom.id, 0);
-            AtomHelpers.traverseMasters(parentAtom, 0);
+            Atom.traverseMasters(parentAtom, 0);
         }
 
         return this.value;
@@ -98,23 +114,23 @@ class Atom<T> {
             }
             else {
 
-                /*                if (AtomHelpers.lastCalledSetter) {
-                 this.stack = AtomHelpers.lastCalledSetter.stack.slice();
+                /*                if (Atom.lastCalledSetter) {
+                 this.stack = Atom.lastCalledSetter.stack.slice();
                  this.stack.push(this);
                  }
                  else {
                  this.stack = [];
                  }*/
 
-                var mid = ++AtomHelpers.lastMicrotaskId;
-                AtomHelpers.microtasks.push({
+                var mid = ++Atom.lastMicrotaskId;
+                Atom.microtasks.push({
                     atom: this,
                     compute: false,
                     value: val,
-                    stack: AtomHelpers.lastCalledSetter
+                    stack: Atom.lastCalledSetter
                 });
-                AtomHelpers.observer.microtaskId = mid;
-                if (!Object.observe || !AtomHelpers.useObjectObserver) {
+                Atom.observer.microtaskId = mid;
+                if (!Object.observe || !Atom.useObjectObserver) {
                     window.postMessage({atomMicrotaskId: mid}, '*');
                 }
             }
@@ -137,10 +153,10 @@ class Atom<T> {
     unsetComputing() {
         this.computing = false;
 
-        var temp = AtomHelpers.lastCalledSetter;
-        AtomHelpers.lastCalledSetter = this;
+        var temp = Atom.lastCalledSetter;
+        Atom.lastCalledSetter = this;
         this.setter && this.setter(this);
-        AtomHelpers.lastCalledSetter = temp;
+        Atom.lastCalledSetter = temp;
 
         if (this.slaves) {
             this.slaves.forEach(this.unsetAtomAndRunSetter, this);
@@ -151,10 +167,10 @@ class Atom<T> {
         if (slave) {
             slave.unsetComputing();
 
-            var temp = AtomHelpers.lastCalledSetter;
-            AtomHelpers.lastCalledSetter = slave;
+            var temp = Atom.lastCalledSetter;
+            Atom.lastCalledSetter = slave;
             slave.setter && slave.setter(slave);
-            AtomHelpers.lastCalledSetter = temp;
+            Atom.lastCalledSetter = temp;
         }
     }
 
@@ -171,10 +187,10 @@ class Atom<T> {
         if (Atom.debugMode && this.owner !== Arg) {
             var tt = typeof this.value;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
-                console.groupCollapsed(AtomHelpers.depthSpaces(depth) + this.name + ' = ' + this.value);
+                console.groupCollapsed(Atom.depthSpaces(depth) + this.name + ' = ' + this.value);
             }
             else {
-                console.groupCollapsed(AtomHelpers.depthSpaces(depth) + this.name);
+                console.groupCollapsed(Atom.depthSpaces(depth) + this.name);
                 console.log(this.value);
             }
             console.dir(this);
@@ -186,7 +202,7 @@ class Atom<T> {
 
         if (this.order) {
             //TODO: get outside closure
-            var list = AtomHelpers.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(b) - this.order.get(a));
+            var list = Atom.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(b) - this.order.get(a));
             for (var i = 0; i < list.length; i++) {
                 var slave = this.slaves.get(list[i]);
                 if (slave && !slave.computing) {
@@ -207,7 +223,7 @@ class Atom<T> {
 
                     listener.callback(this.value, listener.arg1, listener.arg2, listener.arg3);
                 }
-                listener.firstValue = AtomHelpers.firstValueObj;
+                listener.firstValue = Atom.firstValueObj;
             }
         }
     }
@@ -250,4 +266,172 @@ class Atom<T> {
         this.listeners = null;
         this.removed = true;
     }
+    static lastCalledGetter:Atom<any>;
+    static lastCalledSetter:Atom<any>;
+    static firstValueObj = {};
+
+    static traverseMasters(atom:Atom<any>, depth:number) {
+        var ndepth = depth + 1;
+        if (atom.masters) {
+            //TODO: get outside closure
+            atom.masters.forEach((master)=> {
+                if (master && master.order.get(atom.id) < ndepth) {
+                    //console.log("traverse", master.id, ndepth);
+                    master.order.set(atom.id, ndepth);
+                    Atom.traverseMasters(master, ndepth);
+                }
+            });
+        }
+    }
+
+    static microtasks:Microtask[] = [];
+    static lastMicrotaskId = 0;
+
+
+    static observer = {microtaskId: 0};
+
+    static useObjectObserver = true;
+
+    static getTime() {
+        var d = new Date();
+        return ('0' + d.getHours()).substr(-2) + ':' + ('0' + d.getMinutes()).substr(-2) + ':' + ('0' + d.getSeconds()).substr(-2);
+    }
+
+    static applyUpdates() {
+        if (Atom.debugMode) {
+            var isStack = Atom.microtasks[0] && Atom.microtasks[0].stack;
+            if (isStack) {
+                console.groupCollapsed("  Stack updates");
+            }
+            else {
+                console.groupCollapsed("Atom updates[" + Atom.getTime() + "]");
+            }
+        }
+
+        //console.log("message", event.data, Atom.microtasks);
+        var doneAtoms:{[index: number]: boolean} = {};
+        var mt = Atom.microtasks.slice();
+        Atom.microtasks = [];
+        for (var i = mt.length - 1; i >= 0; i--) {
+            var microtask = mt[i];
+            var atom = microtask.atom;
+            if (!doneAtoms[atom.id] && !atom.removed) {
+                //microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
+
+                atom.computing = true;
+                atom.value = microtask.compute && atom.getter ? atom.getter(atom.value) : microtask.value;
+                atom.update(0);
+                atom.old_value = atom.value;
+
+
+                doneAtoms[microtask.atom.id] = true;
+            }
+        }
+
+        for (var i = 0; i < mt.length; i++) {
+            mt[i].atom.unsetComputing();
+        }
+        Atom.debugMode && console.groupEnd();
+    }
+
+    static listenMicrotaskPostMessage() {
+        window.addEventListener("message", function message(event:any) {
+            var mid = event.data && event.data.atomMicrotaskId;
+            if (mid == Atom.lastMicrotaskId) {
+                Atom.applyUpdates();
+            }
+        });
+    }
+
+    static listenMicrotaskObjectObserver() {
+        Object.observe(Atom.observer, Atom.applyUpdates);
+    }
+
+    static depthSpaces(depth:number) {
+        var s = '';
+        for (var i = 0; i < depth; i++) {
+            s += '  ';
+        }
+        return s;
+    }
+
+    static makeName(owner:any, name:string) {
+        var constr = owner.constructor;
+        if (constr && typeof constr.ns == 'function') {
+            constr.ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
+        }
+        if (owner.ns) {
+            if (typeof owner.ns == 'function') {
+                owner.ns = owner.ns.toString().replace('function () { return ', '').replace('; }', '');
+            }
+        }
+
+        var ns = owner.ns || owner.name || (constr && constr.ns);
+
+        var constrName = '';
+        if (constr && constr.name && constr.name !== 'Function' && constr.name !== 'Object') {
+            constrName = constr.name;
+        }
+
+        var fullName = (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
+        return fullName;
+    }
+
+    static getAtomMapKeys(map:any) {
+        var keys:number[];
+        if (map.hash) {
+            keys = <any>Object.keys(map.hash);
+        }
+        else {
+            keys = [];
+            var k = map.keys();
+            var v:any;
+            while ((v = k.next()) && !v.done) keys.push(v.value);
+        }
+        return keys;
+    }
+
+}
+
+module Atom {
+    export class AtomMap<T> {
+        hash:{[idx: number]: T} = {};
+
+        get(key:number) {
+            return this.hash[key];
+        }
+
+        set(key:number, value:T) {
+            this.hash[key] = value;
+        }
+
+        delete(key:number) {
+            delete this.hash[key];
+        }
+
+        clear() {
+            this.hash = {};
+        }
+
+        forEach(fn:(val:T, key:number)=>any, thisArg?:any) {
+            for (var key in this.hash) {
+                if (thisArg) {
+                    fn.call(thisArg, this.hash[key], key);
+                } else {
+                    fn(this.hash[key], key);
+                }
+            }
+        }
+    }
+
+    if (window && window['Map']) {
+        Atom.AtomMap = <any>Map;
+    }
+}
+
+if (Object.observe && Atom.useObjectObserver) {
+    Atom.listenMicrotaskObjectObserver();
+}
+else {
+    Atom.listenMicrotaskPostMessage();
 }
