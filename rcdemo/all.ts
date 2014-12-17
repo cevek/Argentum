@@ -51,7 +51,7 @@ module rc {
 
     export var recordsList = new Atom(rc, {
         getter: ()=>activeStation.get() ? activeStation.get().records : null,
-        name: 'tracksList'
+        name: 'recordsList'
     });
 
     export var stationsStore:Station[] = [];
