@@ -21,7 +21,7 @@ module Arg {
         mapSplit?:string;
         mapValues?:any[];
 
-        whenCallback?:IWhenCallback;
+        whenCallback?:Atom<any>;
         whenCondition?:Atom<any>;
     }
     export class TreeItem {
@@ -46,7 +46,7 @@ module Arg {
         mapSplit:string;
         mapValues:any[];
 
-        whenCallback:IWhenCallback;
+        whenCallback:Atom<any>;
         whenCondition:Atom<any>;
 
         constructor(data:ITreeItem) {

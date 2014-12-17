@@ -3,9 +3,9 @@ module Arg {
         (): TreeItem;
     }
 
-    export function wheeen(condition:Atom<any>, callback:()=>any):TreeItem;
-    export function wheeen(condition:()=>any, callback:()=>any):TreeItem;
-    export function wheeen(condition:any, callback:()=>any):TreeItem {
+    export function wheeen(condition:Atom<any>, callback:any):TreeItem;
+    export function wheeen(condition:()=>any, callback:any):TreeItem;
+    export function wheeen(condition:any, callback:any):TreeItem {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
             atomCondition = new Atom<any>(Arg, {
@@ -13,19 +13,34 @@ module Arg {
                 name: 'whenCondition'
             });
         }
-        if (condition.constructor !== Atom) {
+        else if (condition.constructor !== Atom) {
             atomCondition = new Atom<any>(Arg, {
                 value: condition,
                 name: 'whenCondition'
             });
         }
 
-        var child = atomCondition.get() ? convertToTree(callback()) : null;
+        var atomCallback:Atom<any> = callback;
+        if (callback.constructor === Function) {
+            atomCallback = new Atom<any>(Arg, {
+                getter: callback,
+                name: 'whenCondition'
+            });
+        }
+        else if (callback.constructor !== Atom) {
+            atomCallback = new Atom<any>(Arg, {
+                value: callback,
+                name: 'whenCallback'
+            });
+        }
+
+        var child = atomCondition.get() ? convertToTree(atomCallback.get()) : null;
+
         return new TreeItem({
             type: TreeType.WHEN,
             whenCondition: atomCondition,
             children: child ? [child] : null,
-            whenCallback: callback
+            whenCallback: atomCallback
         });
     }
 
@@ -45,7 +60,7 @@ module Arg {
     export function renderWhenListener(condition:boolean, tree:TreeItem) {
         removeTreeChildren(tree);
         if (condition) {
-            var sub_tree = convertToTree(tree.whenCallback());
+            var sub_tree = convertToTree(tree.whenCallback.get());
             sub_tree.parentNode = tree.parentNode;
             sub_tree.nodeBefore = tree.node;
             tree.children = sub_tree ? [sub_tree] : null;

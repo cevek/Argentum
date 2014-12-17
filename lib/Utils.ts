@@ -83,13 +83,12 @@ module Arg {
             }
             if (constructor === Atom) {
                 var atom:Atom<any> = val;
-                var whenCallback = ()=>atom.get();
-                var child = whenCallback();
+                var child = atom.get();
                 return new TreeItem({
                     type: TreeType.WHEN,
                     whenCondition: atom,
                     children: child ? [child] : null,
-                    whenCallback: whenCallback
+                    whenCallback: atom
                 });
             }
             if (constructor === TreeItem) {
