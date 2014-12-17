@@ -73,32 +73,32 @@ class Atom<T> {
     }
 
     get():T {
-        if (this.value === undefined && this.getter) {
+        if (this.value === void 0 && this.getter) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
             this.value = this.getter(this.value);
             Atom.lastCalledGetter = temp;
         }
 
-        var parentAtom = Atom.lastCalledGetter;
-        if (parentAtom) {
+        var slaveAtom = Atom.lastCalledGetter;
+        if (slaveAtom) {
             if (!this.slaves) {
                 this.slaves = new Atom.AtomMap<Atom<any>>();
             }
 
-            this.slaves.set(parentAtom.id, parentAtom);
-            if (!parentAtom.masters) {
-                parentAtom.masters = new Atom.AtomMap<Atom<any>>();
+            this.slaves.set(slaveAtom.id, slaveAtom);
+            if (!slaveAtom.masters) {
+                slaveAtom.masters = new Atom.AtomMap<Atom<any>>();
             }
 
-            parentAtom.masters.set(this.id, this);
+            slaveAtom.masters.set(this.id, this);
 
             if (!this.order) {
                 this.order = new Atom.AtomMap<number>();
             }
 
-            this.order.set(parentAtom.id, 0);
-            Atom.traverseMasters(parentAtom, 0);
+            this.order.set(slaveAtom.id, 0);
+            Atom.traverseMasters(slaveAtom, 0);
         }
 
         return this.value;
