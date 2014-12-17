@@ -59,10 +59,7 @@ module Arg {
                 itemTree.nodeBefore = tree.node;
                 tree.mapValues[i] = array[i];
                 tree.children[i] = itemTree;
-
-                if (itemTree.parentNode) {
-                    render(itemTree);
-                }
+                render(itemTree);
             }
             if (Arg.enableAtoms) {
                 array.addListener(mapArrayListener, tree);
