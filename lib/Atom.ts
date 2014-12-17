@@ -33,20 +33,20 @@ interface IAtom<T> {
 class Atom<T> {
     static debugMode = true;
     private static lastId = 0;
-    id:number;
-    public value:T;
-    public old_value:T;
-    public getter:(prevValue:T)=>T;
-    public setter:(atom:Atom<T>)=>void;
-    public removed:boolean;
+    private id:number;
+    private value:T;
+    private old_value:T;
+    private getter:(prevValue:T)=>T;
+    private setter:(atom:Atom<T>)=>void;
+    private removed:boolean;
     public name:string;
-    public owner:any;
+    private owner:any;
 
-    public computing:boolean = false;
-    public slaves:Atom.AtomMap<Atom<any>>;
-    public masters:Atom.AtomMap<Atom<any>>;
-    public order:Atom.AtomMap<number>;
-    public listeners:AtomListeners<T>[] = [];
+    private computing:boolean = false;
+    private slaves:Atom.AtomMap<Atom<any>>;
+    private masters:Atom.AtomMap<Atom<any>>;
+    private order:Atom.AtomMap<number>;
+    private listeners:AtomListeners<T>[] = [];
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
     constructor(owner:any, obj:IAtom<T>) {
@@ -70,7 +70,7 @@ class Atom<T> {
         return '<Atom>';
     }
 
-    clearMasters() {
+    private clearMasters() {
         if (this.masters) {
             var masters = Atom.getAtomMapValues(this.masters);
             for (var i = 0; i < masters.length; i++) {
@@ -80,7 +80,7 @@ class Atom<T> {
         }
     }
 
-    reGetter() {
+    private reGetter() {
         if (this.getter) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
@@ -163,7 +163,7 @@ class Atom<T> {
         return !val || val.length === 0;
     }
 
-    unsetComputing() {
+    private unsetComputing() {
         this.computing = false;
 
         var temp = Atom.lastCalledSetter;
@@ -187,7 +187,7 @@ class Atom<T> {
         }
     }
 
-    update(depth:number) {
+    private update(depth:number) {
         if (Atom.debugMode && this.owner !== Arg) {
             var tt = typeof this.value;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
@@ -275,11 +275,11 @@ class Atom<T> {
      *   Statics
      *******************/
 
-    static lastCalledGetter:Atom<any>;
-    static lastCalledSetter:Atom<any>;
-    static firstValueObj = {};
+    private static lastCalledGetter:Atom<any>;
+    private static lastCalledSetter:Atom<any>;
+    private static firstValueObj = {};
 
-    static traverseMasters(atom:Atom<any>, depth:number) {
+    private static traverseMasters(atom:Atom<any>, depth:number) {
         var ndepth = depth + 1;
         if (atom.masters) {
             var masters = Atom.getAtomMapValues(atom.masters);
@@ -293,19 +293,19 @@ class Atom<T> {
         }
     }
 
-    static microtasks:Microtask[] = [];
-    static lastMicrotaskId = 0;
+    private static microtasks:Microtask[] = [];
+    private static lastMicrotaskId = 0;
 
-    static observer = {microtaskId: 0};
+    private static observer = {microtaskId: 0};
 
-    static useObjectObserver = true;
+    private static useObjectObserver = true;
 
-    static getTime() {
+    private static getTime() {
         var d = new Date();
         return ('0' + d.getHours()).substr(-2) + ':' + ('0' + d.getMinutes()).substr(-2) + ':' + ('0' + d.getSeconds()).substr(-2);
     }
 
-    static applyUpdates() {
+    private static applyUpdates() {
         var setterAtom = Atom.microtasks[0] && Atom.microtasks[0].stack;
         if (Atom.debugMode) {
             if (setterAtom) {
@@ -338,7 +338,7 @@ class Atom<T> {
         Atom.debugMode && console.groupEnd();
     }
 
-    static listenMicrotaskPostMessage() {
+    private static listenMicrotaskPostMessage() {
         window.addEventListener("message", function message(event:any) {
             var mid = event.data && event.data.atomMicrotaskId;
             if (mid == Atom.lastMicrotaskId) {
@@ -351,7 +351,7 @@ class Atom<T> {
         Object.observe(Atom.observer, Atom.applyUpdates);
     }
 
-    static depthSpaces(depth:number) {
+    private static depthSpaces(depth:number) {
         var s = '';
         for (var i = 0; i < depth; i++) {
             s += '  ';
@@ -359,7 +359,7 @@ class Atom<T> {
         return s;
     }
 
-    static makeName(owner:any, name:string) {
+    private static makeName(owner:any, name:string) {
         var constr = owner.constructor;
         if (constr && typeof constr.ns == 'function') {
             constr.ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
@@ -380,7 +380,7 @@ class Atom<T> {
         return (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
     }
 
-    static getAtomMapKeys<T>(map:Atom.AtomMap<T>) {
+    private static getAtomMapKeys<T>(map:Atom.AtomMap<T>) {
         var keys:number[];
         if (map.hash) {
             keys = <any>Object.keys(map.hash);
@@ -394,7 +394,7 @@ class Atom<T> {
         return keys;
     }
 
-    static getAtomMapValues<T>(map:Atom.AtomMap<T>) {
+    private static getAtomMapValues<T>(map:Atom.AtomMap<T>) {
         var values:T[] = [];
         if (map.hash) {
             var keys = Object.keys(map.hash);
@@ -409,6 +409,9 @@ class Atom<T> {
         }
         return values;
     }
+
+    private static lister = Object.observe && Atom.useObjectObserver ?
+        Atom.listenMicrotaskObjectObserver() : Atom.listenMicrotaskPostMessage();
 }
 
 module Atom {
@@ -447,9 +450,3 @@ module Atom {
     }
 }
 
-if (Object.observe && Atom.useObjectObserver) {
-    Atom.listenMicrotaskObjectObserver();
-}
-else {
-    Atom.listenMicrotaskPostMessage();
-}
