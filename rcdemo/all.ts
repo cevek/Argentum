@@ -57,12 +57,16 @@ module rc {
     export var stationsStore:Station[] = [];
     export var tagsStore:Tag[] = [];
     HTTP.get('http://localhost:8125/data/').then((data:any) => {
+        var tags:any  = {};
         for (var i = 0; i < data.stations.length; i++) {
             stationsStore.push(new Station(data.stations[i]));
+            tags[data.stations[i].tag1] = {id: data.stations[i].tag1, name: data.stations[i].tag1};
         }
-        for (var i = 0; i < data.tags.length; i++) {
-            tagsStore.push(new Tag(data.tags[i]));
+        for (var j in tags) {
+            tagsStore.push(new Tag(tags[j]));
         }
+        console.log(tags);
+
     });
 
     glob.vdom = Arg.publicRender(document.body, new VLister());
