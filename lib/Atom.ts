@@ -1,7 +1,6 @@
 /// <reference path="Atom.ts"/>
 /// <reference path="Array.ts"/>
 
-
 interface Object {
     observe(beingObserved:any, callback:(update:any) => any) : void;
 }
@@ -158,21 +157,20 @@ class Atom<T> {
         Atom.lastCalledSetter = temp;
 
         if (this.slaves) {
-            this.slaves.forEach(this.unsetAtomAndRunSetter, this);
+            var slaves = Atom.getAtomMapValues(this.slaves);
+            for (var i = 0; i < slaves.length; i++) {
+                var slave = slaves[i];
+                if (slave) {
+                    slave.unsetComputing();
+
+                    var temp = Atom.lastCalledSetter;
+                    Atom.lastCalledSetter = slave;
+                    slave.setter && slave.setter(slave);
+                    Atom.lastCalledSetter = temp;
+                }
+            }
         }
     }
-
-    unsetAtomAndRunSetter(slave:Atom<any>) {
-        if (slave) {
-            slave.unsetComputing();
-
-            var temp = Atom.lastCalledSetter;
-            Atom.lastCalledSetter = slave;
-            slave.setter && slave.setter(slave);
-            Atom.lastCalledSetter = temp;
-        }
-    }
-
 
     update(depth:number) {
         if (Atom.debugMode && this.owner !== Arg) {
@@ -229,25 +227,25 @@ class Atom<T> {
         //}
     }
 
-    private destroyMaster(master:Atom<any>) {
-        if (master && master.slaves) {
-            master.slaves.delete(this.id);
-            master.order.delete(this.id);
-        }
-    }
-
-    private destroySlave(slave:Atom<any>) {
-        if (slave && slave.masters) {
-            slave.masters.delete(this.id);
-        }
-    }
-
     destroy() {
         if (this.masters) {
-            this.masters.forEach(this.destroyMaster, this);
+            var masters = Atom.getAtomMapValues(this.masters);
+            for (var i = 0; i < masters.length; i++) {
+                var master = masters[i];
+                if (master && master.slaves) {
+                    master.slaves.delete(this.id);
+                    master.order.delete(this.id);
+                }
+            }
         }
         if (this.slaves) {
-            this.slaves.forEach(this.destroySlave, this);
+            var slaves = Atom.getAtomMapValues(this.slaves);
+            for (var i = 0; i < slaves.length; i++) {
+                var slave = slaves[i];
+                if (slave && slave.masters) {
+                    slave.masters.delete(this.id);
+                }
+            }
         }
         this.old_value = null;
         this.value = null;
@@ -269,14 +267,14 @@ class Atom<T> {
     static traverseMasters(atom:Atom<any>, depth:number) {
         var ndepth = depth + 1;
         if (atom.masters) {
-            //TODO: get outside closure
-            atom.masters.forEach((master)=> {
+            var masters = Atom.getAtomMapValues(atom.masters);
+            for (var i = 0; i < masters.length; i++) {
+                var master = masters[i];
                 if (master && master.order.get(atom.id) < ndepth) {
-                    //console.log("traverse", master.id, ndepth);
                     master.order.set(atom.id, ndepth);
                     Atom.traverseMasters(master, ndepth);
                 }
-            });
+            }
         }
     }
 
@@ -370,7 +368,7 @@ class Atom<T> {
         return (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
     }
 
-    static getAtomMapKeys(map:any) {
+    static getAtomMapKeys<T>(map:Atom.AtomMap<T>) {
         var keys:number[];
         if (map.hash) {
             keys = <any>Object.keys(map.hash);
@@ -378,12 +376,27 @@ class Atom<T> {
         else {
             keys = [];
             var k = map.keys();
-            var v:any;
-            while ((v = k.next()) && !v.done) keys.push(v.value);
+            var v:{value: T; done: boolean};
+            while ((v = k.next()) && !v.done) keys.push(+v.value);
         }
         return keys;
     }
 
+    static getAtomMapValues<T>(map:Atom.AtomMap<T>) {
+        var values:T[] = [];
+        if (map.hash) {
+            var keys = Object.keys(map.hash);
+            for (var i = 0; i < keys.length; i++) {
+                values[i] = map.hash[+keys[i]];
+            }
+        }
+        else {
+            var k = map.values();
+            var v:{value: T; done: boolean};
+            while ((v = k.next()) && !v.done) values.push(v.value);
+        }
+        return values;
+    }
 }
 
 module Atom {
@@ -402,15 +415,19 @@ module Atom {
             delete this.hash[key];
         }
 
-        forEach(fn:(val:T, key:number)=>any, thisArg?:any) {
-            for (var key in this.hash) {
-                if (thisArg) {
-                    fn.call(thisArg, this.hash[key], key);
-                } else {
-                    fn(this.hash[key], key);
-                }
-            }
+        clear() {
+            this.hash = {};
         }
+
+        values():{next: ()=>{value: T; done: boolean}} {
+            return null;
+        }
+
+        keys():{next: ()=>{value: T; done: boolean}} {
+            return null;
+        }
+
+    [idx: string]: any;
     }
 
     if (window && window['Map']) {
