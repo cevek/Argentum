@@ -49,7 +49,6 @@ class Atom<T> {
     public masters:Atom.AtomMap<Atom<any>>;
     public order:Atom.AtomMap<number>;
     public listeners:AtomListeners<T>[] = [];
-    public stack:Atom<any>[] = [];
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
     constructor(owner:any, obj:IAtom<T>) {
@@ -174,14 +173,6 @@ class Atom<T> {
         }
     }
 
-    microtaskUpdate(compute:boolean, value:T) {
-        this.computing = true;
-        this.value = compute && this.getter ? this.getter(this.value) : value;
-        //if (this.old_value !== this.value) {
-        this.update(0);
-        //}
-        this.old_value = this.value;
-    }
 
     update(depth:number) {
         if (Atom.debugMode && this.owner !== Arg) {
@@ -376,8 +367,7 @@ class Atom<T> {
             constrName = constr.name;
         }
 
-        var fullName = (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
-        return fullName;
+        return (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
     }
 
     static getAtomMapKeys(map:any) {
@@ -410,10 +400,6 @@ module Atom {
 
         delete(key:number) {
             delete this.hash[key];
-        }
-
-        clear() {
-            this.hash = {};
         }
 
         forEach(fn:(val:T, key:number)=>any, thisArg?:any) {
