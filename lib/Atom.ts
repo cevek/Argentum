@@ -11,7 +11,6 @@ interface Console {
 
 interface Microtask {
     atom: Atom<any>;
-    compute: boolean;
     value: any;
     stack?: any;
 }
@@ -71,12 +70,29 @@ class Atom<T> {
         return '<Atom>';
     }
 
-    get():T {
-        if (this.value === void 0 && this.getter) {
+    clearMasters() {
+        if (this.masters) {
+            var masters = Atom.getAtomMapValues(this.masters);
+            for (var i = 0; i < masters.length; i++) {
+                masters[i].slaves.delete(this.id);
+            }
+            this.masters.clear();
+        }
+    }
+
+    reGetter() {
+        if (this.getter) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
+            this.clearMasters();
             this.value = this.getter(this.value);
             Atom.lastCalledGetter = temp;
+        }
+    }
+
+    get():T {
+        if (this.value === void 0) {
+            this.reGetter();
         }
 
         var slaveAtom = Atom.lastCalledGetter;
@@ -123,7 +139,6 @@ class Atom<T> {
                 var mid = ++Atom.lastMicrotaskId;
                 Atom.microtasks.push({
                     atom: this,
-                    compute: false,
                     value: val,
                     stack: Atom.lastCalledSetter
                 });
@@ -196,7 +211,7 @@ class Atom<T> {
                 var slave = this.slaves.get(list[i]);
                 if (slave && !slave.computing) {
                     slave.computing = true;
-                    slave.value = slave.getter(slave);
+                    slave.reGetter();
                     if (slave.old_value !== slave.value) {
                         slave.update(depth + 1);
                     }
@@ -309,13 +324,10 @@ class Atom<T> {
             var microtask = mt[i];
             var atom = microtask.atom;
             if (!doneAtoms[atom.id] && !atom.removed) {
-                //microtask.atom.microtaskUpdate(microtask.compute, microtask.value);
-
                 atom.computing = true;
-                atom.value = microtask.compute && atom.getter ? atom.getter(atom.value) : microtask.value;
+                atom.value = microtask.value;
                 atom.update(setterAtom ? 1 : 0);
                 atom.old_value = atom.value;
-
                 doneAtoms[microtask.atom.id] = true;
             }
         }
