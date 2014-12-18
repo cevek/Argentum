@@ -18,7 +18,7 @@ module rc {
         }
 
         render() {
-            return d.root('.block',
+            return Arg.root('.block',
                 d('.title',
                     ()=>playingTag.get() && playingTag.get().name, " - ",
                     ()=>playingStation.get() && playingStation.get().name, " - ",

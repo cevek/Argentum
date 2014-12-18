@@ -1,10 +1,10 @@
 module rc {
     export class VTracks implements Arg.Component {
         render() {
-            return d.root('.panel', {
+            return Arg.root('.panel', {
                     classSet: {empty: ()=>recordsList.isEmpty()}
                 },
-                d.map(recordsList,
+                Arg.map(recordsList,
                     track => new VTrackItem(track))
             )
         }
@@ -20,7 +20,7 @@ module rc {
         }
 
         render() {
-            return d.root('.item', {
+            return Arg.root('.item', {
                     classSet: {
                         playing: ()=>activeRecord.isEqual(this.track)
                     },
