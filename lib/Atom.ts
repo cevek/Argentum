@@ -314,7 +314,7 @@ class Atom<T> {
                 console.group(Atom.depthSpaces(1) + setterAtom.name + ".setter");
             }
             else {
-                console.group("Atom updates[" + Atom.getTime() + "]");
+                console.group("********** " + Atom.getTime() + " **********");
             }
         }
 
