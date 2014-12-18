@@ -2,7 +2,7 @@
 /// <reference path="Array.ts"/>
 
 interface Object {
-    observe(beingObserved:any, callback:(update:any) => any) : void;
+    observe(beingObserved:Object, callback:(update:Object) => void) : void;
 }
 interface Console {
     profileEnd(name:string):void;
@@ -10,17 +10,17 @@ interface Console {
 }
 
 interface Microtask {
-    atom: Atom<any>;
-    value: any;
-    stack?: any;
+    atom: Atom<Object>;
+    value: Object;
+    stack?: Atom<Object>;
 }
 
 interface AtomListeners<T> {
-    callback: (atom:T, arg1?:any, arg2?:any, arg3?:any)=>void;
-    arg1: any;
-    arg2: any;
-    arg3: any;
-    firstValue: any;
+    callback: (atom:T, arg1?:Object, arg2?:Object, arg3?:Object)=>void;
+    arg1: Object;
+    arg2: Object;
+    arg3: Object;
+    firstValue: Object;
 }
 
 interface IAtom<T> {
@@ -40,16 +40,16 @@ class Atom<T> {
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
     public name:string;
-    private owner:any;
+    private owner:Object;
 
     private computing:boolean = false;
-    private slaves:Atom.AtomMap<Atom<any>>;
-    private masters:Atom.AtomMap<Atom<any>>;
+    private slaves:Atom.AtomMap<Atom<Object>>;
+    private masters:Atom.AtomMap<Atom<Object>>;
     private order:Atom.AtomMap<number>;
     private listeners:AtomListeners<T>[] = [];
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:any, obj:IAtom<T>) {
+    constructor(owner:Object, obj:IAtom<T>) {
         this.id = ++Atom.lastId;
         this.owner = owner;
 
@@ -107,12 +107,12 @@ class Atom<T> {
         var slaveAtom = Atom.lastCalledGetter;
         if (slaveAtom) {
             if (!this.slaves) {
-                this.slaves = new Atom.AtomMap<Atom<any>>();
+                this.slaves = new Atom.AtomMap<Atom<Object>>();
             }
 
             this.slaves.set(slaveAtom.id, slaveAtom);
             if (!slaveAtom.masters) {
-                slaveAtom.masters = new Atom.AtomMap<Atom<any>>();
+                slaveAtom.masters = new Atom.AtomMap<Atom<Object>>();
             }
 
             slaveAtom.masters.set(this.id, this);
@@ -168,7 +168,7 @@ class Atom<T> {
     }
 
     isEmpty() {
-        var val:any = this.get();
+        var val:any/*checked*/ = this.get();
         return !val || val.length === 0;
     }
 
@@ -210,7 +210,7 @@ class Atom<T> {
             //TODO: get outside closure
             var list = Atom.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(b) - this.order.get(a));
             for (var i = 0; i < list.length; i++) {
-                var slave = this.slaves.get(list[i]);
+                var slave = this.slaves.get(+list[i]);
                 if (slave && !slave.computing) {
                     slave.computing = true;
                     slave.callGetter();
@@ -277,11 +277,11 @@ class Atom<T> {
      *   Statics
      *******************/
 
-    private static lastCalledGetter:Atom<any>;
-    private static lastCalledSetter:Atom<any>;
+    private static lastCalledGetter:Atom<Object>;
+    private static lastCalledSetter:Atom<Object>;
     private static firstValueObj = {};
 
-    private static traverseMasters(atom:Atom<any>, depth:number) {
+    private static traverseMasters(atom:Atom<Object>, depth:number) {
         var ndepth = depth + 1;
         if (atom.masters) {
             var masters = Atom.getAtomMapValues(atom.masters);
@@ -341,7 +341,7 @@ class Atom<T> {
     }
 
     private static listenMicrotaskPostMessage() {
-        window.addEventListener("message", function message(event:any) {
+        window.addEventListener("message", function message(event:{data: {atomMicrotaskId: number}}) {
             var mid = event.data && event.data.atomMicrotaskId;
             if (mid == Atom.lastMicrotaskId) {
                 Atom.applyUpdates();
@@ -361,7 +361,7 @@ class Atom<T> {
         return s;
     }
 
-    private static makeName(owner:any, name:string) {
+    private static makeName(owner:any/*checked*/, name:string) {
         var constr = owner.constructor;
         if (constr && typeof constr.ns == 'function') {
             constr.ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
@@ -383,15 +383,15 @@ class Atom<T> {
     }
 
     private static getAtomMapKeys<T>(map:Atom.AtomMap<T>) {
-        var keys:number[];
+        var keys:string[];
         if (map.hash) {
-            keys = <any>Object.keys(map.hash);
+            keys = Object.keys(map.hash);
         }
         else {
             keys = [];
             var k = map.keys();
-            var v:{value: T; done: boolean};
-            while ((v = k.next()) && !v.done) keys.push(+v.value);
+            var v:{value: string; done: boolean};
+            while ((v = k.next()) && !v.done) keys.push(v.value);
         }
         return keys;
     }
@@ -440,7 +440,7 @@ module Atom {
             return null;
         }
 
-        keys():{next: ()=>{value: T; done: boolean}} {
+        keys():{next: ()=>{value: string; done: boolean}} {
             return null;
         }
 
