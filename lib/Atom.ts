@@ -80,7 +80,7 @@ class Atom<T> {
         }
     }
 
-    private reGetter() {
+    private callGetter() {
         if (this.getter) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
@@ -90,7 +90,7 @@ class Atom<T> {
         }
     }
 
-    private reSetter() {
+    private callSetter() {
         if (this.setter) {
             var temp = Atom.lastCalledSetter;
             Atom.lastCalledSetter = this;
@@ -101,7 +101,7 @@ class Atom<T> {
 
     get():T {
         if (this.value === void 0) {
-            this.reGetter();
+            this.callGetter();
         }
 
         var slaveAtom = Atom.lastCalledGetter;
@@ -172,18 +172,18 @@ class Atom<T> {
         return !val || val.length === 0;
     }
 
-    private unsetComputing() {
+    private afterUpdate() {
         this.computing = false;
 
-        this.reSetter();
+        this.callSetter();
 
         if (this.slaves) {
             var slaves = Atom.getAtomMapValues(this.slaves);
             for (var i = 0; i < slaves.length; i++) {
                 var slave = slaves[i];
                 if (slave) {
-                    slave.unsetComputing();
-                    slave.reSetter();
+                    slave.afterUpdate();
+                    slave.callSetter();
                 }
             }
         }
@@ -213,7 +213,7 @@ class Atom<T> {
                 var slave = this.slaves.get(list[i]);
                 if (slave && !slave.computing) {
                     slave.computing = true;
-                    slave.reGetter();
+                    slave.callGetter();
                     if (slave.old_value !== slave.value) {
                         slave.update(depth + 1);
                     }
@@ -335,7 +335,7 @@ class Atom<T> {
         }
 
         for (var i = 0; i < mt.length; i++) {
-            mt[i].atom.unsetComputing();
+            mt[i].atom.afterUpdate();
         }
         Atom.debugMode && console.groupEnd();
     }
