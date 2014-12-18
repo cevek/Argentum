@@ -30,7 +30,6 @@ module Arg {
     export function render(tree:TreeItem) {
         if (tree.component) {
             if (!createdCSSRules[tree.tag]) {
-                //todo: check for ie
                 cssDom.sheet.insertRule(tree.tag + '{display: block}', 0);
                 createdCSSRules[tree.tag] = true;
             }
