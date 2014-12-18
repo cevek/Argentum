@@ -4,9 +4,7 @@ module Arg {
         (item:R, i?:number): TreeItem;
     }
 
-    export function mapper<R>(atomArray:Atom<R[]>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem;
-    export function mapper<R>(atomArray:R[], mapIterator:(item:R, i:number)=>any, split?:string):TreeItem;
-    export function mapper<R>(atomArray:any, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
+    export function map<R>(atomArray:Atom<R[]>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
         if (atomArray.constructor !== Atom) {
             atomArray = new Atom<any>(Arg, {
                 value: atomArray,
@@ -28,6 +26,14 @@ module Arg {
             mapValues: array,
             mapIterator: mapIterator
         });
+    }
+
+    export function mapRaw<R>(array:R[], mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
+        var atomArray = new Atom<any>(Arg, {
+            value: array,
+            name: 'map'
+        });
+        return map(atomArray, mapIterator, split);
     }
 
     export function renderMap(tree:TreeItem) {

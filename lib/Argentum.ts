@@ -65,17 +65,13 @@ module Arg {
         return treeItem;
     }
 
-    export module dom {
-        export var map = mapper;
-        export var when = wheeen;
 
-        export function root(tagExpr:string, ...children:any[]):TreeItem {
-            children.unshift(tagExpr.replace(/^[^.\[\#]+/, 'root'));
-            return dom.apply(null, children);
-        }
+    export function root(tagExpr:string, ...children:any[]):TreeItem {
+        children.unshift(tagExpr.replace(/^[^.\[\#]+/, 'root'));
+        return dom.apply(null, children);
     }
 }
 
-var d = Arg.dom;
+import d = Arg.dom;
 
 
