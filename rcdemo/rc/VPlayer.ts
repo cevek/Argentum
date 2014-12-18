@@ -28,7 +28,8 @@ module rc {
                     controls: true,
                     autoplay: true,
                     src: playerUrl,
-                    onended: ()=>this.nextRandom()
+                    onended: ()=>this.nextRandom(),
+                    onerror: ()=>this.nextRandom()
                 }),
                 d('a', {onclick: ()=>this.nextRandom()}, 'Next Random')
                 //d('a', {href: playerUrl}, 'Download')
