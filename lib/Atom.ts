@@ -90,6 +90,15 @@ class Atom<T> {
         }
     }
 
+    private reSetter() {
+        if (this.setter) {
+            var temp = Atom.lastCalledSetter;
+            Atom.lastCalledSetter = this;
+            this.setter(this);
+            Atom.lastCalledSetter = temp;
+        }
+    }
+
     get():T {
         if (this.value === void 0) {
             this.reGetter();
@@ -166,10 +175,7 @@ class Atom<T> {
     private unsetComputing() {
         this.computing = false;
 
-        var temp = Atom.lastCalledSetter;
-        Atom.lastCalledSetter = this;
-        this.setter && this.setter(this);
-        Atom.lastCalledSetter = temp;
+        this.reSetter();
 
         if (this.slaves) {
             var slaves = Atom.getAtomMapValues(this.slaves);
@@ -177,11 +183,7 @@ class Atom<T> {
                 var slave = slaves[i];
                 if (slave) {
                     slave.unsetComputing();
-
-                    var temp = Atom.lastCalledSetter;
-                    Atom.lastCalledSetter = slave;
-                    slave.setter && slave.setter(slave);
-                    Atom.lastCalledSetter = temp;
+                    slave.reSetter();
                 }
             }
         }
