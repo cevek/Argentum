@@ -208,7 +208,7 @@ class Atom<T> {
 
         if (this.order) {
             //TODO: get outside closure
-            var list = Atom.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(b) - this.order.get(a));
+            var list = Atom.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(+b) - this.order.get(+a));
             for (var i = 0; i < list.length; i++) {
                 var slave = this.slaves.get(+list[i]);
                 if (slave && !slave.computing) {
