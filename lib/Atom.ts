@@ -39,6 +39,7 @@ class Atom<T> {
     private getter:(prevValue:T)=>T;
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
+    private level:number = 0;
     public name:string;
     private owner:Object;
 
@@ -86,6 +87,7 @@ class Atom<T> {
             Atom.lastCalledGetter = this;
             this.clearMasters();
             this.value = this.getter(this.value);
+            this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
         }
     }
@@ -96,6 +98,19 @@ class Atom<T> {
             Atom.lastCalledSetter = this;
             this.setter(this);
             Atom.lastCalledSetter = temp;
+        }
+    }
+
+    private setLevelToMasters(level:number) {
+        if (this.masters) {
+            var masters = Atom.getAtomMapValues(this.masters);
+            for (var i = 0; i < masters.length; i++) {
+                var master = masters[i];
+                if (master.level < level) {
+                    master.level = level;
+                    master.setLevelToMasters(level + 1);
+                }
+            }
         }
     }
 
@@ -131,30 +146,15 @@ class Atom<T> {
     set(val:T, force = false, sync = false) {
         if (this.value !== val || force) {
             this.value = val;
-            if (sync) {
-                //this.microtaskUpdate(false, val);
-                //this.unsetComputing();
-            }
-            else {
-
-                /*                if (Atom.lastCalledSetter) {
-                 this.stack = Atom.lastCalledSetter.stack.slice();
-                 this.stack.push(this);
-                 }
-                 else {
-                 this.stack = [];
-                 }*/
-
-                var mid = ++Atom.lastMicrotaskId;
-                Atom.microtasks.push({
-                    atom: this,
-                    value: val,
-                    stack: Atom.lastCalledSetter
-                });
-                Atom.observer.microtaskId = mid;
-                if (!Object.observe || !Atom.useObjectObserver) {
-                    window.postMessage({atomMicrotaskId: mid}, '*');
-                }
+            var mid = ++Atom.lastMicrotaskId;
+            Atom.microtasks.push({
+                atom: this,
+                value: val,
+                stack: Atom.lastCalledSetter
+            });
+            Atom.observer.microtaskId = mid;
+            if (!Object.observe || !Atom.useObjectObserver) {
+                window.postMessage({atomMicrotaskId: mid}, '*');
             }
         }
     }
@@ -189,7 +189,7 @@ class Atom<T> {
         }
     }
 
-    private update(depth:number) {
+    private debugInfo(depth:number) {
         if (Atom.debugMode && this.owner !== Arg) {
             var tt = typeof this.value;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
@@ -205,22 +205,9 @@ class Atom<T> {
             console.groupEnd();
             console.groupEnd();
         }
+    }
 
-        if (this.order) {
-            //TODO: get outside closure
-            var list = Atom.getAtomMapKeys(this.order).sort((a, b)=>this.order.get(+b) - this.order.get(+a));
-            for (var i = 0; i < list.length; i++) {
-                var slave = this.slaves.get(+list[i]);
-                if (slave && !slave.computing) {
-                    slave.computing = true;
-                    slave.callGetter();
-                    if (slave.old_value !== slave.value) {
-                        slave.update(depth + 1);
-                    }
-                    slave.old_value = slave.value;
-                }
-            }
-        }
+    private callListeners() {
         if (this.listeners) {
             for (var i = 0; i < this.listeners.length; i++) {
                 var listener = this.listeners[i];
@@ -307,6 +294,22 @@ class Atom<T> {
         return ('0' + d.getHours()).substr(-2) + ':' + ('0' + d.getMinutes()).substr(-2) + ':' + ('0' + d.getSeconds()).substr(-2);
     }
 
+    private static levels:{[idx: number]: Atom<Object>}[] = [];
+
+    private allocateSlavesToLevels() {
+        if (!Atom.levels[this.level]) {
+            Atom.levels[this.level] = {};
+        }
+        Atom.levels[this.level][this.id] = this;
+        if (this.slaves) {
+            var slaves = Atom.getAtomMapValues(this.slaves);
+            for (var i = 0; i < slaves.length; i++) {
+                var slave = slaves[i];
+                slave.allocateSlavesToLevels();
+            }
+        }
+    }
+
     private static applyUpdates() {
         var setterAtom = Atom.microtasks[0] && Atom.microtasks[0].stack;
         if (Atom.debugMode) {
@@ -316,26 +319,28 @@ class Atom<T> {
             else {
                 console.group("********** " + Atom.getTime() + " **********");
             }
+            console.groupCollapsed("trace");
+            console.trace('');
+            console.groupEnd();
         }
 
-        //console.log("message", event.data, Atom.microtasks);
-        var doneAtoms:{[index: number]: boolean} = {};
         var mt = Atom.microtasks.slice();
         Atom.microtasks = [];
-        for (var i = mt.length - 1; i >= 0; i--) {
-            var microtask = mt[i];
-            var atom = microtask.atom;
-            if (!doneAtoms[atom.id] && !atom.removed) {
-                atom.computing = true;
-                atom.value = microtask.value;
-                atom.update(setterAtom ? 1 : 0);
-                atom.old_value = atom.value;
-                doneAtoms[microtask.atom.id] = true;
-            }
-        }
-
+        Atom.levels = [];
         for (var i = 0; i < mt.length; i++) {
-            mt[i].atom.afterUpdate();
+            var microtask = mt[i];
+            microtask.atom.allocateSlavesToLevels();
+        }
+        for (var i = Atom.levels.length - 1; i >= 0; i--) {
+            if (Atom.levels[i]) {
+                var keys = Object.keys(Atom.levels[i]);
+                for (var j = 0; j < keys.length; j++) {
+                    var atom = Atom.levels[i][+keys[j]];
+                    atom.callGetter();
+                    atom.callListeners();
+                    atom.callSetter();
+                }
+            }
         }
         Atom.debugMode && console.groupEnd();
     }
