@@ -362,6 +362,9 @@ class Atom<T> {
     }
 
     private static makeName(owner:any/*checked*/, name:string) {
+        if (!owner) {
+            return name;
+        }
         var constr = owner.constructor;
         if (constr && typeof constr.ns == 'function') {
             constr.ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
