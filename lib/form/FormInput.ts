@@ -6,7 +6,7 @@ module Arg {
         isBlock = false;
         params:IInput;
 
-        constructor(params:IInput, attrs:Arg.Attrs = {}) {
+        constructor(params:IInput, attrs:Attrs = {}) {
             super(params, attrs);
             this.attrs.type = this.attrs.type || 'text';
             this.attrs.oninput = (e)=>this.onInput(e);
