@@ -170,8 +170,6 @@ class Atom<T> {
         return !val || val.length === 0;
     }
 
-    private static debugVisibled:{[idx: number]: boolean} = {};
-
     private debugInfo(depth:number) {
         if (this.owner !== Arg && Atom.updated[this.id]) {
             var tt = typeof this.value;
@@ -273,6 +271,7 @@ class Atom<T> {
 
     private static levels:{[idx: number]: Atom<Object>}[] = [];
     private static updated:{[idx: number]: boolean} = {};
+    private static debugVisibled:{[idx: number]: boolean} = {};
 
     private allocateSlavesToLevels() {
         if (!Atom.levels[this.level]) {
@@ -306,6 +305,7 @@ class Atom<T> {
         Atom.microtasks = [];
         Atom.levels = [];
         Atom.updated = {};
+        Atom.debugVisibled = {};
         for (var i = 0; i < mt.length; i++) {
             var microtask = mt[i];
             microtask.atom.allocateSlavesToLevels();
@@ -322,8 +322,6 @@ class Atom<T> {
             }
         }
         if (Atom.debugMode) {
-            console.log(Atom.updated);
-
             for (var i = 0; i < mt.length; i++) {
                 var microtask = mt[i];
                 microtask.atom.debugInfo(0);
