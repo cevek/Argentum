@@ -166,8 +166,8 @@ class Atom<T> {
     }
 
     isEmpty() {
-        var val:any/*checked*/ = this.get();
-        return !val || val.length === 0;
+        var val = this.get();
+        return val === void 0 || val === null;
     }
 
     private debugInfo(depth:number) {
