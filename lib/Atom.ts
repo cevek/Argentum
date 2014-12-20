@@ -81,22 +81,23 @@ class Atom<T> {
     }
 
     private callGetter() {
-        var old_val = this.value;
         if (this.getter) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
             this.clearMasters();
-            if (this.computing){
+            if (this.computing) {
                 console.log("cyclic atom", this);
                 throw "cyclic error";
             }
             this.computing = true;
+            var old_value = this.value;
             this.value = this.getter(this.value);
             this.computing = false;
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
+            return old_value !== this.value;
         }
-        return old_val === this.value;
+        return true;
     }
 
     private callSetter() {
@@ -169,23 +170,31 @@ class Atom<T> {
         return !val || val.length === 0;
     }
 
+    private static debugVisibled:{[idx: number]: boolean} = {};
+
     private debugInfo(depth:number) {
         if (this.owner !== Arg && Atom.updated[this.id]) {
             var tt = typeof this.value;
-            if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
-                console.groupCollapsed(Atom.depthSpaces(depth) + this.name + ' = ' + this.value);
+            if (Atom.debugVisibled[this.id]) {
+                console.log(Atom.depthSpaces(depth) + ''+this.name + ' ^');
             }
             else {
-                console.groupCollapsed(Atom.depthSpaces(depth) + this.name);
-                console.log(this.value);
-            }
-            console.dir(this);
-            console.groupEnd();
-            if (this.slaves) {
-                var slaves = Atom.getAtomMapValues(this.slaves);
-                for (var i = 0; i < slaves.length; i++) {
-                    var slave = slaves[i];
-                    slave.debugInfo(depth + 1);
+                if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
+                    console.groupCollapsed(Atom.depthSpaces(depth) + this.name + ' = ' + this.value);
+                }
+                else {
+                    console.groupCollapsed(Atom.depthSpaces(depth) + this.name);
+                    console.log(this.value);
+                }
+                console.dir(this);
+                console.groupEnd();
+                Atom.debugVisibled[this.id] = true;
+                if (this.slaves) {
+                    var slaves = Atom.getAtomMapValues(this.slaves);
+                    for (var i = 0; i < slaves.length; i++) {
+                        var slave = slaves[i];
+                        slave.debugInfo(depth + 1);
+                    }
                 }
             }
         }
@@ -313,6 +322,8 @@ class Atom<T> {
             }
         }
         if (Atom.debugMode) {
+            console.log(Atom.updated);
+
             for (var i = 0; i < mt.length; i++) {
                 var microtask = mt[i];
                 microtask.atom.debugInfo(0);
@@ -337,7 +348,7 @@ class Atom<T> {
     private static depthSpaces(depth:number) {
         var s = '';
         for (var i = 0; i < depth; i++) {
-            s += '  ';
+            s += '|  ';
         }
         return s;
     }
