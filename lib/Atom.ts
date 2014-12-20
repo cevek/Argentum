@@ -62,11 +62,11 @@ class Atom<T> {
         //this.set(val === null ? void 0 : val);
     }
 
-    valueOf():T {
+    private valueOf():T {
         return this.get();
     }
 
-    toJSON() {
+    private toJSON() {
         return '<Atom>';
     }
 
@@ -341,7 +341,7 @@ class Atom<T> {
         });
     }
 
-    static listenMicrotaskObjectObserver() {
+    private static listenMicrotaskObjectObserver() {
         Object.observe(Atom.observer, Atom.applyUpdates);
     }
 
