@@ -131,7 +131,7 @@
       <option name="workingDir" value="$ProjectFileDir$/rcdemo" />
       <envs />
     </TaskOptions>
-    <TaskOptions isEnabled="true">
+    <TaskOptions isEnabled="false">
       <option name="arguments" value="--sourcemap  Argentum.ts --out compiled/script.js --noImplicitAny --target es5" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" value="Compiles .ts files into .js files" />
