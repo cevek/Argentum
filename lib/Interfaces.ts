@@ -88,7 +88,7 @@ module Arg {
         componentWillMount?(): void;
         componentDidMount?(node:HTMLElement): void;
         componentWillUnmount?(): void;
-        domNode?: HTMLElement;
+        domNode?: Node;
         render(): any;
     }
 

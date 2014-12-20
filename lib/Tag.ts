@@ -2,6 +2,9 @@ module Arg {
 
     export function renderTag(tree:TreeItem) {
         tree.node = document.createElement(tree.tag);
+        if (tree.component){
+            tree.component.domNode = tree.node;
+        }
         renderAttrs(tree);
 
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
