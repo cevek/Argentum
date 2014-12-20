@@ -80,10 +80,6 @@ module Arg {
         TAG, MAP, WHEN, COMPONENT, TEXT
     }
 
-    export interface Attrs {
-        [key: string]: any;
-    }
-
     export interface Component {
         componentWillMount?(): void;
         componentDidMount?(node:HTMLElement): void;

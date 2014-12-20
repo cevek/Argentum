@@ -1,5 +1,6 @@
 /// <reference path="Atom.ts"/>
 /// <reference path="Interfaces.ts"/>
+/// <reference path="HTMLAttrs.ts"/>
 /// <reference path="Utils.ts"/>
 /// <reference path="Attributes.ts"/>
 /// <reference path="Map.ts"/>
