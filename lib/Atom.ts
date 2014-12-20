@@ -86,7 +86,13 @@ class Atom<T> {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
             this.clearMasters();
+            if (this.computing){
+                console.log("cyclic atom", this);
+                throw "cyclic error";
+            }
+            this.computing = true;
             this.value = this.getter(this.value);
+            this.computing = false;
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
         }
@@ -274,7 +280,7 @@ class Atom<T> {
     }
 
     private static levels:{[idx: number]: Atom<Object>}[] = [];
-    private static updated:{[idx: number]: boolean} = [];
+    private static updated:{[idx: number]: boolean} = {};
 
     private allocateSlavesToLevels() {
         if (!Atom.levels[this.level]) {
@@ -307,7 +313,7 @@ class Atom<T> {
         var mt = Atom.microtasks.slice();
         Atom.microtasks = [];
         Atom.levels = [];
-        Atom.updated = [];
+        Atom.updated = {};
         for (var i = 0; i < mt.length; i++) {
             var microtask = mt[i];
             microtask.atom.allocateSlavesToLevels();
