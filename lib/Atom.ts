@@ -82,6 +82,7 @@ class Atom<T> {
     }
 
     private callGetter() {
+        var old_val = this.value;
         if (this.getter) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
@@ -90,6 +91,7 @@ class Atom<T> {
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
         }
+        return old_val === this.value;
     }
 
     private callSetter() {
@@ -190,7 +192,7 @@ class Atom<T> {
     }
 
     private debugInfo(depth:number) {
-        if (Atom.debugMode && this.owner !== Arg) {
+        if (this.owner !== Arg && Atom.updated[this.id]) {
             var tt = typeof this.value;
             if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
                 console.groupCollapsed(Atom.depthSpaces(depth) + this.name + ' = ' + this.value);
@@ -200,10 +202,14 @@ class Atom<T> {
                 console.log(this.value);
             }
             console.dir(this);
-            console.groupCollapsed("trace");
-            console.trace('');
             console.groupEnd();
-            console.groupEnd();
+            if (this.slaves) {
+                var slaves = Atom.getAtomMapValues(this.slaves);
+                for (var i = 0; i < slaves.length; i++) {
+                    var slave = slaves[i];
+                    slave.debugInfo(depth + 1);
+                }
+            }
         }
     }
 
@@ -295,6 +301,7 @@ class Atom<T> {
     }
 
     private static levels:{[idx: number]: Atom<Object>}[] = [];
+    private static updated:{[idx: number]: boolean} = [];
 
     private allocateSlavesToLevels() {
         if (!Atom.levels[this.level]) {
@@ -327,6 +334,7 @@ class Atom<T> {
         var mt = Atom.microtasks.slice();
         Atom.microtasks = [];
         Atom.levels = [];
+        Atom.updated = [];
         for (var i = 0; i < mt.length; i++) {
             var microtask = mt[i];
             microtask.atom.allocateSlavesToLevels();
@@ -336,13 +344,19 @@ class Atom<T> {
                 var keys = Object.keys(Atom.levels[i]);
                 for (var j = 0; j < keys.length; j++) {
                     var atom = Atom.levels[i][+keys[j]];
-                    atom.callGetter();
+                    Atom.updated[atom.id] = atom.callGetter();
                     atom.callListeners();
                     atom.callSetter();
                 }
             }
         }
-        Atom.debugMode && console.groupEnd();
+        if (Atom.debugMode) {
+            for (var i = 0; i < mt.length; i++) {
+                var microtask = mt[i];
+                microtask.atom.debugInfo(0);
+            }
+            console.groupEnd();
+        }
     }
 
     private static listenMicrotaskPostMessage() {
