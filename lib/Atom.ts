@@ -169,23 +169,6 @@ class Atom<T> {
         return !val || val.length === 0;
     }
 
-    private afterUpdate() {
-        this.computing = false;
-
-        this.callSetter();
-
-        if (this.slaves) {
-            var slaves = Atom.getAtomMapValues(this.slaves);
-            for (var i = 0; i < slaves.length; i++) {
-                var slave = slaves[i];
-                if (slave) {
-                    slave.afterUpdate();
-                    slave.callSetter();
-                }
-            }
-        }
-    }
-
     private debugInfo(depth:number) {
         if (this.owner !== Arg && Atom.updated[this.id]) {
             var tt = typeof this.value;
