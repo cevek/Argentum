@@ -6,6 +6,7 @@
 /// <reference path="Map.ts"/>
 /// <reference path="Tag.ts"/>
 /// <reference path="When.ts"/>
+/// <reference path="form/FormElement.ts"/>
 /// <reference path="form/Checkbox.ts"/>
 /// <reference path="form/Input.ts"/>
 
