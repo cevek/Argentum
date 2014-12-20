@@ -96,7 +96,7 @@ module Arg {
             }
             if (val.render) {
                 var treeItem = convertToTree(val.render());
-                treeItem.tag = prepareViewName(val.constructor.name);
+                treeItem.tag = treeItem.tag || prepareViewName(val.constructor.name);
                 treeItem.type = TreeType.TAG;
                 treeItem.component = val;
                 return new TreeItem(treeItem);
@@ -134,9 +134,6 @@ module Arg {
                 }
                 lastDot = i;
             }
-        }
-        if (!tree.tag) {
-            tree.tag = 'div';
         }
 
         if (className) {

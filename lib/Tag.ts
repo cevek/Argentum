@@ -1,7 +1,7 @@
 module Arg {
 
     export function renderTag(tree:TreeItem) {
-        tree.node = document.createElement(tree.tag);
+        tree.node = document.createElement(tree.tag || 'div');
         if (tree.component){
             tree.component.domNode = tree.node;
         }
