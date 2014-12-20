@@ -4,6 +4,7 @@
 interface Object {
     observe(beingObserved:Object, callback:(update:Object) => void) : void;
 }
+
 interface Console {
     profileEnd(name:string):void;
     trace(name?:string):void;
@@ -35,7 +36,6 @@ class Atom<T> {
     private static lastId = 0;
     private id:number;
     private value:T;
-    private old_value:T;
     private getter:(prevValue:T)=>T;
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
@@ -141,7 +141,7 @@ class Atom<T> {
         return this.value;
     }
 
-    set(val:T, force = false, sync = false) {
+    set(val:T, force = false) {
         if (this.value !== val || force) {
             this.value = val;
             var mid = ++Atom.lastMicrotaskId;
@@ -241,7 +241,6 @@ class Atom<T> {
                 }
             }
         }
-        this.old_value = null;
         this.value = null;
         this.masters = null;
         this.slaves = null;
@@ -405,6 +404,7 @@ class Atom<T> {
         return values;
     }
 
+    //noinspection JSUnusedLocalSymbols
     private static lister = Object.observe && Atom.useObjectObserver ?
         Atom.listenMicrotaskObjectObserver() : Atom.listenMicrotaskPostMessage();
 }
