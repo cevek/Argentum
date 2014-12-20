@@ -6,6 +6,7 @@
 /// <reference path="Tag.ts"/>
 /// <reference path="When.ts"/>
 /// <reference path="form/Checkbox.ts"/>
+/// <reference path="form/Input.ts"/>
 
 module Arg {
     export var enableAtoms = true;
@@ -29,7 +30,7 @@ module Arg {
     }
 
     export function render(tree:TreeItem) {
-        if (tree.component) {
+        if (tree.component && (tree.component.isBlock || tree.component.isBlock === void 0)) {
             if (!createdCSSRules[tree.tag]) {
                 cssDom.sheet.insertRule(tree.tag + '{display: block}', 0);
                 createdCSSRules[tree.tag] = true;
@@ -64,7 +65,6 @@ module Arg {
         parseTagExpr(tagExpr, treeItem);
         return treeItem;
     }
-
 
     export function root(tagExpr:string, ...children:any[]):TreeItem {
         children.unshift(tagExpr.replace(/^[^.\[\#]+/, 'root'));

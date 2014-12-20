@@ -89,6 +89,7 @@ module Arg {
         componentDidMount?(node:HTMLElement): void;
         componentWillUnmount?(): void;
         domNode?: Node;
+        isBlock?: boolean;
         render(): any;
     }
 
