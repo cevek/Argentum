@@ -5,9 +5,9 @@ module Arg {
     export class Input implements Arg.Component {
         isBlock = false;
         constructor(private attrs:IInput) {
-            this.attrs['type'] = this.attrs['type'] || 'text';
-            this.attrs['oninput'] = (e:KeyboardEvent)=>this.onInput(e);
-            this.attrs['value'] = this.attrs.argModel;
+            this.attrs.type = this.attrs.type || 'text';
+            this.attrs.oninput = (e:KeyboardEvent)=>this.onInput(e);
+            this.attrs.value = this.attrs.argModel;
         }
 
         onInput(e:KeyboardEvent) {

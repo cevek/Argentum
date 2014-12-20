@@ -6,9 +6,9 @@ module Arg {
     export class Checkbox<T> implements Arg.Component {
         isBlock = false;
         constructor(private attrs:ICheckbox<T>) {
-            this.attrs['type'] = 'checkbox';
-            this.attrs['onchange'] = (e:MouseEvent)=>this.onChange(e);
-            this.attrs['checked'] = ()=>this.attrs.argModel.isEqual(this.attrs.argValue);
+            this.attrs.type = 'checkbox';
+            this.attrs.onchange = (e:MouseEvent)=>this.onChange(e);
+            this.attrs.checked = ()=>this.attrs.argModel.isEqual(this.attrs.argValue);
         }
 
         private onChange(e:MouseEvent) {
