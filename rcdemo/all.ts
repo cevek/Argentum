@@ -72,18 +72,6 @@ module rc {
     glob.vdom = Arg.publicRender(document.body, new VLister());
 }
 
-var a1 = new Atom(null, {name: 'a1', value: 0});
-var a2 = new Atom(null, {name: 'a2', getter: ()=>a1.get() + 1});
-var a3 = new Atom(null, {name: 'a3', getter: ()=>a2.get() + 1});
-var a4 = new Atom(null, {name: 'a4', getter: ()=>a1.get() + 10});
-var a5 = new Atom(null, {name: 'a5', getter: ()=>a4.get() + a3.get() + a6.get()});
-
-var a6 = new Atom(null, {name: 'a6', getter: ()=>a7.get() + 22});
-var a7 = new Atom(null, {name: 'a7', getter: ()=>a8.get() + a4.get()});
-var a8 = new Atom(null, {name: 'a8', getter: ()=>a1.get() + 100});
-
-a5.get();
-a1.set(1);
 
 
 
