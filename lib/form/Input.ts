@@ -1,22 +1,28 @@
 module Arg {
-    export interface IInput extends Arg.Attrs{
-        argModel: Atom<string>;
+    export interface IInput extends IFormElement {
+        model: Atom<string>;
     }
-    export class Input implements Arg.Component {
+    export class FormInput extends FormElement implements Component {
         isBlock = false;
-        constructor(private attrs:IInput) {
+        params:IInput;
+
+        constructor(params:IInput, attrs:Arg.Attrs = {}) {
+            super(params, attrs);
             this.attrs.type = this.attrs.type || 'text';
-            this.attrs.oninput = (e:KeyboardEvent)=>this.onInput(e);
-            this.attrs.value = this.attrs.argModel;
+            this.attrs.oninput = (e)=>this.onInput(e);
+            this.attrs.value = this.params.model;
         }
 
-        onInput(e:KeyboardEvent) {
+        onInput(e:Event) {
             var target = <HTMLInputElement>e.target;
-            this.attrs.argModel.set(target.value);
+            this.params.model.set(target.value);
         }
 
         render() {
-            return Arg.dom('input', this.attrs);
+            return root('',
+                this.label(),
+                dom('input', this.attrs)
+            );
         }
     }
 }

@@ -17,8 +17,16 @@ module rc {
             }
         }
 
+        input = new Atom(this, {name: 'input', value: 'hey'});
+        checkbox = new Atom(this, {name: 'checkbox', value: 'yes'});
+
         render() {
             return Arg.root('.block',
+                //new Arg.FormElement({label: 'hey'}, Arg.Checkbox({value: 'fuck', model: this.checkbox})),
+                new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
+                new Arg.FormInput({label: "My Text", model: this.input}),
+                this.checkbox,
+                this.input,
                 d('.title',
                     ()=>playingTag.get() && playingTag.get().name, " - ",
                     ()=>playingStation.get() && playingStation.get().name, " - ",
