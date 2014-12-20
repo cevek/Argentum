@@ -46,7 +46,6 @@ class Atom<T> {
     private computing:boolean = false;
     private slaves:Atom.AtomMap<Atom<Object>>;
     private masters:Atom.AtomMap<Atom<Object>>;
-    private order:Atom.AtomMap<number>;
     private listeners:AtomListeners<T>[] = [];
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
@@ -126,22 +125,12 @@ class Atom<T> {
             if (!this.slaves) {
                 this.slaves = new Atom.AtomMap<Atom<Object>>();
             }
-
-            this.slaves.set(slaveAtom.id, slaveAtom);
             if (!slaveAtom.masters) {
                 slaveAtom.masters = new Atom.AtomMap<Atom<Object>>();
             }
-
+            this.slaves.set(slaveAtom.id, slaveAtom);
             slaveAtom.masters.set(this.id, this);
-
-            if (!this.order) {
-                this.order = new Atom.AtomMap<number>();
-            }
-
-            this.order.set(slaveAtom.id, 0);
-            Atom.traverseMasters(slaveAtom, 0);
         }
-
         return this.value;
     }
 
@@ -244,7 +233,6 @@ class Atom<T> {
                 var master = masters[i];
                 if (master && master.slaves) {
                     master.slaves.delete(this.id);
-                    master.order.delete(this.id);
                 }
             }
         }
@@ -260,7 +248,6 @@ class Atom<T> {
         this.old_value = null;
         this.value = null;
         this.masters = null;
-        this.order = null;
         this.slaves = null;
         this.listeners = null;
         this.removed = true;
@@ -273,20 +260,6 @@ class Atom<T> {
     private static lastCalledGetter:Atom<Object>;
     private static lastCalledSetter:Atom<Object>;
     private static firstValueObj = {};
-
-    private static traverseMasters(atom:Atom<Object>, depth:number) {
-        var ndepth = depth + 1;
-        if (atom.masters) {
-            var masters = Atom.getAtomMapValues(atom.masters);
-            for (var i = 0; i < masters.length; i++) {
-                var master = masters[i];
-                if (master && master.order.get(atom.id) < ndepth) {
-                    master.order.set(atom.id, ndepth);
-                    Atom.traverseMasters(master, ndepth);
-                }
-            }
-        }
-    }
 
     private static microtasks:Microtask[] = [];
     private static lastMicrotaskId = 0;
