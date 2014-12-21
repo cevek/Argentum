@@ -4,6 +4,7 @@ module Arg {
         tree.node = document.createElement(tree.tag || 'div');
         if (tree.component){
             tree.component.domNode = tree.node;
+            tree.component.tree = tree;
         }
         renderAttrs(tree);
 

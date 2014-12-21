@@ -85,6 +85,7 @@ module Arg {
         componentDidMount?(node:HTMLElement): void;
         componentWillUnmount?(): void;
         domNode?: Node;
+        tree?: TreeItem;
         isBlock?: boolean;
         render(): any;
     }
