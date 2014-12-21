@@ -1,12 +1,12 @@
 module Arg {
     export interface CSSProperties {
         [prop:string]: any;
-        display: any;
-        width: any;
-        height: any;
-        padding: any;
-        margin: any;
-        border: any;
+        display?: any;
+        width?: any;
+        height?: any;
+        padding?: any;
+        margin?: any;
+        border?: any;
     }
 
     export interface Attrs {
