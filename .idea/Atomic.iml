@@ -10,7 +10,9 @@
       <excludeFolder url="file://$MODULE_DIR$/demo3/compiled" />
       <excludeFolder url="file://$MODULE_DIR$/demo4" />
       <excludeFolder url="file://$MODULE_DIR$/demo4/compiled" />
+      <excludeFolder url="file://$MODULE_DIR$/formdemo/compiled" />
       <excludeFolder url="file://$MODULE_DIR$/lib/compiled" />
+      <excludeFolder url="file://$MODULE_DIR$/rcdemo" />
       <excludeFolder url="file://$MODULE_DIR$/rcdemo/bower_components" />
       <excludeFolder url="file://$MODULE_DIR$/rcdemo/compiled" />
     </content>
