@@ -3,7 +3,7 @@ module Arg {
         model: Atom<string>;
     }
     export class FormInput extends FormElement implements Component {
-        isBlock = false;
+        //isBlock = false;
         params:IInput;
 
         constructor(params:IInput, attrs:Attrs = {}) {

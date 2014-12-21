@@ -4,7 +4,7 @@ module Arg {
         value: T;
     }
     export class Checkbox<T> extends FormElement implements Component {
-        isBlock = false;
+        //isBlock = false;
         params:ICheckbox<T>;
 
         constructor(params:ICheckbox<T>, attrs:Attrs = {}) {
