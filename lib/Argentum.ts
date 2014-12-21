@@ -9,6 +9,7 @@
 /// <reference path="form/FormElement.ts"/>
 /// <reference path="form/Checkbox.ts"/>
 /// <reference path="form/FormInput.ts"/>
+/// <reference path="form/Select.ts"/>
 
 module Arg {
     export var enableAtoms = true;
@@ -57,6 +58,10 @@ module Arg {
         if (children[0] && children[0].constructor === Object) {
             var attrs = children.shift();
         }
+        if (children[0] && children[0].constructor === Array && children[1] === void 0) {
+            children = children[0];
+        }
+
         var treeItem = new TreeItem({
             type: TreeType.TAG,
             children: children
