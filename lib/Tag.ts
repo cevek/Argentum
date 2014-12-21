@@ -1,10 +1,12 @@
 module Arg {
 
     export function renderTag(tree:TreeItem) {
+        //todo: do it to all cases
+        if (tree.component && tree.component.componentWillMount) {
+            tree.component.componentWillMount();
+        }
         tree.node = document.createElement(tree.tag || 'div');
-        if (tree.component){
-            tree.component.domNode = tree.node;
-            tree.component.tree = tree;
+        if (tree.component) {
         }
         renderAttrs(tree);
 
@@ -14,6 +16,11 @@ module Arg {
                 tree.children[i].parentNode = tree.node;
                 render(tree.children[i]);
             }
+        }
+        if (tree.component && tree.component.componentDidMount) {
+            tree.component.domNode = tree.node;
+            tree.component.tree = tree;
+            tree.component.componentDidMount(<HTMLElement>tree.node);
         }
     }
 
