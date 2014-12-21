@@ -1,55 +1,111 @@
 module Arg {
-    export interface IFormSelect<T> extends IFormElement {
+    export interface IFormSelect extends IFormElement {
         //options: any;
         //empty: any;
+        model?: Atom<any>;
+        modelMultiple?: Atom<any[]>;
+
     }
 
     export class FormSelect<T> extends FormElement implements Component {
-        params:IFormSelect<T>;
+        params:IFormSelect;
         attrs:Attrs;
         children:any[];
         childrenAtom:Atom<any>;
         optionsTree:any[] = [];
         selectTree:TreeItem;
+        static debug = false;
 
-        constructor(params:IFormSelect<T>, attrs:Attrs, ...children:any[]) {
+        constructor(params:IFormSelect, attrs:Attrs, ...children:any[]) {
             super(params, attrs);
             this.attrs.oninput = ()=>this.onChange();
             this.children = children;
             this.selectTree = dom('select', this.attrs, this.children);
-            this.childrenAtom = new Atom(this, {
-                name: 'childrenAtom',
-                getter: ()=> {
-                    //console.log("childrenAtom getter", JSON.stringify(this.selectTree, null, 2));
 
-                    this.optionsTree = [];
-                    traverseTree(this.selectTree, (treeItem)=> {
-                        if (treeItem.tag === 'option') {
-                            this.optionsTree.push(treeItem);
-                        }
-                        if (treeItem.type == TreeType.WHEN) {
-                            treeItem.whenCondition.get();
-                            //treeItem.whenCallback.get();
-                        }
-                    });
-                    return this.optionsTree;
-                }
-            });
-            this.childrenAtom.get();
-            this.childrenAtom.addListener(()=>this.onChange());
+            this.params.modelMultiple.addListener(values => this.modelChanged(values));
         }
 
-        onChange() {
+        recalcOptions() {
+            FormSelect.debug && console.log("recalcOptions");
+
+            this.optionsTree = [];
+            traverseTree(this.selectTree, (treeItem)=> {
+                if (treeItem.tag === 'option') {
+                    this.optionsTree.push(treeItem);
+                    if (treeItem.attrs['argDefault']) {
+                        treeItem.attrs.value = '';
+                        if (this.attrs.required) {
+                            treeItem.attrs.disabled = true;
+                        }
+                    }
+                }
+                if (treeItem.type === TreeType.WHEN) {
+                    FormSelect.debug && console.log("Arg.Select.whenCondition listener");
+                    treeItem.whenCondition.addListener(this.childrenAtomChanged, null, null, null, this);
+                }
+            });
+        }
+
+        childrenAtomChanged() {
+            this.recalcOptions();
+            this.onChange();
+        }
+
+        modelChanged(values:any[]) {
+            FormSelect.debug && console.log("model changed", values);
+            for (var i = 0; i < this.optionsTree.length; i++) {
+                var optionTree = this.optionsTree[i];
+
+                var res = values.some(value => optionTree.attrs['argValue'] === value);
+                if (!values.length && optionTree.attrs['argDefault'] && !this.attrs.multiple) {
+                    res = true;
+                }
+                optionTree.attrs.selected = res;
+                if (optionTree.node) {
+                    optionTree.node.selected = res;
+                }
+                FormSelect.debug && console.log(optionTree.children[0].value, res);
+            }
+        }
+
+        onChange(fromOutside = false) {
+            FormSelect.debug && console.log("onchange");
+            if (!this.selectTree.node) {
+                return;
+            }
             var select = <HTMLSelectElement>this.selectTree.node;
             var options:HTMLOptionElement[] = <any>select.options;
             var selectedOptions:HTMLOptionElement[] = [];
             for (var i = 0; i < options.length; i++) {
-                if (options[i].selected){
+                if (options[i].selected) {
                     selectedOptions.push(options[i]);
                 }
             }
             var selectedTreeItems = this.optionsTree.filter((tree:TreeItem)=>selectedOptions.indexOf(<HTMLOptionElement>tree.node) > -1);
-            console.log(selectedTreeItems);
+            var newValues:any[] = [];
+            for (var i = 0; i < selectedTreeItems.length; i++) {
+                var optionTree = selectedTreeItems[i];
+                if (!optionTree.attrs['argDefault']) {
+                    newValues.push(optionTree.attrs['argValue']);
+                }
+            }
+
+            var modelMultiple = this.params.modelMultiple;
+            if (modelMultiple && !Atom.arrayIsEqual(modelMultiple.get(), newValues)) {
+                modelMultiple.set(newValues);
+            }
+            /*
+             console.log("newValues", newValues);
+             console.log("selectedTreeItems", selectedTreeItems);
+             console.log("selectedOptions", selectedOptions);
+             console.log("options", options);
+             */
+        }
+
+        componentDidMount() {
+            FormSelect.debug && console.log("componentDidMount");
+            this.recalcOptions();
+            this.modelChanged(this.params.modelMultiple.get());
         }
 
         render() {
