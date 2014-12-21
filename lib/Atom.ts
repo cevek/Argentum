@@ -22,6 +22,7 @@ interface AtomListeners<T> {
     arg2: Object;
     arg3: Object;
     firstValue: Object;
+    thisArg: Object;
 }
 
 interface IAtom<T> {
@@ -174,7 +175,7 @@ class Atom<T> {
         if (this.owner !== Arg && Atom.updated[this.id]) {
             var tt = typeof this.value;
             if (Atom.debugVisibled[this.id]) {
-                console.log(Atom.depthSpaces(depth) + ''+this.name + ' ^');
+                console.log(Atom.depthSpaces(depth) + '' + this.name + ' ^');
             }
             else {
                 if (tt == 'number' || (tt == 'object' && !this.value) || tt == 'undefined' || tt == 'string' || tt == 'boolean') {
@@ -204,22 +205,31 @@ class Atom<T> {
                 var listener = this.listeners[i];
                 if (listener.firstValue !== this.value) {
                     // console.log(this, "listener callback");
-
-                    listener.callback(this.value, listener.arg1, listener.arg2, listener.arg3);
+                    listener.callback.call(listener.thisArg, this.value, listener.arg1, listener.arg2, listener.arg3);
                 }
                 listener.firstValue = Atom.firstValueObj;
             }
         }
     }
 
-    //TODO: callback thisArg?
-    addListener<R1, R2, R3>(fn:(val:T, arg1?:R1, arg2?:R2, arg3?:R3)=>void, arg1?:R1, arg2?:R2, arg3?:R3) {
+    addListener<R1, R2, R3>(fn:(val:T, arg1?:R1, arg2?:R2, arg3?:R3)=>void,
+                            arg1?:R1,
+                            arg2?:R2,
+                            arg3?:R3,
+                            thisArg?:any) {
         if (!this.listeners) {
             this.listeners = [];
         }
-        //if (this.listeners.indexOf(fn) === -1) {
-        this.listeners.push({callback: fn, arg1: arg1, arg2: arg2, arg3: arg3, firstValue: this.value});
-        //}
+        if (this.listeners.every(listener => listener.callback !== fn)) {
+            this.listeners.push({
+                callback: fn,
+                arg1: arg1,
+                arg2: arg2,
+                arg3: arg3,
+                firstValue: this.value,
+                thisArg: thisArg
+            });
+        }
     }
 
     destroy() {
@@ -402,6 +412,21 @@ class Atom<T> {
             while ((v = k.next()) && !v.done) values.push(v.value);
         }
         return values;
+    }
+
+    static arrayIsEqual(a1:Object[], a2:Object[]) {
+        if (a1 === a2) {
+            return true;
+        }
+        if (a1.length !== a2.length) {
+            return false;
+        }
+        for (var i = 0; i < a1.length; i++) {
+            if (a1[i] !== a2[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     //noinspection JSUnusedLocalSymbols
