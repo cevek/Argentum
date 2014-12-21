@@ -66,9 +66,11 @@ module Arg {
             type: TreeType.TAG,
             children: children
         });
-        if (attrs) {
-            treeItem.attrs = attrs;
+
+        if (!attrs) {
+            attrs = {};
         }
+        treeItem.attrs = attrs;
         parseTagExpr(tagExpr, treeItem);
         return treeItem;
     }
