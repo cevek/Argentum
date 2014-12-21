@@ -33,9 +33,10 @@ module Arg {
                 if (treeItem.tag === 'option') {
                     this.optionsTree.push(treeItem);
                     if (treeItem.attrs['argDefault']) {
-                        treeItem.attrs.value = '';
+                        var node = <HTMLOptionElement>treeItem.node;
+                        node.value = '';
                         if (this.attrs.required) {
-                            treeItem.attrs.disabled = true;
+                            node.disabled = true;
                         }
                     }
                 }
