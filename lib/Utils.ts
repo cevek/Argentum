@@ -1,10 +1,20 @@
 module Arg {
 
+    export function traverseTree(startTree:TreeItem, callback:(tree:TreeItem)=>any) {
+        if (startTree.children) {
+            for (var i = 0; i < startTree.children.length; i++) {
+                callback(startTree.children[i]);
+                traverseTree(startTree.children[i], callback);
+            }
+        }
+    }
+
     export function removeTreeChildren(tree:TreeItem) {
         if (tree && tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
                 removeTree(tree.children[i]);
             }
+            tree.children = null;
         }
     }
 
