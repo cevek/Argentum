@@ -8,11 +8,13 @@ module Arg {
     }
 
     export class FormSelect<T> extends FormElement implements Component {
+        tree:TreeItem;
         params:IFormSelect;
         attrs:Attrs;
         children:any[];
         childrenAtom:Atom<any>;
         optionsTree:any[] = [];
+        tlabel:TreeItem;
         selectTree:TreeItem;
         static debug = false;
 
@@ -20,13 +22,24 @@ module Arg {
             super(params, attrs);
             this.attrs.oninput = ()=>this.onChange();
             this.children = children;
+            this.tlabel = this.label();
             this.selectTree = dom('select', this.attrs, this.children);
-
             this.params.modelMultiple.addListener(values => this.modelChanged(values));
         }
 
         recalcOptions() {
             FormSelect.debug && console.log("recalcOptions");
+
+            if (this.selectTree.attrsAtoms) {
+                if (this.selectTree.attrsAtoms['required']) {
+                    FormSelect.debug && console.log("required listener");
+                    this.selectTree.attrsAtoms['required'].addListener(this.childrenAtomChanged, null, null, null, this);
+                }
+                if (this.selectTree.attrsAtoms['multiple']) {
+                    FormSelect.debug && console.log("multiple listener");
+                    this.selectTree.attrsAtoms['multiple'].addListener(this.childrenAtomChanged, null, null, null, this);
+                }
+            }
 
             this.optionsTree = [];
             traverseTree(this.selectTree, (treeItem)=> {
@@ -35,9 +48,7 @@ module Arg {
                     if (treeItem.attrs['argDefault']) {
                         var node = <HTMLOptionElement>treeItem.node;
                         node.value = '';
-                        if (this.attrs.required) {
-                            node.disabled = true;
-                        }
+                        node.disabled = this.attrs.required;
                     }
                 }
                 if (treeItem.type === TreeType.WHEN) {
@@ -50,6 +61,7 @@ module Arg {
         childrenAtomChanged() {
             this.recalcOptions();
             this.onChange();
+            this.modelChanged(this.params.modelMultiple.get());
         }
 
         modelChanged(values:any[]) {
@@ -58,7 +70,7 @@ module Arg {
                 var optionTree = this.optionsTree[i];
 
                 var res = values.some(value => optionTree.attrs['argValue'] === value);
-                if (!values.length && optionTree.attrs['argDefault'] && !this.attrs.multiple) {
+                if (!values.length && optionTree.attrs['argDefault']) {
                     res = true;
                 }
                 optionTree.attrs.selected = res;
@@ -69,7 +81,7 @@ module Arg {
             }
         }
 
-        onChange(fromOutside = false) {
+        onChange() {
             FormSelect.debug && console.log("onchange");
             if (!this.selectTree.node) {
                 return;
@@ -95,6 +107,11 @@ module Arg {
             if (modelMultiple && !Atom.arrayIsEqual(modelMultiple.get(), newValues)) {
                 modelMultiple.set(newValues);
             }
+
+            var model = this.params.model;
+            if (model) {
+                model.set(newValues.length ? newValues[0] : null);
+            }
             /*
              console.log("newValues", newValues);
              console.log("selectedTreeItems", selectedTreeItems);
@@ -110,8 +127,9 @@ module Arg {
         }
 
         render() {
+            FormSelect.debug && console.log("Select render");
             return root('',
-                this.label(),
+                this.tlabel,
                 this.selectTree
             );
         }
