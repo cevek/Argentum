@@ -13,6 +13,7 @@ module Arg {
         [key:string]: any;
 
         baseClassName?: any;
+        classSet?: {[className: string]: any};
 
         children?: any;
 
