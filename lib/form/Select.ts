@@ -1,24 +1,21 @@
 module Arg {
-    export interface IFormSelect extends IFormElement {
-        //options: any;
-        //empty: any;
-        model?: Atom<any>;
-        modelMultiple?: Atom<any[]>;
-
+    export interface IFormSelect<T> extends IFormElement {
+        model?: Atom<T>;
+        modelMultiple?: Atom<T[]>;
     }
 
     export class FormSelect<T> extends FormElement implements Component {
         tree:TreeItem;
-        params:IFormSelect;
+        params:IFormSelect<T>;
         attrs:Attrs;
-        children:any[];
-        childrenAtom:Atom<any>;
-        optionsTree:any[] = [];
+        children:Object[];
+        childrenAtom:Atom<Object>;
+        optionsTree:TreeItem[] = [];
         tlabel:TreeItem;
         selectTree:TreeItem;
         static debug = false;
 
-        constructor(params:IFormSelect, attrs:Attrs, ...children:any[]) {
+        constructor(params:IFormSelect<T>, attrs:Attrs, ...children:Object[]) {
             super(params, attrs);
             this.attrs.oninput = ()=>this.onChange();
             this.children = children;
@@ -64,7 +61,7 @@ module Arg {
             this.modelChanged(this.params.modelMultiple.get());
         }
 
-        modelChanged(values:any[]) {
+        modelChanged(values:T[]) {
             FormSelect.debug && console.log("model changed", values);
             for (var i = 0; i < this.optionsTree.length; i++) {
                 var optionTree = this.optionsTree[i];
@@ -75,7 +72,8 @@ module Arg {
                 }
                 optionTree.attrs.selected = res;
                 if (optionTree.node) {
-                    optionTree.node.selected = res;
+                    var node = <HTMLOptionElement>optionTree.node;
+                    node.selected = res;
                 }
                 FormSelect.debug && console.log(optionTree.children[0].value, res);
             }
@@ -95,7 +93,7 @@ module Arg {
                 }
             }
             var selectedTreeItems = this.optionsTree.filter((tree:TreeItem)=>selectedOptions.indexOf(<HTMLOptionElement>tree.node) > -1);
-            var newValues:any[] = [];
+            var newValues:T[] = [];
             for (var i = 0; i < selectedTreeItems.length; i++) {
                 var optionTree = selectedTreeItems[i];
                 if (!optionTree.attrs['argDefault']) {
@@ -132,37 +130,6 @@ module Arg {
                 this.tlabel,
                 this.selectTree
             );
-        }
-    }
-
-    export interface IFormOption extends Attrs {
-        disabled?: boolean;
-        value: any;
-        text: any;
-    }
-
-    export class FormOption implements Component {
-        constructor(private attrs:IFormOption) {
-
-        }
-
-        render() {
-            return dom('option', this.attrs);
-        }
-    }
-
-    export interface IFormOptGroup extends Attrs {
-        disabled?: boolean;
-        label: any;
-    }
-
-    export class FormOptGroup implements Component {
-        constructor(private attrs:IFormOptGroup) {
-
-        }
-
-        render() {
-            return dom('optgroup', this.attrs);
         }
     }
 }
