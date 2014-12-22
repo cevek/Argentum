@@ -1,4 +1,3 @@
-/// <reference path="Atom.ts"/>
 /// <reference path="Array.ts"/>
 
 interface Object {
