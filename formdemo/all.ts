@@ -20,7 +20,7 @@ class TestForm implements Arg.Component {
             d('form', {onsubmit: ()=>false},
                 new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
                 new Arg.Checkbox({label: "Multiple", value: true, model: this.multiple}),
-                new Arg.Checkbox({label: "Required", value: {afdsa:324}, model: this.required}),
+                new Arg.Checkbox({label: "Required", value: true, model: this.required}),
                 new Arg.FormInput({label: "My Text", model: this.input}, {required: true}),
                 new Arg.FormSelect({label: 'select', modelMultiple: this.select}, {
                         multiple: this.multiple,
