@@ -1,6 +1,7 @@
 module Arg {
     export interface IInput {
         model: Atom<string>;
+        required?: any;
     }
 
     export class Input implements Component {
@@ -10,6 +11,7 @@ module Arg {
             this.attrs.type = this.attrs.type || 'text';
             this.attrs.oninput = (e)=>this.onInput(e);
             this.attrs.value = this.params.model;
+            this.attrs.required = this.attrs.required || this.params.required;
         }
 
         onInput(e:Event) {
@@ -22,8 +24,7 @@ module Arg {
         }
     }
 
-    export interface IInputGroup {
-        model: Atom<string>;
+    export interface IInputGroup extends IInput {
         label: any;
         inputAttrs?: Attrs;
         labelAttrs?: Attrs;
