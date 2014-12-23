@@ -8,7 +8,7 @@
 /// <reference path="When.ts"/>
 /// <reference path="form/FormElement.ts"/>
 /// <reference path="form/Checkbox.ts"/>
-/// <reference path="form/FormInput.ts"/>
+/// <reference path="form/Input.ts"/>
 /// <reference path="form/Select.ts"/>
 
 module Arg {
