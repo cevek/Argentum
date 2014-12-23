@@ -11,20 +11,12 @@ module Arg {
         tree:TreeItem;
         children:any[];
         optionsTree:TreeItem[] = [];
-        static debug = true;
+        static debug = false;
 
-        constructor(private params:ISelect<T>, private attrs:Attrs, ...children:any[]) {
+        constructor(private params:ISelect<T>, private attrs:Attrs, children:any[]) {
             this.attrs.oninput = ()=>this.onChange();
             this.attrs.required = this.attrs.required || this.params.required;
             this.attrs.multiple = this.attrs.multiple || this.params.multiple;
-            //todo: arrays for children
-            if (children[0] && children[0].constructor === Array) {
-                var child:any[] = [];
-                for (var i = 0; i < children[0].length; i++) {
-                    child[i] = children[0][i];
-                }
-                children = child;
-            }
             this.children = children;
             this.params.modelMultiple.addListener(values => this.modelChanged(values));
         }
@@ -48,7 +40,9 @@ module Arg {
                     if (treeItem.attrs['argDefault']) {
                         var node = <HTMLOptionElement>treeItem.node;
                         node.value = '';
-                        node.disabled = this.attrs.required;
+                        var req = this.params.required;
+                        node.disabled = req instanceof Atom ? req.get() : req;
+
                     }
                 }
                 if (treeItem.type === TreeType.WHEN) {
@@ -138,6 +132,14 @@ module Arg {
         private children:any[];
 
         constructor(private params:ISelectGroup<T>, private attrs:Attrs, ...children:any[]) {
+            //todo: arrays for children
+            if (children[0] && children[0].constructor === Array) {
+                var child:any[] = [];
+                for (var i = 0; i < children[0].length; i++) {
+                    child[i] = children[0][i];
+                }
+                children = child;
+            }
             this.children = children;
             params.labelAttrs = params.labelAttrs || {};
             params.selectAttrs = params.selectAttrs || {};
