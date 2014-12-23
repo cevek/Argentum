@@ -5,6 +5,10 @@ module Arg {
         if (tree.component && tree.component.componentWillMount) {
             tree.component.componentWillMount();
         }
+        if (tree.tag == 'select') {
+            console.log(tree);
+        }
+
         tree.node = document.createElement(tree.tag || 'div');
         if (tree.component) {
         }

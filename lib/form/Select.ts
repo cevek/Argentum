@@ -1,45 +1,48 @@
 module Arg {
-    export interface IFormSelect<T> extends IFormElement {
+    export interface ISelect<T> {
         model?: Atom<T>;
         modelMultiple?: Atom<T[]>;
+        multiple?: any;
+        required?: any;
     }
 
-    export class FormSelect<T> extends FormElement implements Component {
+    export class Select<T> implements Component {
+        isBlock = false;
         tree:TreeItem;
-        params:IFormSelect<T>;
-        attrs:Attrs;
-        children:Object[];
-        childrenAtom:Atom<Object>;
+        children:any[];
         optionsTree:TreeItem[] = [];
-        tlabel:TreeItem;
-        selectTree:TreeItem;
-        static debug = false;
+        static debug = true;
 
-        constructor(params:IFormSelect<T>, attrs:Attrs, ...children:Object[]) {
-            super(params, attrs);
+        constructor(private params:ISelect<T>, private attrs:Attrs, ...children:any[]) {
             this.attrs.oninput = ()=>this.onChange();
+            this.attrs.required = this.attrs.required || this.params.required;
+            this.attrs.multiple = this.attrs.multiple || this.params.multiple;
+            //todo: arrays for children
+            if (children[0] && children[0].constructor === Array) {
+                var child:any[] = [];
+                for (var i = 0; i < children[0].length; i++) {
+                    child[i] = children[0][i];
+                }
+                children = child;
+            }
             this.children = children;
-            this.tlabel = this.label();
-            this.selectTree = dom('select', this.attrs, this.children);
             this.params.modelMultiple.addListener(values => this.modelChanged(values));
         }
 
         recalcOptions() {
-            FormSelect.debug && console.log("recalcOptions");
+            Select.debug && console.log("recalcOptions");
 
-            if (this.selectTree.attrsAtoms) {
-                if (this.selectTree.attrsAtoms['required']) {
-                    FormSelect.debug && console.log("required listener");
-                    this.selectTree.attrsAtoms['required'].addListener(this.childrenAtomChanged, null, null, null, this);
-                }
-                if (this.selectTree.attrsAtoms['multiple']) {
-                    FormSelect.debug && console.log("multiple listener");
-                    this.selectTree.attrsAtoms['multiple'].addListener(this.childrenAtomChanged, null, null, null, this);
-                }
+            if (this.params.required instanceof Atom) {
+                Select.debug && console.log("required listener");
+                this.params.required.addListener(this.childrenAtomChanged, null, null, null, this);
+            }
+            if (this.params.multiple instanceof Atom) {
+                Select.debug && console.log("multiple listener");
+                this.params.multiple.addListener(this.childrenAtomChanged, null, null, null, this);
             }
 
             this.optionsTree = [];
-            traverseTree(this.selectTree, (treeItem)=> {
+            traverseTree(this.tree, (treeItem)=> {
                 if (treeItem.tag === 'option') {
                     this.optionsTree.push(treeItem);
                     if (treeItem.attrs['argDefault']) {
@@ -49,7 +52,7 @@ module Arg {
                     }
                 }
                 if (treeItem.type === TreeType.WHEN) {
-                    FormSelect.debug && console.log("Arg.Select.whenCondition listener");
+                    Select.debug && console.log("Arg.Select.whenCondition listener");
                     treeItem.whenCondition.addListener(this.childrenAtomChanged, null, null, null, this);
                 }
             });
@@ -62,7 +65,7 @@ module Arg {
         }
 
         modelChanged(values:T[]) {
-            FormSelect.debug && console.log("model changed", values);
+            Select.debug && console.log("model changed", values);
             for (var i = 0; i < this.optionsTree.length; i++) {
                 var optionTree = this.optionsTree[i];
 
@@ -75,16 +78,13 @@ module Arg {
                     var node = <HTMLOptionElement>optionTree.node;
                     node.selected = res;
                 }
-                FormSelect.debug && console.log(optionTree.children[0].value, res);
+                Select.debug && console.log(optionTree.children[0].value, res);
             }
         }
 
         onChange() {
-            FormSelect.debug && console.log("onchange");
-            if (!this.selectTree.node) {
-                return;
-            }
-            var options:HTMLOptionElement[] = <any>this.selectTree.node;
+            Select.debug && console.log("onchange");
+            var options:HTMLOptionElement[] = <any>this.tree.node;
             var selectedOptions:HTMLOptionElement[] = [];
             for (var i = 0; i < options.length; i++) {
                 if (options[i].selected) {
@@ -118,16 +118,36 @@ module Arg {
         }
 
         componentDidMount() {
-            FormSelect.debug && console.log("componentDidMount");
+            Select.debug && console.log("componentDidMount");
             this.recalcOptions();
             this.modelChanged(this.params.modelMultiple.get());
         }
 
         render() {
-            FormSelect.debug && console.log("Select render");
-            return root('',
-                this.tlabel,
-                this.selectTree
+            Select.debug && console.log("Select render");
+            return dom('select', this.attrs, this.children);
+        }
+    }
+
+    export interface ISelectGroup<T> extends ISelect<T> {
+        label: any;
+        selectAttrs?: Attrs;
+        labelAttrs?: Attrs;
+    }
+    export class SelectGroup<T> implements Component {
+        private children:any[];
+
+        constructor(private params:ISelectGroup<T>, private attrs:Attrs, ...children:any[]) {
+            this.children = children;
+            params.labelAttrs = params.labelAttrs || {};
+            params.selectAttrs = params.selectAttrs || {};
+            params.selectAttrs.id = params.labelAttrs.htmlFor = params.selectAttrs.id || Math.random().toString(33).substr(2, 3);
+        }
+
+        render() {
+            return root('', this.attrs,
+                d('label', this.params.labelAttrs, this.params.label, ":"),
+                new Select(this.params, this.params.selectAttrs, this.children)
             );
         }
     }

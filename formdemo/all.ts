@@ -21,8 +21,10 @@ class TestForm implements Arg.Component {
                 new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
                 new Arg.Checkbox({label: "Multiple", value: true, model: this.multiple}),
                 new Arg.Checkbox({label: "Required", value: true, model: this.required}),
-                new Arg.FormInput({label: "My Text", model: this.input}, {required: true}),
-                new Arg.FormSelect({label: 'select', modelMultiple: this.select}, {
+                new Arg.InputGroup({label: "My Text", model: this.input, required: true}),
+                new Arg.SelectGroup({
+                        label: 'select',
+                        modelMultiple: this.select,
                         multiple: this.multiple,
                         required: this.required
                     },
@@ -36,6 +38,7 @@ class TestForm implements Arg.Component {
                     )
                 ),
                 Arg.map(this.select, item=>d('div', item.name)),
+                this.input,
                 d('button', {type: 'button', onclick: ()=>this.select.set([])}, 'clear'),
                 d('button', 'Send')
             )
