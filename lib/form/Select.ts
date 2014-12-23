@@ -84,8 +84,7 @@ module Arg {
             if (!this.selectTree.node) {
                 return;
             }
-            var select = <HTMLSelectElement>this.selectTree.node;
-            var options:HTMLOptionElement[] = <any>select.options;
+            var options:HTMLOptionElement[] = <any>this.selectTree.node;
             var selectedOptions:HTMLOptionElement[] = [];
             for (var i = 0; i < options.length; i++) {
                 if (options[i].selected) {
