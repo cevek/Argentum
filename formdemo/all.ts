@@ -28,6 +28,7 @@ class TestForm implements Arg.Component {
                         multiple: this.multiple,
                         required: this.required
                     },
+                    null,
                     d('option', {argDefault: true}, 'None'),
                     d('optgroup', {label: 'Lbl'},
                         ()=>this.checkbox.get() ?
