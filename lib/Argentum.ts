@@ -10,6 +10,7 @@
 /// <reference path="form/Checkbox.ts"/>
 /// <reference path="form/Input.ts"/>
 /// <reference path="form/Select.ts"/>
+/// <reference path="form/DatePicker.ts"/>
 
 module Arg {
     export var enableAtoms = true;
