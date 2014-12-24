@@ -18,6 +18,7 @@ class TestForm implements Arg.Component {
         //this.select.set(options);
         return Arg.root('',
             d('form', {onsubmit: ()=>false},
+                new Arg.DatePicker({}),
                 new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
                 new Arg.Checkbox({label: "Multiple", value: true, model: this.multiple}),
                 new Arg.Checkbox({label: "Required", value: true, model: this.required}),
