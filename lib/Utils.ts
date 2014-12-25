@@ -109,7 +109,7 @@ module Arg {
                 treeItem.tag = treeItem.tag || prepareViewName(val.constructor.name);
                 treeItem.type = TreeType.TAG;
                 treeItem.component = val;
-                return new TreeItem(treeItem);
+                return treeItem;
             }
         }
         return new TreeItem({type: TreeType.TEXT, value: val});
