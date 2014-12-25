@@ -49,16 +49,22 @@ class Atom<T> {
     private listeners:AtomListeners<T>[] = [];
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:Object, obj:IAtom<T>) {
+    constructor(owner:Object, name:string, value:T);
+    constructor(owner:Object, name:string, getter:(old:T)=>T);
+    constructor(owner:Object, name:string, getter:any) {
         this.id = ++Atom.lastId;
         this.owner = owner;
 
-        if (obj) {
-            this.getter = obj.getter;
-            this.setter = obj.setter;
-            this.name = Atom.makeName(owner, obj.name);
-            this.value = obj.value === null ? void 0 : obj.value;
+        //if (obj) {
+        //this.setter = obj.setter;
+        this.name = Atom.makeName(owner, name);
+        if (getter && getter.constructor === Function) {
+            this.getter = getter;
         }
+        else {
+            this.value = getter === null ? void 0 : getter;
+        }
+        //}
         //this.set(val === null ? void 0 : val);
     }
 

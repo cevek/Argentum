@@ -63,14 +63,11 @@ module Arg {
     }
 
     export class DatePickerCalendar implements Component {
-        private days:Atom<Date[][]> = new Atom(this, {name: 'days', getter: this.calc});
-        private activeMonth = new Atom<number>(this, {name: 'activeMonth', value: new Date().getMonth()});
-        private activeYear = new Atom<number>(this, {name: 'activeYear', value: new Date().getFullYear()});
+        private days = new Atom<Date[][]>(this, 'days', this.calc);
+        private activeMonth = new Atom<number>(this, 'activeMonth', new Date().getMonth());
+        private activeYear = new Atom<number>(this, 'activeYear', new Date().getFullYear());
         private currentDay = DatePickerCalendar.getDayInt(new Date());
-        private firstDayOfMonth = new Atom<Date>(this, {
-            name: 'firstDayOfMonth',
-            value: DatePickerCalendar.getMonday(new Date())
-        });
+        private firstDayOfMonth = new Atom<Date>(this, 'firstDayOfMonth', DatePickerCalendar.getMonday(new Date()));
 
         static getDayInt(date:Date) {
             return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();

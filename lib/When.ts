@@ -8,30 +8,18 @@ module Arg {
     export function when(condition:any, callback:any):TreeItem {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
-            atomCondition = new Atom<any>(Arg, {
-                getter: condition,
-                name: 'whenCondition'
-            });
+            atomCondition = new Atom<any>(Arg, 'whenCondition', condition);
         }
         else if (condition.constructor !== Atom) {
-            atomCondition = new Atom<any>(Arg, {
-                value: condition,
-                name: 'whenCondition'
-            });
+            atomCondition = new Atom<any>(Arg, 'whenCondition', condition);
         }
 
         var atomCallback:Atom<any> = callback;
         if (callback.constructor === Function) {
-            atomCallback = new Atom<any>(Arg, {
-                getter: callback,
-                name: 'whenCondition'
-            });
+            atomCallback = new Atom<any>(Arg, 'whenCondition', callback);
         }
         else if (callback.constructor !== Atom) {
-            atomCallback = new Atom<any>(Arg, {
-                value: callback,
-                name: 'whenCallback'
-            });
+            atomCallback = new Atom<any>(Arg, 'whenCallback', callback);
         }
 
         var child = atomCondition.get() ? convertToTree(atomCallback.get()) : null;

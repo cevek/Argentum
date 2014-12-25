@@ -25,10 +25,7 @@ module Arg {
 
     export function prepareAttr(tree:TreeItem, attr:string) {
         if (tree.attrs[attr] && tree.attrs[attr].constructor === Function && attr.substr(0, 2) !== 'on') {
-            tree.attrs[attr] = new Atom(Arg, {
-                getter: tree.attrs[attr],
-                name: 'attr'
-            });
+            tree.attrs[attr] = new Atom(Arg, 'attr', tree.attrs[attr]);
         }
         if (tree.attrs[attr] && tree.attrs[attr].constructor === Atom) {
             var atom:Atom<any> = tree.attrs[attr];
@@ -88,10 +85,7 @@ module Arg {
         var styles = tree.attrs['style'];
         for (var styleName in styles) {
             if (styles[styleName] && styles[styleName].constructor === Function) {
-                styles[styleName] = new Atom(Arg, {
-                    getter: styles[styleName],
-                    name: 'style'
-                });
+                styles[styleName] = new Atom(Arg, 'style', styles[styleName]);
             }
             if (styles[styleName] && styles[styleName].constructor === Atom) {
                 var atom:Atom<any> = styles[styleName];
@@ -138,10 +132,7 @@ module Arg {
 
         for (var i in classSet) {
             if (classSet[i] && classSet[i].constructor === Function) {
-                classSet[i] = new Atom(Arg, {
-                    getter: classSet[i],
-                    name: 'classSetItem'
-                });
+                classSet[i] = new Atom(Arg, 'classSetItem', classSet[i]);
             }
             if (classSet[i] && classSet[i].constructor === Atom) {
                 var atom:Atom<any> = classSet[i];
