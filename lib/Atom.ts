@@ -235,6 +235,7 @@ class Atom<T> {
                 thisArg: thisArg
             });
         }
+        return this;
     }
 
     destroy() {
