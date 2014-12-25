@@ -4,15 +4,15 @@ class User {
     name:string;
 }
 class TestForm implements Arg.Component {
-    input = new Atom(this, {name: 'input', value: 'hey'});
-    checkbox = new Atom(this, {name: 'checkbox', value: 'yes'});
-    required = new Atom(this, {name: 'required', value: true});
-    multiple = new Atom(this, {name: 'multiple', value: true});
+    input = new Atom(this, 'input', 'hey');
+    checkbox = new Atom(this, 'checkbox', 'yes');
+    required = new Atom(this, 'required', true);
+    multiple = new Atom(this, 'multiple', true);
 
     options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
     //select = new Atom<User[]>(this, {name: 'select', value: []});
-    select = new Atom<User[]>(this, {name: 'select', value: [this.options[2]]});
-    date = new Atom<Date>(this, {name: 'date', value: new Date()});
+    select = new Atom<User[]>(this, 'select', [this.options[2]]);
+    date = new Atom<Date>(this, 'date', new Date());
 
     render() {
         var condItem = {name: "Condition"};
