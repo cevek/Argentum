@@ -12,13 +12,14 @@ class TestForm implements Arg.Component {
     options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
     //select = new Atom<User[]>(this, {name: 'select', value: []});
     select = new Atom<User[]>(this, {name: 'select', value: [this.options[2]]});
+    date = new Atom<Date>(this, {name: 'date', value: new Date()});
 
     render() {
         var condItem = {name: "Condition"};
         //this.select.set(options);
         return Arg.root('',
             d('form', {onsubmit: ()=>false},
-                new Arg.DatePicker({}),
+                new Arg.DatePicker({model: this.date}),
                 new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
                 new Arg.Checkbox({label: "Multiple", value: true, model: this.multiple}),
                 new Arg.Checkbox({label: "Required", value: true, model: this.required}),
