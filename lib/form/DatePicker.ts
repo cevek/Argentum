@@ -1,48 +1,48 @@
 module Arg {
     export interface IDatePicker {
-
+        model: Atom<Date>;
     }
     export class DatePicker implements Component {
-        value = new Atom<Date>(this, {name: 'value'});
         inputTree:TreeItem;
-        formatter = new Atom<string>(this, {
-            name: 'formatter',
+        inputNode:HTMLInputElement;
 
-            //value: 'whowhow',
-            getter: (oldVal)=> {
-                var val = this.value.get();
-                console.log("formatter", val);
-                if (val && isFinite(val.getTime())) {
-                    if (this.inputTree) {
-                        (<HTMLInputElement>this.inputTree.node).setCustomValidity('');
-                    }
-                    return ('0' + val.getDate()).substr(-2) + '.' + ('0' + (val.getMonth() + 1)).substr(-2) + '.' + val.getFullYear();
-                }
-                if (this.inputTree) {
-                    (<HTMLInputElement>this.inputTree.node).setCustomValidity('Invalid date');
-                }
-                return oldVal;
-            }
-        });
+        constructor(private params:IDatePicker, private attrs:Attrs = {}) {}
 
-        constructor(private params:IDatePicker, private attrs:Attrs = {}) {
-
-        }
-
-        onChange(e:Event) {
-            var input = <HTMLInputElement>e.target;
-            var value = input.value.trim().replace(/[^\d]+/g, '/');
+        parser() {
+            var value = this.inputNode.value.trim().replace(/[^\d]+/g, '/');
             value = value.replace(/^(\d{1,2})\/(\d{1,2})\//, '$2/$1/');
+            var has3digitBlocks = value.match(/(\d{1,4})\/(\d{1,2})\/(\d{1,4})/);
             var date = new Date(value);
             console.log("onchange", value, date);
 
-            this.formatter.set(input.value);
-            if (value.length > 5 && isFinite(date.getTime()) && date.getFullYear() > 999 && date.getFullYear() < 3000) {
-                this.value.set(date);
+            if (value.length > 5 && has3digitBlocks && isFinite(date.getTime()) && date.getFullYear() > 999 && date.getFullYear() < 3000) {
+                this.inputNode.setCustomValidity('');
+                this.params.model.set(date);
             }
             else {
-                this.value.setNull();
+                this.params.model.setNull();
+                this.inputNode.setCustomValidity('Invalid date');
             }
+        }
+
+        formatter() {
+            var val = this.params.model.get();
+            console.log("formatter", val);
+            if (val && isFinite(val.getTime())) {
+                this.inputNode.value = ('0' + val.getDate()).substr(-2) + '.' + ('0' + (val.getMonth() + 1)).substr(-2) + '.' + val.getFullYear();
+            }
+        }
+
+        updateInput() {
+            if (this.inputNode !== document.activeElement) {
+                this.formatter();
+            }
+        }
+
+        componentDidMount() {
+            this.inputNode = <HTMLInputElement>this.inputTree.node;
+            this.updateInput();
+            this.params.model.addListener(this.updateInput, null, null, null, this);
         }
 
         render() {
@@ -50,9 +50,9 @@ module Arg {
                 new DatePickerCalendar(),
                 this.inputTree = dom('input', {
                     type: 'text',
-                    value: this.formatter,
                     required: true,
-                    oninput: (e:Event)=>this.onChange(e)
+                    oninput: ()=>this.parser(),
+                    onblur: ()=>this.updateInput()
                 })
             );
         }
