@@ -91,7 +91,7 @@ class Atom<T> {
             }
             this.computing = true;
             var old_value = this.value;
-            this.value = this.getter(this.value);
+            this.value = this.getter.call(this.owner, this.value);
             this.computing = false;
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
