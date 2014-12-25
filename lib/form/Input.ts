@@ -6,17 +6,28 @@ module Arg {
 
     export class Input implements Component {
         isBlock = false;
+        domNode:HTMLInputElement;
 
         constructor(private params:IInput, private attrs:Attrs = {}) {
             this.attrs.type = this.attrs.type || 'text';
-            this.attrs.oninput = (e)=>this.onInput(e);
-            this.attrs.value = this.params.model;
+            this.attrs.oninput = ()=>this.onInput();
+            this.attrs.onblur = ()=>this.updateInput();
             this.attrs.required = this.attrs.required || this.params.required;
         }
 
-        onInput(e:Event) {
-            var target = <HTMLInputElement>e.target;
-            this.params.model.set(target.value);
+        onInput() {
+            this.params.model.set(this.domNode.value);
+        }
+
+        updateInput() {
+            if (this.domNode !== document.activeElement) {
+                this.domNode.value = this.params.model.get();
+            }
+        }
+
+        componentDidMount() {
+            this.updateInput();
+            this.params.model.addListener(this.updateInput, null, null, null, this);
         }
 
         render() {
