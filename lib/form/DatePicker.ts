@@ -12,10 +12,11 @@ module Arg {
             var value = this.inputNode.value.trim().replace(/[^\d]+/g, '/');
             value = value.replace(/^(\d{1,2})\/(\d{1,2})\//, '$2/$1/');
             var has3DigitBlocks = value.match(/(\d{1,4})\/(\d{1,2})\/(\d{1,4})/);
+            //var year4Digit = has3DigitBlocks && (has3DigitBlocks[1].length == 2 || has3DigitBlocks[1].length == 4);
             var date = new Date(value);
-            console.log("onchange", value, date);
+            console.log("onchange", value, date, has3DigitBlocks);
 
-            if (value.length > 5 && has3DigitBlocks && isFinite(date.getTime()) && date.getFullYear() > 999 && date.getFullYear() < 3000) {
+            if (value.length > 5 && has3DigitBlocks && isFinite(date.getTime()) && date.getFullYear() >= 1000 && date.getFullYear() < 3000) {
                 this.inputNode.setCustomValidity('');
                 this.params.model.set(date);
             }
@@ -29,14 +30,14 @@ module Arg {
             var val = this.params.model.get();
             console.log("formatter", val);
             if (val && isFinite(val.getTime())) {
-                this.inputNode.value = ('0' + val.getDate()).substr(-2) + '.' + ('0' + (val.getMonth() + 1)).substr(-2) + '.' + val.getFullYear();
+                this.inputNode.value = ('0' + val.getDate()).substr(-2) + '/' + ('0' + (val.getMonth() + 1)).substr(-2) + '/' + val.getFullYear();
+                this.inputNode.setCustomValidity('');
             }
         }
 
         updateInput() {
             if (this.inputNode !== document.activeElement) {
                 this.formatter();
-                this.inputNode.setCustomValidity('');
             }
         }
 
@@ -48,22 +49,22 @@ module Arg {
 
         render() {
             return root('',
-                new DatePickerCalendar(this.params.model),
                 this.inputTree = dom('input', {
                     type: 'text',
                     required: true,
                     oninput: ()=>this.parser(),
                     onblur: ()=>this.updateInput()
-                })
+                }),
+                new DatePickerCalendar(this.params.model)
             );
         }
     }
 
-    class DayItem {
-
-    }
-
     export class DatePickerCalendar implements Component {
+        static months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        static weeks = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        static weekOrder = [1, 2, 3, 4, 5, 6, 0];
+
         private firstDayOfMonth = new Atom<Date>(this, new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 
         private currentDay = DatePickerCalendar.getDayInt(new Date());
@@ -95,6 +96,17 @@ module Arg {
         }
 
         constructor(private model:Atom<Date>) {
+            this.model.addListener(this.modelChanged, null, null, null, this);
+        }
+
+        modelChanged() {
+            var dt = this.model.get();
+            if (dt && isFinite(dt.getTime())) {
+                this.firstDayOfMonth.set(new Date(dt.getFullYear(), dt.getMonth(), 1));
+            }
+            else {
+                this.firstDayOfMonth.set(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+            }
         }
 
         move(pos:number) {
@@ -106,20 +118,27 @@ module Arg {
             if (pos === 0) {
                 nDt = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
             }
-            console.log("move", dt, nDt);
             this.firstDayOfMonth.set(nDt);
         }
 
-        click(day: Date){
+        click(day:Date) {
             this.model.set(day);
         }
 
         render() {
             return root('',
-                dom('.controls',
-                    dom('a.left', {onclick: ()=>this.move(-1)}, '<'),
-                    dom('a.current', {onclick: ()=>this.move(0)}, '.'),
-                    dom('a.right', {onclick: ()=>this.move(1)}, '>')),
+                dom('.header',
+                    dom('.month-year', ()=>DatePickerCalendar.months[this.firstDayOfMonth.get().getMonth()], " ", ()=>this.firstDayOfMonth.get().getFullYear()),
+
+                    dom('.controls',
+                        dom('a.left', {onclick: ()=>this.move(-1)}, '<'),
+                        dom('a.current', {onclick: ()=>this.move(0)}, '.'),
+                        dom('a.right', {onclick: ()=>this.move(1)}, '>'))
+                ),
+                dom('div.week-names',
+                    mapRaw(DatePickerCalendar.weekOrder, (p)=>
+                        dom('.day.week-name', DatePickerCalendar.weeks[p]))),
+
                 map(this.days, (week)=>
                     dom('div.week',
                         mapRaw(week, day=>
