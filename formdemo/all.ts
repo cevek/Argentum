@@ -5,14 +5,14 @@ class User {
 }
 class TestForm implements Arg.Component {
     input = new Atom(this, 'input', 'hey');
-    checkbox = new Atom(this, 'checkbox', 'yes');
-    required = new Atom(this, 'required', true);
-    multiple = new Atom(this, 'multiple', true);
+    checkbox = new Atom(this, 'yes');
+    required = new Atom(this, true);
+    multiple = new Atom(this, true);
 
     options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
     //select = new Atom<User[]>(this, {name: 'select', value: []});
-    select = new Atom<User[]>(this, 'select', [this.options[2]]);
-    date = new Atom<Date>(this, 'date', new Date());
+    select = new Atom<User[]>(this, [this.options[2]]);
+    date = new Atom<Date>(this, new Date());
 
     render() {
         var condItem = {name: "Condition"};
