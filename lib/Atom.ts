@@ -40,8 +40,8 @@ class Atom<T> {
     private setter:(atom:Atom<T>)=>void;
     private removed:boolean;
     private level:number = 0;
-    public name:string;
-    private owner:Object;
+    public _name:string;
+    private owner:any;
 
     private computing:boolean = false;
     private slaves:Atom.AtomMap<Atom<Object>>;
@@ -49,15 +49,15 @@ class Atom<T> {
     private listeners:AtomListeners<T>[] = [];
 
     //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:Object, name:string, value:T);
-    constructor(owner:Object, name:string, getter:(old:T)=>T);
-    constructor(owner:Object, name:string, getter:any) {
+    constructor(owner:any, value:T, name?:string);
+    constructor(owner:any, getter:(old:T)=>T, name?:string);
+    constructor(owner:any, getter:any, name?:string) {
         this.id = ++Atom.lastId;
         this.owner = owner;
 
         //if (obj) {
         //this.setter = obj.setter;
-        this.name = Atom.makeName(owner, name);
+        this._name = name;
         if (getter && getter.constructor === Function) {
             this.getter = getter;
         }
@@ -66,6 +66,32 @@ class Atom<T> {
         }
         //}
         //this.set(val === null ? void 0 : val);
+    }
+
+    get name() {
+        if (this.owner) {
+            if (this._name) {
+                this._name = Atom.makeName(this.owner, this._name);
+            }
+            else {
+                var keys = Object.keys(this.owner);
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i];
+                    if (this.owner[key] === this) {
+                        this._name = Atom.makeName(this.owner, key);
+                    }
+                }
+            }
+            if (!this._name) {
+                this._name = Atom.makeName(this.owner, 'noname');
+                console.error("atom hasn't name", this);
+            }
+        }
+        else {
+            this._name = 'noname';
+            console.error("atom hasn't name", this);
+        }
+        return this._name;
     }
 
     private valueOf():T {
