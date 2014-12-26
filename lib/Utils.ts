@@ -85,7 +85,7 @@ module Arg {
         if (val) {
             var constructor = val.constructor;
             if (constructor === Function) {
-                val = new Atom<any>(Arg, 'whenConditionAuto', val);
+                val = new Atom<any>(Arg, val, 'whenConditionAuto');
                 constructor = Atom;
             }
             if (constructor === Atom) {
