@@ -70,10 +70,10 @@ class Atom<T> {
 
     get name() {
         if (this.owner) {
-            if (this._name) {
+            if (this._name && this._name.indexOf('.') === -1) {
                 this._name = Atom.makeName(this.owner, this._name);
             }
-            else {
+            if (!this._name) {
                 var keys = Object.keys(this.owner);
                 for (var i = 0; i < keys.length; i++) {
                     var key = keys[i];
@@ -81,10 +81,10 @@ class Atom<T> {
                         this._name = Atom.makeName(this.owner, key);
                     }
                 }
-            }
-            if (!this._name) {
-                this._name = Atom.makeName(this.owner, 'noname');
-                console.error("atom hasn't name", this);
+                if (!this._name) {
+                    this._name = Atom.makeName(this.owner, 'noname');
+                    console.error("atom hasn't name", this);
+                }
             }
         }
         else {
