@@ -11,6 +11,11 @@ module Arg {
                 if (key.substr(0, 3) === 'arg') {
                     continue;
                 }
+                if (key === 'self' && tree.attrs[key] && tree.attrs[key].constructor === Atom) {
+                    var selfAtom = <Atom<TreeItem>>tree.attrs[key];
+                    selfAtom.set(tree);
+                    continue;
+                }
                 prepareAttr(tree, key);
 
                 if (key === 'style') {
