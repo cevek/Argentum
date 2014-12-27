@@ -35,10 +35,26 @@ module Arg {
             }
         }
 
+        closeCallback = (e:Event)=> {
+            var node = <HTMLElement>e.target;
+            if (node !== this.inputNode) {
+                if (this.focused.get()) {
+                    while (node) {
+                        if (node.tagName === 'DATE-PICKER-CALENDAR') {
+                            return;
+                        }
+                        node = <HTMLElement>node.parentNode;
+                    }
+                }
+                this.focused.set(false);
+            }
+        };
+
         componentDidMount() {
             this.inputNode = <HTMLInputElement>this.inputTree.node;
             this.modelChanged(this.params.model.get());
             this.params.model.addListener(this.modelChanged, null, null, null, this);
+            //document.addEventListener('click', this.closeCallback);
         }
 
         modelChanged(dt:Date, isBlurEvent = false) {
@@ -61,12 +77,15 @@ module Arg {
             }
         }
 
+        focused = new Atom(this, false);
+
         render() {
             return root('',
                 this.inputTree = dom('input', {
                     type: 'text',
                     required: true,
                     oninput: ()=>this.parser(),
+                    onfocus: ()=>this.focused.set(true),
                     onblur: ()=>this.modelChanged(this.params.model.get(), true)
                 }),
                 new DatePickerCalendar(this.params.model)
@@ -75,6 +94,7 @@ module Arg {
     }
 
     export class DatePickerCalendar implements Component {
+        domNode:HTMLElement;
         static months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         static weeks = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         static weekOrder = [1, 2, 3, 4, 5, 6, 0];
