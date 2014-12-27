@@ -251,7 +251,7 @@ class Atom<T> {
         if (!this.listeners) {
             this.listeners = [];
         }
-        if (this.listeners.every(listener => listener.callback !== fn)) {
+        if (this.listeners.every(listener => !(listener.callback === fn && listener.thisArg === thisArg))) {
             this.listeners.push({
                 callback: fn,
                 arg1: arg1,
