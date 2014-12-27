@@ -14,37 +14,51 @@ module Arg {
             var has3DigitBlocks = value.match(/(\d{1,4})\/(\d{1,2})\/(\d{1,4})/);
             //var year4Digit = has3DigitBlocks && (has3DigitBlocks[1].length == 2 || has3DigitBlocks[1].length == 4);
             var date = new Date(value);
-            console.log("onchange", value, date, has3DigitBlocks);
+            console.log("parser", value, date, has3DigitBlocks);
 
             if (value.length > 5 && has3DigitBlocks && isFinite(date.getTime()) && date.getFullYear() >= 1000 && date.getFullYear() < 3000) {
-                this.inputNode.setCustomValidity('');
                 this.params.model.set(date);
             }
             else {
-                this.params.model.setNull();
-                this.inputNode.setCustomValidity(value.length ? 'Invalid date' : '');
+                this.params.model.set(new Date("invalid"));
             }
         }
 
-        formatter() {
+        formatter(setEmptyIfInvalid = false) {
             var val = this.params.model.get();
             console.log("formatter", val);
             if (val && isFinite(val.getTime())) {
                 this.inputNode.value = ('0' + val.getDate()).substr(-2) + '/' + ('0' + (val.getMonth() + 1)).substr(-2) + '/' + val.getFullYear();
-                this.inputNode.setCustomValidity('');
             }
-        }
-
-        updateInput() {
-            if (this.inputNode !== document.activeElement) {
-                this.formatter();
+            else if (setEmptyIfInvalid) {
+                this.inputNode.value = '';
             }
         }
 
         componentDidMount() {
             this.inputNode = <HTMLInputElement>this.inputTree.node;
-            this.updateInput();
-            this.params.model.addListener(this.updateInput, null, null, null, this);
+            this.modelChanged(this.params.model.get());
+            this.params.model.addListener(this.modelChanged, null, null, null, this);
+        }
+
+        modelChanged(dt:Date, isBlurEvent = false) {
+            console.log("model changed");
+
+            if (dt) {
+                if (isFinite(dt.getTime())) {
+                    this.inputNode.setCustomValidity('');
+                }
+                else {
+                    this.inputNode.setCustomValidity('Invalid date');
+                }
+            }
+            else {
+                this.inputNode.setCustomValidity('');
+            }
+
+            if (this.inputNode !== document.activeElement) {
+                this.formatter(!isBlurEvent);
+            }
         }
 
         render() {
@@ -53,7 +67,7 @@ module Arg {
                     type: 'text',
                     required: true,
                     oninput: ()=>this.parser(),
-                    onblur: ()=>this.updateInput()
+                    onblur: ()=>this.modelChanged(this.params.model.get(), true)
                 }),
                 new DatePickerCalendar(this.params.model)
             );
