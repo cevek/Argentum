@@ -44,7 +44,7 @@ module Arg {
     export function renderAttrs(tree:TreeItem) {
         if (tree.attrs) {
             for (var key in tree.attrs) {
-                if (key.substr(0, 3) === 'arg') {
+                if (key.substr(0, 3) === 'arg' || key === 'self') {
                     continue;
                 }
                 renderAttr(tree, key);

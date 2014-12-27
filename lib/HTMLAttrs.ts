@@ -14,6 +14,7 @@ module Arg {
 
         baseClassName?: any;
         classSet?: {[className: string]: any};
+        self?: Atom<TreeItem>;
 
         children?: any;
 

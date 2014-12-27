@@ -37,6 +37,10 @@ module Arg {
         }
         tree.nodeBefore = null;
         tree.parentNode = null;
+
+        if (tree.attrs && tree.attrs.self && tree.attrs.self.constructor === Atom){
+            tree.attrs.self.setNull();
+        }
         tree.attrs = null;
 
         if (tree.attrsAtoms) {
