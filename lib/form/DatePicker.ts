@@ -3,13 +3,14 @@ module Arg {
         model: Atom<Date>;
     }
     export class DatePicker implements Component {
-        inputTree:TreeItem;
-        inputNode:HTMLInputElement;
+        inputTree = new Atom<TreeItem>(this, null);
+        calendar = new Atom<TreeItem>(this, null);
 
         constructor(private params:IDatePicker, private attrs:Attrs = {}) {}
 
         parser() {
-            var value = this.inputNode.value.trim().replace(/[^\d]+/g, '/');
+            var node = <HTMLInputElement>this.inputTree.get().node;
+            var value = node.value.trim().replace(/[^\d]+/g, '/');
             value = value.replace(/^(\d{1,2})\/(\d{1,2})\//, '$2/$1/');
             var has3DigitBlocks = value.match(/(\d{1,4})\/(\d{1,2})\/(\d{1,4})/);
             //var year4Digit = has3DigitBlocks && (has3DigitBlocks[1].length == 2 || has3DigitBlocks[1].length == 4);
@@ -25,54 +26,53 @@ module Arg {
         }
 
         formatter(setEmptyIfInvalid = false) {
+            var node = <HTMLInputElement>this.inputTree.get().node;
+
             var val = this.params.model.get();
             console.log("formatter", val);
             if (val && isFinite(val.getTime())) {
-                this.inputNode.value = ('0' + val.getDate()).substr(-2) + '/' + ('0' + (val.getMonth() + 1)).substr(-2) + '/' + val.getFullYear();
+                node.value = ('0' + val.getDate()).substr(-2) + '/' + ('0' + (val.getMonth() + 1)).substr(-2) + '/' + val.getFullYear();
             }
             else if (setEmptyIfInvalid) {
-                this.inputNode.value = '';
+                node.value = '';
             }
         }
 
         closeCallback = (e:Event)=> {
-            var node = <HTMLElement>e.target;
-            if (node !== this.inputNode) {
-                if (this.focused.get()) {
-                    while (node) {
-                        if (node.tagName === 'DATE-PICKER-CALENDAR') {
-                            return;
-                        }
-                        node = <HTMLElement>node.parentNode;
-                    }
-                }
+            var calendar = this.calendar.get();
+            console.log(calendar);
+            if (calendar && e.target !== this.inputTree.get().node && !DOM.hasInParents(<Node>e.target, calendar.node)) {
                 this.focused.set(false);
             }
         };
 
         componentDidMount() {
-            this.inputNode = <HTMLInputElement>this.inputTree.node;
             this.modelChanged(this.params.model.get());
             this.params.model.addListener(this.modelChanged, null, null, null, this);
-            //document.addEventListener('click', this.closeCallback);
+            document.addEventListener('click', this.closeCallback);
+        }
+
+        componentWillUnmount(){
+            document.removeEventListener('click', this.closeCallback);
         }
 
         modelChanged(dt:Date, isBlurEvent = false) {
+            var node = <HTMLInputElement>this.inputTree.get().node;
             console.log("model changed");
 
             if (dt) {
                 if (isFinite(dt.getTime())) {
-                    this.inputNode.setCustomValidity('');
+                    node.setCustomValidity('');
                 }
                 else {
-                    this.inputNode.setCustomValidity('Invalid date');
+                    node.setCustomValidity('Invalid date');
                 }
             }
             else {
-                this.inputNode.setCustomValidity('');
+                node.setCustomValidity('');
             }
 
-            if (this.inputNode !== document.activeElement) {
+            if (node !== document.activeElement) {
                 this.formatter(!isBlurEvent);
             }
         }
@@ -80,15 +80,17 @@ module Arg {
         focused = new Atom(this, false);
 
         render() {
-            return root('',
-                this.inputTree = dom('input', {
+            return root('', this.attrs,
+                dom('input', {
+                    self: this.inputTree,
                     type: 'text',
                     required: true,
                     oninput: ()=>this.parser(),
                     onfocus: ()=>this.focused.set(true),
                     onblur: ()=>this.modelChanged(this.params.model.get(), true)
                 }),
-                new DatePickerCalendar(this.params.model)
+                ()=> this.focused.get() ?
+                    new DatePickerCalendar(this.params.model, {self: this.calendar}) : null
             );
         }
     }
@@ -129,7 +131,7 @@ module Arg {
             return days;
         }
 
-        constructor(private model:Atom<Date>) {
+        constructor(private model:Atom<Date>, private attrs:Attrs = {}) {
             this.model.addListener(this.modelChanged, null, null, null, this);
         }
 
@@ -160,7 +162,7 @@ module Arg {
         }
 
         render() {
-            return root('',
+            return root('', this.attrs,
                 dom('.header',
                     dom('.month-year', ()=>DatePickerCalendar.months[this.firstDayOfMonth.get().getMonth()], " ", ()=>this.firstDayOfMonth.get().getFullYear()),
 
