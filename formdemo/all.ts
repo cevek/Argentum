@@ -5,17 +5,17 @@ class User {
 }
 var glob: any = {};
 class TestForm implements Arg.Component {
-    input = new Atom(this, 'input', 'hey');
-    checkbox = new Atom(this, 'yes');
-    required = new Atom(this, true);
-    multiple = new Atom(this, true);
+    input = new Atom(this, {value: 'input'});
+    checkbox = new Atom(this, {value: 'yes'});
+    required = new Atom(this, {value: true});
+    multiple = new Atom(this, {value: true});
 
     options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
     //select = new Atom<User[]>(this, {name: 'select', value: []});
-    select = new Atom<User[]>(this, [this.options[2]]);
-    date = new Atom<Date>(this, new Date());
+    select = new Atom<User[]>(this, {value: [this.options[2]]});
+    date = new Atom<Date>(this, {value: new Date()});
 
-    picker = new Atom<Arg.TreeItem>(this, null);
+    picker = new Atom<Arg.TreeItem>(this);
 
     componentDidMount(){
         glob.picker = this.picker.get().component;
