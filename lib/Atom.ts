@@ -15,16 +15,20 @@ interface Microtask {
     stack?: Atom<Object>;
 }
 
-interface AtomListeners<T> {
-    callback: (atom:T, arg1?:Object, arg2?:Object, arg3?:Object)=>void;
-    arg1: Object;
-    arg2: Object;
-    arg3: Object;
-    firstValue: Object;
+interface AtomListenerCallback<T, A1, A2, A3> {
+    (value:T, arg1?:A1, arg2?:A2, arg3?:A3): void;
+}
+interface AtomListeners<T, A1, A2, A3> {
+    callback: AtomListenerCallback<T, A1, A2, A3>;
+    arg1: A1;
+    arg2: A2;
+    arg3: A3;
+    atom: Atom<T>;
+    firstValue: T;
     thisArg: Object;
 }
 
-interface IAtomGetter<T>{
+interface IAtomGetter<T> {
     (prevValue:T): T;
 }
 interface IAtom<T> {
@@ -49,7 +53,7 @@ class Atom<T> {
     private computing:boolean = false;
     private slaves:Atom.AtomMap<Atom<Object>>;
     private masters:Atom.AtomMap<Atom<Object>>;
-    private listeners:AtomListeners<T>[] = [];
+    private listeners:AtomListeners<T, Object, Object, Object>[] = [];
 
     //constructor(getterFn?:(atom:Atom<T>)=>void, setterFn?:(atom:Atom<T>)=>T, val?:T);
     constructor(owner:any, params?:IAtom<T>) {
@@ -63,8 +67,19 @@ class Atom<T> {
         if (params) {
             this._name = name;
             this.getterFn = params.getter;
+            this.setterFn = params.setter;
             this.value = params.value === null ? void 0 : params.value;
         }
+    }
+
+    proxy(owner:any) {
+        return new Atom<T>(owner, {
+            getter: ()=>this.get(),
+            setter: (atom)=> {
+                this.set(atom.value)
+            },
+            name: this.name + 'Proxy'
+        });
     }
 
     get name() {
@@ -101,7 +116,17 @@ class Atom<T> {
         return '<Atom>';
     }
 
-
+    require(masterAtom:Atom<Object>) {
+        if (!masterAtom.slaves) {
+            masterAtom.slaves = new Atom.AtomMap<Atom<Object>>();
+        }
+        if (!this.masters) {
+            this.masters = new Atom.AtomMap<Atom<Object>>();
+        }
+        masterAtom.slaves.set(this.id, this);
+        this.masters.set(masterAtom.id, masterAtom);
+        return this;
+    }
 
     clearMasters() {
         if (this.masters) {
@@ -246,28 +271,45 @@ class Atom<T> {
                     // console.log(this, "listener callback");
                     listener.callback.call(listener.thisArg, this.value, listener.arg1, listener.arg2, listener.arg3);
                 }
-                listener.firstValue = Atom.firstValueObj;
+                listener.firstValue = <T>Atom.firstValueObj;
             }
         }
     }
 
-    addListener<R1, R2, R3>(fn:(val:T, arg1?:R1, arg2?:R2, arg3?:R3)=>void,
-                            arg1?:R1,
-                            arg2?:R2,
-                            arg3?:R3,
-                            thisArg?:any) {
+    addListener<A1, A2, A3>(fn:AtomListenerCallback<T, A1, A2, A3>,
+                            arg1?:A1,
+                            arg2?:A2,
+                            arg3?:A3,
+                            thisArg?:any/*checked*/) {
         if (!this.listeners) {
             this.listeners = [];
         }
         if (this.listeners.every(listener => !(listener.callback === fn && listener.thisArg === thisArg))) {
-            this.listeners.push({
+            var listener = {
                 callback: fn,
                 arg1: arg1,
                 arg2: arg2,
                 arg3: arg3,
                 firstValue: this.value,
+                atom: this,
                 thisArg: thisArg
-            });
+            };
+            this.listeners.push(listener);
+            if (thisArg) {
+                thisArg.listeners = thisArg.listeners || [];
+                thisArg.listeners.push(listener);
+            }
+        }
+        return this;
+    }
+
+    removeListener(fn:AtomListenerCallback<T, Object, Object, Object>, thisArg:any/*checked*/) {
+        for (var i = 0; i < this.listeners.length; i++) {
+            var listener = this.listeners[i];
+            if (listener.callback === fn && listener.thisArg === thisArg) {
+                this.listeners.splice(i, 1);
+                break;
+            }
         }
         return this;
     }
