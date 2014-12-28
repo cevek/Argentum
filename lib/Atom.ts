@@ -277,10 +277,10 @@ class Atom<T> {
     }
 
     addListener<A1, A2, A3>(fn:AtomListenerCallback<T, A1, A2, A3>,
+                            thisArg?:any/*checked*/,
                             arg1?:A1,
                             arg2?:A2,
-                            arg3?:A3,
-                            thisArg?:any/*checked*/) {
+                            arg3?:A3) {
         if (!this.listeners) {
             this.listeners = [];
         }

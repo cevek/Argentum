@@ -48,7 +48,7 @@ module Arg {
 
         componentDidMount() {
             this.modelChanged(this.params.model.get());
-            this.params.model.addListener(this.modelChanged, null, null, null, this);
+            this.params.model.addListener(this.modelChanged, this);
             document.addEventListener('mousedown', this.closeCallback);
         }
 
@@ -139,7 +139,7 @@ module Arg {
             //this.model = model.proxy(this);
 
             this.modelChanged();
-            this.model.addListener(this.modelChanged, null, null, null, this);
+            this.model.addListener(this.modelChanged, this);
         }
 
         modelChanged() {

@@ -27,7 +27,7 @@ module Arg {
 
         componentDidMount() {
             this.updateInput();
-            this.params.model.addListener(this.updateInput, null, null, null, this);
+            this.params.model.addListener(this.updateInput, this);
         }
 
         render() {

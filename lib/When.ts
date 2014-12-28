@@ -34,7 +34,7 @@ module Arg {
             render(tree.children[0]);
         }
         if (Arg.enableAtoms) {
-            tree.whenCondition.addListener(renderWhenListener, tree);
+            tree.whenCondition.addListener(renderWhenListener, Arg, tree);
         }
     }
 

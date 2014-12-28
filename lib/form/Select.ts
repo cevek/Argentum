@@ -18,7 +18,7 @@ module Arg {
             this.attrs.required = this.attrs.required || this.params.required;
             this.attrs.multiple = this.attrs.multiple || this.params.multiple;
             this.children = children;
-            this.params.modelMultiple.addListener(values => this.modelChanged(values));
+            this.params.modelMultiple.addListener(this.modelChanged, this);
         }
 
         recalcOptions() {
@@ -26,11 +26,11 @@ module Arg {
 
             if (this.params.required instanceof Atom) {
                 Select.debug && console.log("required listener");
-                this.params.required.addListener(this.childrenAtomChanged, null, null, null, this);
+                this.params.required.addListener(this.childrenAtomChanged, this);
             }
             if (this.params.multiple instanceof Atom) {
                 Select.debug && console.log("multiple listener");
-                this.params.multiple.addListener(this.childrenAtomChanged, null, null, null, this);
+                this.params.multiple.addListener(this.childrenAtomChanged, this);
             }
 
             this.optionsTree = [];
@@ -47,7 +47,7 @@ module Arg {
                 }
                 if (treeItem.type === TreeType.WHEN) {
                     Select.debug && console.log("Arg.Select.whenCondition listener");
-                    treeItem.whenCondition.addListener(this.childrenAtomChanged, null, null, null, this);
+                    treeItem.whenCondition.addListener(this.childrenAtomChanged, this);
                 }
             });
         }

@@ -40,7 +40,7 @@ module Arg {
         var array = tree.map.get() || [];
         if (Arg.enableAtoms) {
             array.addListener(mapArrayListener, tree);
-            tree.map.addListener(renderMapDOMSet, tree);
+            tree.map.addListener(renderMapDOMSet, Arg, tree);
         }
     }
 
