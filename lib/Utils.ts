@@ -87,6 +87,13 @@ module Arg {
                     tree.component.atoms[i].destroy();
                 }
             }
+            if (tree.component.listeners) {
+                console.log(tree.component.listeners);
+
+                for (var i = 0; i < tree.component.listeners.length; i++) {
+                    tree.component.listeners[i].atom.removeListener(tree.component.listeners[i].callback, tree.component.listeners[i].thisArg);
+                }
+            }
             tree.component.componentWillUnmount && tree.component.componentWillUnmount();
             tree.component = null;
         }
@@ -96,7 +103,7 @@ module Arg {
         if (val) {
             var constructor = val.constructor;
             if (constructor === Function) {
-                var getter: IAtomGetter<any> = val;
+                var getter:IAtomGetter<any> = val;
                 val = new Atom<any>(Arg, {getter: getter, name: 'whenConditionAuto'});
                 constructor = Atom;
             }

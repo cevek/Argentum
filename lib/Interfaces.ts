@@ -89,6 +89,7 @@ module Arg {
         isBlock?: boolean;
         render(): any;
         atoms?: Atom<any>[];
+        listeners?: AtomListeners<Object,Object,Object,Object>[];
     }
 
     export interface Listener<T> {
