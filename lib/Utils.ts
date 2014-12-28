@@ -96,7 +96,7 @@ module Arg {
         if (val) {
             var constructor = val.constructor;
             if (constructor === Function) {
-                val = new Atom<any>(Arg, val, 'whenConditionAuto');
+                val = new Atom<any>(Arg, val, null, 'whenConditionAuto');
                 constructor = Atom;
             }
             if (constructor === Atom) {
@@ -176,5 +176,10 @@ module Arg {
 
         prepareAttrs(tree);
         return tree;
+    }
+
+    export function log(param:any) {
+        console.log(param);
+        return param;
     }
 }

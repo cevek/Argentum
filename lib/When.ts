@@ -8,10 +8,10 @@ module Arg {
     export function when(condition:any, callback:any):TreeItem {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
-            atomCondition = new Atom<any>(Arg, condition, 'whenCondition');
+            atomCondition = new Atom<any>(Arg, condition, null, 'whenCondition');
         }
         else if (condition.constructor !== Atom) {
-            atomCondition = new Atom<any>(Arg, condition, 'whenCondition');
+            atomCondition = new Atom<any>(Arg, null, condition, 'whenCondition');
         }
 
         var child = atomCondition.get() ? convertToTree(callback()) : null;
