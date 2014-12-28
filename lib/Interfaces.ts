@@ -21,6 +21,7 @@ module Arg {
         mapSplit?:string;
         mapValues?:any[];
 
+        atom?:Atom<any>;
         whenCallback?:()=>any;
         whenCondition?:Atom<any>;
     }
@@ -46,6 +47,7 @@ module Arg {
         mapSplit:string;
         mapValues:any[];
 
+        atom:Atom<any>;
         whenCallback:()=>any;
         whenCondition:Atom<any>;
 
@@ -77,7 +79,7 @@ module Arg {
     }
 
     export enum TreeType{
-        TAG, MAP, WHEN, COMPONENT, TEXT
+        TAG, MAP, WHEN, COMPONENT, TEXT, ATOM
     }
 
     export interface Component {

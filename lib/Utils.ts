@@ -104,21 +104,18 @@ module Arg {
             var constructor = val.constructor;
             if (constructor === Function) {
                 var getter:IAtomGetter<any> = val;
-                val = new Atom<any>(Arg, {getter: getter, name: 'whenConditionAuto'});
+                val = new Atom<any>(Arg, {getter: getter, name: 'atom'});
                 constructor = Atom;
             }
             if (constructor === Atom) {
-                return new TreeItem({type: TreeType.TEXT, value: "<ATOM>"});
-                /*
-                 var atom:Atom<any> = val;
-                 var child = atom.get();
-                 return new TreeItem({
-                 type: TreeType.WHEN,
-                 whenCondition: atom,
-                 children: child ? [child] : null,
-                 whenCallback: atom
-                 });
-                 */
+                var atom:Atom<any> = val;
+                var child = atom.get();
+                return new TreeItem({
+                    type: TreeType.ATOM,
+                    whenCondition: atom,
+                    children: child ? [child] : null,
+                    atom: atom
+                });
             }
             if (constructor === TreeItem) {
                 return val;

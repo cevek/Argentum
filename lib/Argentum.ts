@@ -51,7 +51,7 @@ module Arg {
             renderMap(tree);
         }
 
-        if (tree.type === TreeType.WHEN) {
+        if (tree.type === TreeType.WHEN || tree.type === TreeType.ATOM) {
             renderWhen(tree);
         }
     }

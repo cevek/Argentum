@@ -8,7 +8,7 @@ module Arg {
     export function when(condition:any, callback:any):TreeItem {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
-            var getter: IAtomGetter<any> = condition;
+            var getter:IAtomGetter<any> = condition;
             atomCondition = new Atom<any>(Arg, {getter: getter, name: 'whenCondition'});
         }
         else if (condition.constructor !== Atom) {
@@ -38,10 +38,17 @@ module Arg {
         }
     }
 
-    export function renderWhenListener(condition:boolean, tree:TreeItem) {
+    export function renderWhenListener(value:any, tree:TreeItem) {
         removeTreeChildren(tree);
-        if (condition) {
+        if (tree.type === TreeType.WHEN && value) {
             var sub_tree = convertToTree(tree.whenCallback());
+            sub_tree.parentNode = tree.parentNode;
+            sub_tree.nodeBefore = tree.node;
+            tree.children = sub_tree ? [sub_tree] : null;
+            render(sub_tree);
+        }
+        if (tree.type === TreeType.ATOM && value !== null && value !== void 0) {
+            var sub_tree = convertToTree(value);
             sub_tree.parentNode = tree.parentNode;
             sub_tree.nodeBefore = tree.node;
             tree.children = sub_tree ? [sub_tree] : null;
