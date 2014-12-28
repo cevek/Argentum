@@ -21,7 +21,7 @@ module Arg {
         mapSplit?:string;
         mapValues?:any[];
 
-        whenCallback?:Atom<any>;
+        whenCallback?:()=>any;
         whenCondition?:Atom<any>;
     }
     export class TreeItem {
@@ -46,7 +46,7 @@ module Arg {
         mapSplit:string;
         mapValues:any[];
 
-        whenCallback:Atom<any>;
+        whenCallback:()=>any;
         whenCondition:Atom<any>;
 
         constructor(data:ITreeItem) {
@@ -88,6 +88,7 @@ module Arg {
         tree?: TreeItem;
         isBlock?: boolean;
         render(): any;
+        atoms?: Atom<any>[];
     }
 
     export interface Listener<T> {

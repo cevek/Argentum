@@ -38,7 +38,7 @@ module Arg {
         tree.nodeBefore = null;
         tree.parentNode = null;
 
-        if (tree.attrs && tree.attrs.self && tree.attrs.self.constructor === Atom){
+        if (tree.attrs && tree.attrs.self && tree.attrs.self.constructor === Atom) {
             tree.attrs.self.setNull();
         }
         tree.attrs = null;
@@ -80,6 +80,13 @@ module Arg {
         }
 
         if (tree.component) {
+            if (tree.component.atoms) {
+                console.log(tree.component.atoms);
+
+                for (var i = 0; i < tree.component.atoms.length; i++) {
+                    tree.component.atoms[i].destroy();
+                }
+            }
             tree.component.componentWillUnmount && tree.component.componentWillUnmount();
             tree.component = null;
         }
@@ -93,14 +100,17 @@ module Arg {
                 constructor = Atom;
             }
             if (constructor === Atom) {
-                var atom:Atom<any> = val;
-                var child = atom.get();
-                return new TreeItem({
-                    type: TreeType.WHEN,
-                    whenCondition: atom,
-                    children: child ? [child] : null,
-                    whenCallback: atom
-                });
+                return new TreeItem({type: TreeType.TEXT, value: "<ATOM>"});
+                /*
+                 var atom:Atom<any> = val;
+                 var child = atom.get();
+                 return new TreeItem({
+                 type: TreeType.WHEN,
+                 whenCondition: atom,
+                 children: child ? [child] : null,
+                 whenCallback: atom
+                 });
+                 */
             }
             if (constructor === TreeItem) {
                 return val;

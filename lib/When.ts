@@ -14,21 +14,13 @@ module Arg {
             atomCondition = new Atom<any>(Arg, condition, 'whenCondition');
         }
 
-        var atomCallback:Atom<any> = callback;
-        if (callback.constructor === Function) {
-            atomCallback = new Atom<any>(Arg, callback, 'whenCondition');
-        }
-        else if (callback.constructor !== Atom) {
-            atomCallback = new Atom<any>(Arg, callback, 'whenCallback');
-        }
-
-        var child = atomCondition.get() ? convertToTree(atomCallback.get()) : null;
+        var child = atomCondition.get() ? convertToTree(callback()) : null;
 
         return new TreeItem({
             type: TreeType.WHEN,
             whenCondition: atomCondition,
             children: child ? [child] : null,
-            whenCallback: atomCallback
+            whenCallback: callback
         });
     }
 
@@ -48,7 +40,7 @@ module Arg {
     export function renderWhenListener(condition:boolean, tree:TreeItem) {
         removeTreeChildren(tree);
         if (condition) {
-            var sub_tree = convertToTree(tree.whenCallback.get());
+            var sub_tree = convertToTree(tree.whenCallback());
             sub_tree.parentNode = tree.parentNode;
             sub_tree.nodeBefore = tree.node;
             tree.children = sub_tree ? [sub_tree] : null;

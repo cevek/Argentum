@@ -5,6 +5,7 @@ module Arg {
     export class DatePicker implements Component {
         inputTree = new Atom<TreeItem>(this, null);
         calendar = new Atom<TreeItem>(this, null);
+        focused = new Atom(this, false);
 
         constructor(private params:IDatePicker, private attrs:Attrs = {}) {}
 
@@ -15,7 +16,7 @@ module Arg {
             var has3DigitBlocks = value.match(/(\d{1,4})\/(\d{1,2})\/(\d{1,4})/);
             //var year4Digit = has3DigitBlocks && (has3DigitBlocks[1].length == 2 || has3DigitBlocks[1].length == 4);
             var date = new Date(value);
-            console.log("parser", value, date, has3DigitBlocks);
+            //console.log("parser", value, date, has3DigitBlocks);
 
             if (value.length > 5 && has3DigitBlocks && isFinite(date.getTime()) && date.getFullYear() >= 1000 && date.getFullYear() < 3000) {
                 this.params.model.set(date);
@@ -29,7 +30,7 @@ module Arg {
             var node = <HTMLInputElement>this.inputTree.get().node;
 
             var val = this.params.model.get();
-            console.log("formatter", val);
+            //console.log("formatter", val);
             if (val && isFinite(val.getTime())) {
                 node.value = ('0' + val.getDate()).substr(-2) + '/' + ('0' + (val.getMonth() + 1)).substr(-2) + '/' + val.getFullYear();
             }
@@ -40,8 +41,7 @@ module Arg {
 
         closeCallback = (e:Event)=> {
             var calendar = this.calendar.get();
-            console.log(calendar);
-            if (calendar && e.target !== this.inputTree.get().node && !DOM.hasInParents(<Node>e.target, calendar.node)) {
+            if (calendar && calendar.node && e.target !== this.inputTree.get().node && !DOM.hasInParents(<Node>e.target, calendar.node)) {
                 this.focused.set(false);
             }
         };
@@ -49,16 +49,16 @@ module Arg {
         componentDidMount() {
             this.modelChanged(this.params.model.get());
             this.params.model.addListener(this.modelChanged, null, null, null, this);
-            document.addEventListener('click', this.closeCallback);
+            document.addEventListener('mousedown', this.closeCallback);
         }
 
-        componentWillUnmount(){
-            document.removeEventListener('click', this.closeCallback);
+        componentWillUnmount() {
+            document.removeEventListener('mousedown', this.closeCallback);
         }
 
         modelChanged(dt:Date, isBlurEvent = false) {
             var node = <HTMLInputElement>this.inputTree.get().node;
-            console.log("model changed");
+            //console.log("model changed");
 
             if (dt) {
                 if (isFinite(dt.getTime())) {
@@ -77,8 +77,6 @@ module Arg {
             }
         }
 
-        focused = new Atom(this, false);
-
         render() {
             return root('', this.attrs,
                 dom('input', {
@@ -89,19 +87,24 @@ module Arg {
                     onfocus: ()=>this.focused.set(true),
                     onblur: ()=>this.modelChanged(this.params.model.get(), true)
                 }),
-                ()=> this.focused.get() ?
-                    new DatePickerCalendar(this.params.model, {self: this.calendar}) : null
+                //new DatePickerCalendar(this.params.model),
+
+                when(this.focused,
+                    ()=>new DatePickerCalendar(this.params.model, {self: this.calendar}))
             );
         }
     }
 
     export class DatePickerCalendar implements Component {
         domNode:HTMLElement;
+        static id = 0;
+        id = ++DatePickerCalendar.id;
+
         static months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         static weeks = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         static weekOrder = [1, 2, 3, 4, 5, 6, 0];
 
-        private firstDayOfMonth = new Atom<Date>(this, new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+        private firstDayOfMonth = new Atom<Date>(this, null);
 
         private currentDay = DatePickerCalendar.getDayInt(new Date());
 
@@ -116,12 +119,12 @@ module Arg {
             return new Date(date.setDate(diff));
         }
 
-        private days = new Atom<Date[][]>(this, this.calc);
+        private days = new Atom<Date[][]>(this, this.calcDays);
 
-        calc() {
+        calcDays() {
             var days:Date[][] = [];
             var start = DatePickerCalendar.getMonday(this.firstDayOfMonth.get());
-            console.log(start);
+            //console.log("calc", start);
 
             for (var j = 0; j < 42; j++) {
                 var week = j / 7 | 0;
@@ -131,12 +134,17 @@ module Arg {
             return days;
         }
 
-        constructor(private model:Atom<Date>, private attrs:Attrs = {}) {
-            this.model.addListener(this.modelChanged, null, null, null, this);
+        model: Atom<Date>;
+        constructor(model:Atom<Date>, private attrs:Attrs = {}) {
+            //console.log("DateCalendar created", this);
+
+            this.modelChanged();
+            this.model = new Atom(this, this.modelChanged).require(model);
         }
 
         modelChanged() {
             var dt = this.model.get();
+            //console.log("Calendar modelChanged", dt);
             if (dt && isFinite(dt.getTime())) {
                 this.firstDayOfMonth.set(new Date(dt.getFullYear(), dt.getMonth(), 1));
             }
@@ -158,6 +166,8 @@ module Arg {
         }
 
         click(day:Date) {
+            console.log("click", day, this);
+
             this.model.set(day);
         }
 
