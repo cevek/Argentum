@@ -96,7 +96,8 @@ module Arg {
         if (val) {
             var constructor = val.constructor;
             if (constructor === Function) {
-                val = new Atom<any>(Arg, val, null, 'whenConditionAuto');
+                var getter: IAtomGetter<any> = val;
+                val = new Atom<any>(Arg, {getter: getter, name: 'whenConditionAuto'});
                 constructor = Atom;
             }
             if (constructor === Atom) {

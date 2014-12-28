@@ -5,10 +5,6 @@ module Arg {
     }
 
     export function map<R>(atomArray:Atom<R[]>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
-        if (atomArray.constructor !== Atom) {
-            atomArray = new Atom<any>(Arg, null, atomArray, 'map');
-        }
-
         var children:TreeItem[] = [];
         var array = (atomArray.get() || []).slice();
         for (var i = 0; i < array.length; i++) {
@@ -26,7 +22,7 @@ module Arg {
     }
 
     export function mapRaw<R>(array:R[], mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
-        var atomArray = new Atom<any>(Arg, null, array, 'map');
+        var atomArray = new Atom<any>(Arg, {value: array, name: 'map'});
         return map(atomArray, mapIterator, split);
     }
 

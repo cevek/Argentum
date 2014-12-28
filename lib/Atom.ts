@@ -24,11 +24,14 @@ interface AtomListeners<T> {
     thisArg: Object;
 }
 
+interface IAtomGetter<T>{
+    (prevValue:T): T;
+}
 interface IAtom<T> {
-    getter?: (prevValue:T)=>T;
+    getter?: IAtomGetter<T>;
     setter?: (atom:Atom<T>)=>void;
     value?: T;
-    name: string;
+    name?: string;
 }
 
 class Atom<T> {
@@ -36,11 +39,11 @@ class Atom<T> {
     private static lastId = 0;
     private id:number;
     private value:T;
-    private getter:(prevValue:T)=>T;
-    private setter:(atom:Atom<T>)=>void;
+    private getterFn:(prevValue:T)=>T;
+    private setterFn:(atom:Atom<T>)=>void;
     private removed:boolean;
     private level:number = 0;
-    public _name:string;
+    private _name:string;
     private owner:any;
 
     private computing:boolean = false;
@@ -48,24 +51,20 @@ class Atom<T> {
     private masters:Atom.AtomMap<Atom<Object>>;
     private listeners:AtomListeners<T>[] = [];
 
-    //constructor(getter?:(atom:Atom<T>)=>void, setter?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:any, value:T, name?:string);
-    constructor(owner:any, getter:(old:T)=>T, name?:string);
-    constructor(owner:any, getter:any, name?:string) {
+    //constructor(getterFn?:(atom:Atom<T>)=>void, setterFn?:(atom:Atom<T>)=>T, val?:T);
+    constructor(owner:any, params?:IAtom<T>) {
         this.id = ++Atom.lastId;
         this.owner = owner;
+        if (owner) {
+            owner.atoms = owner.atoms || [];
+            owner.atoms.push(this);
+        }
 
-        //if (obj) {
-        //this.setter = obj.setter;
-        this._name = name;
-        if (getter && getter.constructor === Function) {
-            this.getter = getter;
+        if (params) {
+            this._name = name;
+            this.getterFn = params.getter;
+            this.value = params.value === null ? void 0 : params.value;
         }
-        else {
-            this.value = getter === null ? void 0 : getter;
-        }
-        //}
-        //this.set(val === null ? void 0 : val);
     }
 
     get name() {
@@ -102,7 +101,9 @@ class Atom<T> {
         return '<Atom>';
     }
 
-    private clearMasters() {
+
+
+    clearMasters() {
         if (this.masters) {
             var masters = Atom.getAtomMapValues(this.masters);
             for (var i = 0; i < masters.length; i++) {
@@ -113,7 +114,7 @@ class Atom<T> {
     }
 
     private callGetter() {
-        if (this.getter) {
+        if (this.getterFn) {
             var temp = Atom.lastCalledGetter;
             Atom.lastCalledGetter = this;
             this.clearMasters();
@@ -123,7 +124,7 @@ class Atom<T> {
             }
             this.computing = true;
             var old_value = this.value;
-            this.value = this.getter.call(this.owner, this.value);
+            this.value = this.getterFn.call(this.owner, this.value);
             this.computing = false;
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
@@ -133,10 +134,10 @@ class Atom<T> {
     }
 
     private callSetter() {
-        if (this.setter) {
+        if (this.setterFn) {
             var temp = Atom.lastCalledSetter;
             Atom.lastCalledSetter = this;
-            this.setter(this);
+            this.setterFn(this);
             Atom.lastCalledSetter = temp;
         }
     }
@@ -152,6 +153,13 @@ class Atom<T> {
                 }
             }
         }
+    }
+
+    get1():T {
+        if (this.value === void 0) {
+            this.callGetter();
+        }
+        return this.value;
     }
 
     get():T {
@@ -286,8 +294,11 @@ class Atom<T> {
         this.value = null;
         this.masters = null;
         this.slaves = null;
-        this.listeners = null;
+        this.owner = null;
+        this.getterFn = null;
+        this.setterFn = null;
         this.removed = true;
+        this.listeners = null;
     }
 
     /********************
