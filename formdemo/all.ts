@@ -1,8 +1,9 @@
 /// <reference path="../lib/Argentum.ts"/>
-
+//Atom.debugMode = false;
 class User {
     name:string;
 }
+var glob: any = {};
 class TestForm implements Arg.Component {
     input = new Atom(this, 'input', 'hey');
     checkbox = new Atom(this, 'yes');
@@ -14,12 +15,18 @@ class TestForm implements Arg.Component {
     select = new Atom<User[]>(this, [this.options[2]]);
     date = new Atom<Date>(this, new Date());
 
+    picker = new Atom<Arg.TreeItem>(this, null);
+
+    componentDidMount(){
+        glob.picker = this.picker.get().component;
+    }
+
     render() {
         var condItem = {name: "Condition"};
         //this.select.set(options);
         return Arg.root('',
             d('form', {onsubmit: ()=>false},
-                new Arg.DatePicker({model: this.date}),
+                new Arg.DatePicker({model: this.date}, {self: this.picker}),
                 new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
                 new Arg.Checkbox({label: "Multiple", value: true, model: this.multiple}),
                 new Arg.Checkbox({label: "Required", value: true, model: this.required}),
@@ -55,4 +62,4 @@ class TestForm implements Arg.Component {
 }
 
 var testForm = new TestForm();
-Arg.publicRender(document.body, testForm);
+var dom = Arg.publicRender(document.body, testForm);
