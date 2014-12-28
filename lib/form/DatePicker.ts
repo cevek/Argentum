@@ -3,9 +3,9 @@ module Arg {
         model: Atom<Date>;
     }
     export class DatePicker implements Component {
-        inputTree = new Atom<TreeItem>(this, null);
-        calendar = new Atom<TreeItem>(this, null);
-        focused = new Atom(this, false);
+        inputTree = new Atom<TreeItem>(this);
+        calendar = new Atom<TreeItem>(this);
+        focused = new Atom(this, {value: false});
 
         constructor(private params:IDatePicker, private attrs:Attrs = {}) {}
 
@@ -119,7 +119,7 @@ module Arg {
             return new Date(date.setDate(diff));
         }
 
-        private days = new Atom<Date[][]>(this, this.calcDays);
+        private days = new Atom<Date[][]>(this, {getter: this.calcDays});
 
         calcDays() {
             var days:Date[][] = [];
@@ -134,12 +134,12 @@ module Arg {
             return days;
         }
 
-        model: Atom<Date>;
-        constructor(model:Atom<Date>, private attrs:Attrs = {}) {
+        constructor(private model:Atom<Date>, private attrs:Attrs = {}) {
             //console.log("DateCalendar created", this);
+            //this.model = model.proxy(this);
 
             this.modelChanged();
-            this.model = new Atom(this, this.modelChanged).require(model);
+            this.model.addListener(this.modelChanged, null, null, null, this);
         }
 
         modelChanged() {
