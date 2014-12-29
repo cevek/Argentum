@@ -36,6 +36,8 @@ interface IAtom<T> {
     setter?: (atom:Atom<T>)=>void;
     value?: T;
     name?: string;
+    masters?: Atom<Object>[];
+    slaves?: Atom<Object>[];
 }
 
 class Atom<T> {
@@ -65,10 +67,26 @@ class Atom<T> {
         }
 
         if (params) {
-            this._name = name;
+            this._name = params.name;
             this.getterFn = params.getter;
             this.setterFn = params.setter;
             this.value = params.value === null ? void 0 : params.value;
+            /*
+            if (params.masters){
+                this.masters = new Atom.AtomMap<Atom<Object>>();
+                for (var i = 0; i < params.masters.length; i++) {
+                    var master = params.masters[i];
+                    this.addMaster(master);
+                }
+            }
+            if (params.slaves){
+                this.slaves = new Atom.AtomMap<Atom<Object>>();
+                for (var i = 0; i < params.slaves.length; i++) {
+                    var slave = params.slaves[i];
+                    this.slaves.set(slave.id, slave);
+                }
+            }
+            */
         }
     }
 
@@ -116,7 +134,7 @@ class Atom<T> {
         return '<Atom>';
     }
 
-    require(masterAtom:Atom<Object>) {
+    addMaster(masterAtom:Atom<Object>) {
         if (!masterAtom.slaves) {
             masterAtom.slaves = new Atom.AtomMap<Atom<Object>>();
         }
@@ -125,6 +143,7 @@ class Atom<T> {
         }
         masterAtom.slaves.set(this.id, this);
         this.masters.set(masterAtom.id, masterAtom);
+        this.setLevelToMasters(this.level + 1);
         return this;
     }
 
@@ -153,7 +172,7 @@ class Atom<T> {
             this.computing = false;
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
-            return old_value !== this.value;
+            return true;//old_value !== this.value;
         }
         return true;
     }
@@ -274,6 +293,12 @@ class Atom<T> {
                 listener.firstValue = <T>Atom.firstValueObj;
             }
         }
+    }
+
+    addListener2(owner: any, callback: (val: T)=>void){
+        var atom = new Atom(owner, {getter: ()=>{ callback.call(owner, this.get()); return null; }/*, masters: [this]*/, name: this.name + '.listener'});
+        atom.get();
+        return this;
     }
 
     addListener<A1, A2, A3>(fn:AtomListenerCallback<T, A1, A2, A3>,
