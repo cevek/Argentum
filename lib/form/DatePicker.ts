@@ -104,8 +104,6 @@ module Arg {
         static weeks = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         static weekOrder = [1, 2, 3, 4, 5, 6, 0];
 
-        private firstDayOfMonth = new Atom<Date>(this, null);
-
         private currentDay = DatePickerCalendar.getDayInt(new Date());
 
         static getDayInt(date:Date) {
@@ -138,19 +136,24 @@ module Arg {
             //console.log("DateCalendar created", this);
             //this.model = model.proxy(this);
 
-            this.modelChanged();
-            this.model.addListener(this.modelChanged, this);
+            //this.modelChanged();
+            //this.model.addListener2(this, this.modelChanged);
+            //this.model.addListener(this.modelChanged, this);
         }
 
-        modelChanged() {
+        private firstDayOfMonth = new Atom<Date>(this, {getter: this.firstDayOfMonthGetter});
+
+        firstDayOfMonthGetter() {
             var dt = this.model.get();
+            var dd:Date;
             //console.log("Calendar modelChanged", dt);
             if (dt && isFinite(dt.getTime())) {
-                this.firstDayOfMonth.set(new Date(dt.getFullYear(), dt.getMonth(), 1));
+                dd = new Date(dt.getFullYear(), dt.getMonth(), 1);
             }
             else {
-                this.firstDayOfMonth.set(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+                dd = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
             }
+            return dd;
         }
 
         move(pos:number) {
