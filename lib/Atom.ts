@@ -167,14 +167,14 @@ class Atom<T> {
                 throw "cyclic error";
             }
             this.computing = true;
-            var old_value = this.value;
+            //var old_value = this.value;
             this.value = this.getterFn.call(this.owner, this.value);
             this.computing = false;
             this.setLevelToMasters(this.level + 1);
             Atom.lastCalledGetter = temp;
-            return true;//old_value !== this.value;
+            //return true;//old_value !== this.value;
         }
-        return true;
+        //return true;
     }
 
     private callSetter() {
@@ -284,6 +284,8 @@ class Atom<T> {
 
     private callListeners() {
         if (this.listeners) {
+            Atom.debugMode && console.log(this.name + ".listeners");
+
             for (var i = 0; i < this.listeners.length; i++) {
                 var listener = this.listeners[i];
                 if (listener.firstValue !== this.value) {
@@ -428,15 +430,34 @@ class Atom<T> {
         for (var i = 0; i < mt.length; i++) {
             var microtask = mt[i];
             microtask.atom.allocateSlavesToLevels();
+            microtask.atom.callSetter();
+            microtask.atom.callListeners();
+            Atom.updated[microtask.atom.id] = true;
         }
+
         for (var i = Atom.levels.length - 1; i >= 0; i--) {
             if (Atom.levels[i]) {
                 var keys = Object.keys(Atom.levels[i]);
                 for (var j = 0; j < keys.length; j++) {
                     var atom = Atom.levels[i][+keys[j]];
-                    Atom.updated[atom.id] = atom.callGetter();
-                    atom.callListeners();
-                    atom.callSetter();
+
+                    if (atom.masters) {
+                        var allMastersChanged = true;
+                        var masters = Atom.getAtomMapValues(atom.masters);
+                        for (var k = 0; k < masters.length; k++) {
+                            var master = masters[k];
+                            if (!Atom.updated[master.id]) {
+                                allMastersChanged = false;
+                                break;
+                            }
+                        }
+                        if (allMastersChanged) {
+                            Atom.updated[atom.id] = true;
+                            atom.callGetter();
+                            //todo: double call
+                            atom.callListeners();
+                        }
+                    }
                 }
             }
         }
