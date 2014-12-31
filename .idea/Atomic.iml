@@ -18,6 +18,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="karma-jasmine" level="application" />
+    <orderEntry type="library" name="Node.js v0.11.11-nightly-20140110-pre Core Modules" level="application" />
+    <orderEntry type="library" name="karma-jasmine" level="project" />
   </component>
 </module>
