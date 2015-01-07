@@ -1,16 +1,14 @@
-/// <reference path="all.ts"/>
 module wrike {
-    export class TaskList extends Component {
-        private visibleTaskAtoms:ATaskVM[] = [];
+    export class TaskList implements Arg.Component {
+        private visibleTaskAtoms:Atom<TaskVM>[] = [];
         private reUseItemsCount = 20;
         private allDur = 0;
         private allDurLen = 0;
-        allHeight = new Arg.Atomic(0);
+        allHeight = new Atom(0);
 
-        constructor(attrs:IAttrs, private tasks:TaskVM[], private activeTask?:ATask) {
-            super(attrs);
+        constructor(attrs:Arg.Attrs, private tasks:TaskVM[], private activeTask?:Atom<Task>) {
             for (var i = 0; i < this.reUseItemsCount; i++) {
-                this.visibleTaskAtoms[i] = new ATaskVM();
+                this.visibleTaskAtoms[i] = new Atom<TaskVM>(this);
             }
 
             var h = 0;
@@ -40,10 +38,10 @@ module wrike {
             console.log(performance.now() - start);
         }
 
-        template() {
+        render() {
             return Arg.dom('div.tasklist', {onscroll: this.onScroll.bind(this)},
                 Arg.dom('div.wrapper', {style: {height: ()=>this.allHeight.get()}},
-                    Arg.map(this.visibleTaskAtoms, taskAtom=>
+                    Arg.mapRaw(this.visibleTaskAtoms, taskAtom=>
                         new TaskItem(null, taskAtom, this.activeTask))))
         }
     }

@@ -1,15 +1,13 @@
-/// <reference path="all.ts"/>
 module wrike {
-    export class TaskFull extends Component {
-        constructor(attrs:IAttrs, private task:ATask) {
-            super(attrs);
+    export class TaskFull implements Arg.Component {
+        constructor(attrs:Arg.Attrs, private task:Atom<Task>) {
         }
 
         setComplete() {
             this.task.get().completed = !this.task.get().completed;
         }
 
-        template() {
+        render() {
 
             return Arg.dom('div.full-task', null, [
                 Arg.dom('div.id', null, 'ID: ', ()=>this.task.get().id),
@@ -18,13 +16,13 @@ module wrike {
                 Arg.dom('label', null,
                     Arg.dom('input', {
                         type: "checkbox",
-                        checked: new Arg.Atomic(v=>this.task.get().completed),
+                        checked: new Atom(()=>this.task.get().completed),
                         onclick: ()=>this.setComplete()
                     }),
-                    v=>this.task.get().completed ? 'Completed' : 'Complete'
+                    ()=>this.task.get().completed ? 'Completed' : 'Complete'
                 ),
-                Arg.map(()=>this.task.get().subtasks, subtask=>
-                    new TaskItem(null, new ATaskVM(new TaskVM(subtask)), this.task))
+                Arg.mapRaw(this.task.get().subtasks, subtask=>
+                    new TaskItem(null, new Atom(this, {value: new TaskVM(subtask)}), this.task))
             ])
         }
 

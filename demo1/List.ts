@@ -1,13 +1,11 @@
-/// <reference path="all.ts"/>
 var glob:any = {};
 module wrike {
-    export class List extends Component {
-        activeTask = new ATask(new Task());
+    export class List implements Arg.Component {
+        activeTask = new Atom(this, {value: new Task()});
 
         tasks:TaskVM[] = [];
 
-        constructor(attrs?:IAttrs) {
-            super(attrs);
+        constructor(attrs?:Arg.Attrs) {
             glob.tasks = this.tasks;
             for (var i = 0; i < 1000; i++) {
 
@@ -24,7 +22,7 @@ module wrike {
             }
         }
 
-        template() {
+        render() {
             return Arg.dom('div.list', null,
                 new TaskList(null, this.tasks, this.activeTask),
                 new TaskFull(null, this.activeTask));
