@@ -38,24 +38,24 @@ module Arg {
         tree.removed = true;
         if (tree.node) {
             if (isRoot) {
-                if (tree.attrs && tree.node && tree.attrs.animation && tree.type == TreeType.TAG) {
-                    console.log("Run animation");
-
+                if (tree.attrs && tree.attrs.animation && tree.type == TreeType.TAG) {
+                    console.log("Run animation leave");
                     var animationClass = tree.attrs.animation;
-                    tree.attrs.animation = '';
                     var node = <HTMLElement>tree.node;
                     node.className = node.className || '';
                     node.className += ' ' + animationClass + ' leave';
-                    node.style.width; // reflow
+                    var w = node.style.width; // reflow
                     node.className += ' leave-active';
                     var parentNode = tree.parentNode;
                     var style = window.getComputedStyle(node);
                     if (parseInt(style.transitionDuration)) {
-                        node.addEventListener('transitionend', ()=> {
-                            console.log("Animation end");
+                        var callback = ()=> {
+                            console.log("Animation leave end");
                             node.className = node.className.replace(' ' + animationClass + ' leave leave-active', '');
+                            node.removeEventListener('transitionend', callback);
                             parentNode.removeChild(node);
-                        })
+                        };
+                        node.addEventListener('transitionend', callback)
                     }
                     else {
                         node.className = node.className.replace(' ' + animationClass + ' leave', '');
