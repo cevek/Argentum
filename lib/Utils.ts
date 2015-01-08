@@ -38,19 +38,21 @@ module Arg {
         tree.removed = true;
         if (tree.node) {
             if (isRoot) {
+                //todo: remove component html listeners before
                 if (tree.attrs && tree.attrs.animation && tree.type == TreeType.TAG) {
-                    console.log("Run animation leave");
+                    //console.log("Run animation leave");
                     var animationClass = tree.attrs.animation;
                     var node = <HTMLElement>tree.node;
                     node.className = node.className || '';
                     node.className += ' ' + animationClass + ' leave';
-                    var w = node.style.width; // reflow
+                    var style = window.getComputedStyle(node);
+                    //noinspection BadExpressionStatementJS
+                    style.width; // reflow
                     node.className += ' leave-active';
                     var parentNode = tree.parentNode;
-                    var style = window.getComputedStyle(node);
-                    if (parseInt(style.transitionDuration)) {
+                    if (parseFloat(style.transitionDuration)) {
                         var callback = ()=> {
-                            console.log("Animation leave end");
+                            //console.log("Animation leave end");
                             node.className = node.className.replace(' ' + animationClass + ' leave leave-active', '');
                             node.removeEventListener('transitionend', callback);
                             parentNode.removeChild(node);

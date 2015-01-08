@@ -12,6 +12,29 @@ module Arg {
         renderAttrs(tree);
 
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
+        if (tree.attrs && tree.attrs.animation && tree.type == TreeType.TAG) {
+            //console.log("Run animation enter");
+            var animationClass = tree.attrs.animation;
+            var node = <HTMLElement>tree.node;
+            node.className = node.className || '';
+            node.className += ' ' + animationClass + ' enter';
+            var style = window.getComputedStyle(node);
+            //noinspection BadExpressionStatementJS
+            style.width;//reflow
+            node.className += ' enter-active';
+            if (parseFloat(style.transitionDuration)) {
+                var callback = ()=> {
+                    //console.log("Animation enter end");
+                    node.className = node.className.replace(' ' + animationClass + ' enter enter-active', '');
+                    node.removeEventListener('transitionend', callback);
+                };
+                node.addEventListener('transitionend', callback)
+            }
+            else {
+                node.className = node.className.replace(' ' + animationClass + ' enter', '');
+            }
+        }
+
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
                 tree.children[i].parentNode = tree.node;
