@@ -90,7 +90,7 @@ module Arg {
                 //new DatePickerCalendar(this.params.model),
 
                 when(this.focused,
-                    ()=>new DatePickerCalendar(this.params.model, {self: this.calendar}))
+                    ()=>new DatePickerCalendar(this.params.model, {self: this.calendar, animation: 'animation'}))
             );
         }
     }
