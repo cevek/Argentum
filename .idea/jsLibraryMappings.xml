@@ -2,6 +2,7 @@
 <project version="4">
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$/lib/test" libraries="{karma-jasmine}" />
+    <file url="file://$PROJECT_DIR$/watcher" libraries="{Node.js Globals, Node.js v0.10.18 Core Modules, Node.js v0.11.11-nightly-20140110-pre Core Modules}" />
     <file url="PROJECT" libraries="{karma-jasmine}" />
   </component>
 </project>
