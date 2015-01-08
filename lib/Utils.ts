@@ -12,17 +12,22 @@ module Arg {
     export function removeTreeChildren(tree:TreeItem) {
         if (tree && tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
-                removeTree(tree.children[i]);
+                removeTree(tree.children[i], true);
             }
             tree.children = null;
         }
     }
 
     //TODO: remove only Arg and this component atoms
-    export function removeTree(tree:TreeItem) {
+    export function removeTree(tree:TreeItem, isRoot = false) {
         if (!tree) {
             return;
         }
+
+        if (tree.attrs && tree.attrs.animation) {
+            console.log(tree);
+        }
+
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
                 removeTree(tree.children[i]);
@@ -32,7 +37,35 @@ module Arg {
 
         tree.removed = true;
         if (tree.node) {
-            tree.node.parentNode.removeChild(tree.node);
+            if (isRoot) {
+                if (tree.attrs && tree.node && tree.attrs.animation && tree.type == TreeType.TAG) {
+                    console.log("Run animation");
+
+                    var animationClass = tree.attrs.animation;
+                    tree.attrs.animation = '';
+                    var node = <HTMLElement>tree.node;
+                    node.className = node.className || '';
+                    node.className += ' ' + animationClass + ' leave';
+                    node.style.width; // reflow
+                    node.className += ' leave-active';
+                    var parentNode = tree.parentNode;
+                    var style = window.getComputedStyle(node);
+                    if (parseInt(style.transitionDuration)) {
+                        node.addEventListener('transitionend', ()=> {
+                            console.log("Animation end");
+                            node.className = node.className.replace(' ' + animationClass + ' leave leave-active', '');
+                            parentNode.removeChild(node);
+                        })
+                    }
+                    else {
+                        node.className = node.className.replace(' ' + animationClass + ' leave', '');
+                        parentNode.removeChild(node);
+                    }
+                }
+                else {
+                    tree.node.parentNode.removeChild(tree.node);
+                }
+            }
             tree.node = null;
         }
         tree.nodeBefore = null;
@@ -81,14 +114,14 @@ module Arg {
 
         if (tree.component) {
             if (tree.component.atoms) {
-                console.log(tree.component.atoms);
+                //console.log(tree.component.atoms);
 
                 for (var i = 0; i < tree.component.atoms.length; i++) {
                     tree.component.atoms[i].destroy();
                 }
             }
             if (tree.component.listeners) {
-                console.log(tree.component.listeners);
+                //console.log(tree.component.listeners);
 
                 for (var i = 0; i < tree.component.listeners.length; i++) {
                     tree.component.listeners[i].atom.removeListener(tree.component.listeners[i].callback, tree.component.listeners[i].thisArg);

@@ -11,6 +11,7 @@ module Arg {
 
     export interface Attrs {
         [key:string]: any;
+        animation?: string;
 
         baseClassName?: any;
         classSet?: {[className: string]: any};
