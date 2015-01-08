@@ -3,7 +3,7 @@
 class User {
     name:string;
 }
-var glob: any = {};
+var glob:any = {};
 class TestForm implements Arg.Component {
     input = new Atom(this, {value: 'input'});
     checkbox = new Atom(this, {value: 'yes'});
@@ -17,7 +17,7 @@ class TestForm implements Arg.Component {
 
     picker = new Atom<Arg.TreeItem>(this);
 
-    componentDidMount(){
+    componentDidMount() {
         glob.picker = this.picker.get().component;
     }
 
@@ -61,5 +61,42 @@ class TestForm implements Arg.Component {
     }
 }
 
+class Bench implements Arg.Component {
+
+    atoms:Atom<number>[] = [];
+
+    click() {
+        var start = Math.random() * 1000 | 0;
+        for (var i = 0; i < 10000; i++) {
+            this.atoms[i].set(start + i);
+        }
+        //console.profile('click');
+        console.time('click');
+        setTimeout(function () {
+            console.timeEnd('click');
+            //console.profileEnd('click');
+        });
+    }
+
+    render() {
+        var rows:number[] = [];
+        for (var i = 0; i < 10000; i++) {
+            rows[i] = i;
+            this.atoms[i] = new Atom<number>(this);
+        }
+        return Arg.root('',
+            Arg.dom('button', {onclick: ()=>this.click()}, 'click'),
+            Arg.dom('ul', {style: {display: 'none'}},
+                Arg.mapRaw(rows, (row, i)=>Arg.dom('li', 'item ' + row + ' ', this.atoms[i]))))
+    }
+}
+
+Atom.debugMode = false;
 var testForm = new TestForm();
 var dom = Arg.publicRender(document.body, testForm);
+
+/*
+var bench = new Bench();
+console.time('perf');
+var dom = Arg.publicRender(document.body, bench);
+console.timeEnd('perf');*/
