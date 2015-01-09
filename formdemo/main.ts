@@ -4,16 +4,17 @@ class User {
     name:string;
 }
 var glob:any = {};
+
 class TestForm implements ag.Component {
-    input = new Atom(this, {value: 'input'});
-    checkbox = new Atom(this, {value: 'yes'});
-    required = new Atom(this, {value: true});
-    multiple = new Atom(this, {value: true});
+    input = Atom.source(this, 'input');
+    checkbox = Atom.source(this, 'yes');
+    required = Atom.source(this, true);
+    multiple = Atom.source(this, true);
 
     options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
     //select = new Atom<User[]>(this, {name: 'select', value: []});
-    select = new Atom<User[]>(this, {value: [this.options[2]]});
-    date = new Atom<Date>(this, {value: new Date()});
+    select = Atom.source<User[]>(this, [this.options[2]]);
+    date = Atom.source(this, new Date());
 
     picker = new Atom<ag.TreeItem>(this);
 
@@ -40,8 +41,8 @@ class TestForm implements ag.Component {
                     null,
                     ag.dom('option', {argDefault: true}, 'None'),
                     ag.dom('optgroup', {label: 'Lbl'},
-                        ()=>this.checkbox.get() ?
-                            ag.dom('option', {argValue: condItem}, condItem.name) : null,
+                        ag.when(this.checkbox, ()=>
+                            ag.dom('option', {argValue: condItem}, condItem.name)),
 
                         ag.mapRaw(this.options, option =>
                             ag.dom('option', {argValue: option}, option.name))
@@ -96,7 +97,7 @@ var testForm = new TestForm();
 var dom = ag.publicRender(document.body, testForm);
 
 /*
-var bench = new Bench();
-console.time('perf');
-var dom = ag.publicRender(document.body, bench);
-console.timeEnd('perf');*/
+ var bench = new Bench();
+ console.time('perf');
+ var dom = ag.publicRender(document.body, bench);
+ console.timeEnd('perf');*/
