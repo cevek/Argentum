@@ -17,10 +17,10 @@ module ag {
             var animationClass = tree.attrs.animation;
             var node = <HTMLElement>tree.node;
             node.className = node.className || '';
-            node.className += ' ' + animationClass + ' arg-enter';
+            node.className += ' ' + animationClass + ' ag-enter';
             //noinspection BadExpressionStatementJS
             node.offsetHeight;//reflow
-            node.className += ' arg-enter-active';
+            node.className += ' ag-enter-active';
             var style = window.getComputedStyle(node);
 
             var props = style.transitionProperty.split(', ');
@@ -41,14 +41,14 @@ module ag {
                 var callback = (e: TransitionEvent)=> {
                     if (e.propertyName === prop) {
                         //console.log("Animation enter end");
-                        node.className = node.className.replace(' ' + animationClass + ' arg-enter arg-enter-active', '');
+                        node.className = node.className.replace(' ' + animationClass + ' ag-enter ag-enter-active', '');
                         node.removeEventListener('transitionend', callback);
                     }
                 };
                 node.addEventListener('transitionend', callback)
             }
             else {
-                node.className = node.className.replace(' ' + animationClass + ' arg-enter', '');
+                node.className = node.className.replace(' ' + animationClass + ' ag-enter', '');
             }
         }
 

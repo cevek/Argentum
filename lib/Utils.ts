@@ -44,12 +44,12 @@ module ag {
                     var animationClass = tree.attrs.animation;
                     var node = <HTMLElement>tree.node;
                     node.className = node.className || '';
-                    node.className = node.className.replace(' arg-enter', '');
-                    node.className = node.className.replace(' arg-enter-active', '');
-                    node.className += ' ' + animationClass + ' arg-leave';
+                    node.className = node.className.replace(' ag-enter', '');
+                    node.className = node.className.replace(' ag-enter-active', '');
+                    node.className += ' ' + animationClass + ' ag-leave';
                     //noinspection BadExpressionStatementJS
                     node.offsetHeight; // reflow
-                    node.className += ' arg-leave-active';
+                    node.className += ' ag-leave-active';
                     var parentNode = tree.parentNode;
                     var style = window.getComputedStyle(node);
                     var props = style.transitionProperty.split(', ');
@@ -70,7 +70,7 @@ module ag {
                         var callback = (e: TransitionEvent)=> {
                             if (e.propertyName === prop) {
                                 //console.log("Animation leave end");
-                                node.className = node.className.replace(' ' + animationClass + ' arg-leave arg-leave-active', '');
+                                node.className = node.className.replace(' ' + animationClass + ' ag-leave ag-leave-active', '');
                                 node.removeEventListener('transitionend', callback);
                                 parentNode.removeChild(node);
                             }
@@ -78,7 +78,7 @@ module ag {
                         node.addEventListener('transitionend', callback)
                     }
                     else {
-                        node.className = node.className.replace(' ' + animationClass + ' arg-leave', '');
+                        node.className = node.className.replace(' ' + animationClass + ' ag-leave', '');
                         parentNode.removeChild(node);
                     }
                 }
