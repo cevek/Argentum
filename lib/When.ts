@@ -3,9 +3,9 @@ module ag {
         (): TreeItem;
     }
 
-    export function when(condition:Atom<any>, callback:any):TreeItem;
-    export function when(condition:()=>any, callback:any):TreeItem;
-    export function when(condition:any, callback:any):TreeItem {
+    export function when(condition:Atom<any>, callback:()=>any):TreeItem;
+    export function when(condition:()=>any, callback:()=>any):TreeItem;
+    export function when(condition:any, callback:()=>any):TreeItem {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
             var getter:IAtomGetter<any> = condition;
