@@ -86,6 +86,14 @@ module Arg {
                     tree.node.parentNode.removeChild(tree.node);
                 }
             }
+
+            if (tree.attrs){
+                for (var key in tree.attrs){
+                    if (key.substr(0,2) === 'on'){
+                        tree.node[key] = null;
+                    }
+                }
+            }
             tree.node = null;
         }
         tree.nodeBefore = null;
