@@ -9,10 +9,10 @@ module ag {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
             var getter:IAtomGetter<any> = condition;
-            atomCondition = new Atom<any>(ag, {getter: getter, name: 'whenCondition'});
+            atomCondition = new Atom<any>(ag, getter, {name: 'whenCondition'});
         }
         else if (condition.constructor !== Atom) {
-            atomCondition = new Atom<any>(ag, {value: condition, name: 'whenCondition'});
+            atomCondition = new Atom<any>(ag, null, {value: condition, name: 'whenCondition'});
         }
 
         var child = atomCondition.get() ? convertToTree(callback()) : null;

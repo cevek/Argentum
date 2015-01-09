@@ -165,7 +165,7 @@ module ag {
             var constructor = val.constructor;
             if (constructor === Function) {
                 var getter:IAtomGetter<any> = val;
-                val = new Atom<any>(ag, {getter: getter, name: 'atom'});
+                val = new Atom<any>(ag, getter, {name: 'atom'});
                 constructor = Atom;
             }
             if (constructor === Atom) {

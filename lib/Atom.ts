@@ -40,13 +40,6 @@ interface IAtom<T> {
     slaves?: Atom<Object>[];
 }
 
-
-class AtomSource<T> extends Atom<T>{
-    constructor(owner: any, value?: T, params: IAtom<T> = {}){
-        params.value = value;
-        super(owner, null, params);
-    }
-}
 class Atom<T> {
     static debugMode = true;
     private static lastId = 0;
@@ -59,13 +52,18 @@ class Atom<T> {
     private _name:string;
     private owner:any;
 
+    static source<T>(owner:any, value?:T, params:IAtom<T> = {}):Atom<T> {
+        params.value = value;
+        return new Atom(owner, null, params);
+    }
+
     private computing:boolean = false;
     private slaves:Atom.AtomMap<Atom<Object>>;
     private masters:Atom.AtomMap<Atom<Object>>;
     private listeners:AtomListeners<T, Object, Object, Object>[] = [];
 
     //constructor(getterFn?:(atom:Atom<T>)=>void, setterFn?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:any, getter?: (prevValue:T)=>T, params?:IAtom<T>) {
+    constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>) {
         this.id = ++Atom.lastId;
         this.owner = owner;
         if (owner) {
@@ -79,33 +77,33 @@ class Atom<T> {
             this.setterFn = params.setter;
             this.value = params.value === null ? void 0 : params.value;
             /*
-            if (params.masters){
-                this.masters = new Atom.AtomMap<Atom<Object>>();
-                for (var i = 0; i < params.masters.length; i++) {
-                    var master = params.masters[i];
-                    this.addMaster(master);
-                }
-            }
-            if (params.slaves){
-                this.slaves = new Atom.AtomMap<Atom<Object>>();
-                for (var i = 0; i < params.slaves.length; i++) {
-                    var slave = params.slaves[i];
-                    this.slaves.set(slave.id, slave);
-                }
-            }
-            */
+             if (params.masters){
+             this.masters = new Atom.AtomMap<Atom<Object>>();
+             for (var i = 0; i < params.masters.length; i++) {
+             var master = params.masters[i];
+             this.addMaster(master);
+             }
+             }
+             if (params.slaves){
+             this.slaves = new Atom.AtomMap<Atom<Object>>();
+             for (var i = 0; i < params.slaves.length; i++) {
+             var slave = params.slaves[i];
+             this.slaves.set(slave.id, slave);
+             }
+             }
+             */
         }
     }
 
-/*    proxy(owner:any) {
-        return new Atom<T>(owner, {
-            getter: ()=>this.get(),
-            setter: (atom)=> {
-                this.set(atom.value)
-            },
-            name: this.name + 'Proxy'
-        });
-    }*/
+    /*    proxy(owner:any) {
+     return new Atom<T>(owner, {
+     getter: ()=>this.get(),
+     setter: (atom)=> {
+     this.set(atom.value)
+     },
+     name: this.name + 'Proxy'
+     });
+     }*/
 
     get name() {
         if (this.owner) {
@@ -304,11 +302,13 @@ class Atom<T> {
         }
     }
 
-   /* addListener2(owner: any, callback: (val: T)=>void){
-        var atom = new Atom(owner, {getter: ()=>{ callback.call(owner, this.get()); return null; }*//*, masters: [this]*//*, name: this.name + '.listener'});
-        atom.get();
-        return this;
-    }*/
+    /* addListener2(owner: any, callback: (val: T)=>void){
+     var atom = new Atom(owner, {getter: ()=>{ callback.call(owner, this.get()); return null; }*/
+    /*, masters: [this]*/
+    /*, name: this.name + '.listener'});
+     atom.get();
+     return this;
+     }*/
 
     addListener<A1, A2, A3>(fn:AtomListenerCallback<T, A1, A2, A3>,
                             thisArg?:any/*checked*/,

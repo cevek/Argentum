@@ -5,7 +5,7 @@ module ag {
     export class DatePicker implements Component {
         inputTree = new Atom<TreeItem>(this);
         calendar = new Atom<TreeItem>(this);
-        focused = new Atom(this, {value: false});
+        focused = Atom.source(this, false);
 
         constructor(private params:IDatePicker, private attrs:Attrs = {}) {}
 
@@ -117,7 +117,7 @@ module ag {
             return new Date(date.setDate(diff));
         }
 
-        private days = new Atom<Date[][]>(this, {getter: this.calcDays});
+        private days = new Atom<Date[][]>(this, this.calcDays);
 
         calcDays() {
             var days:Date[][] = [];
@@ -141,7 +141,7 @@ module ag {
             //this.model.addListener(this.modelChanged, this);
         }
 
-        private firstDayOfMonth = new Atom<Date>(this, {getter: this.firstDayOfMonthGetter});
+        private firstDayOfMonth = new Atom<Date>(this, this.firstDayOfMonthGetter);
 
         firstDayOfMonthGetter() {
             var dt = this.model.get();
