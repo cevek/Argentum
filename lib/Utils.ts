@@ -44,23 +44,41 @@ module Arg {
                     var animationClass = tree.attrs.animation;
                     var node = <HTMLElement>tree.node;
                     node.className = node.className || '';
-                    node.className += ' ' + animationClass + ' leave';
-                    var style = window.getComputedStyle(node);
+                    node.className = node.className.replace(' arg-enter', '');
+                    node.className = node.className.replace(' arg-enter-active', '');
+                    node.className += ' ' + animationClass + ' arg-leave';
                     //noinspection BadExpressionStatementJS
-                    style.width; // reflow
-                    node.className += ' leave-active';
+                    node.offsetHeight; // reflow
+                    node.className += ' arg-leave-active';
                     var parentNode = tree.parentNode;
-                    if (parseFloat(style.transitionDuration)) {
-                        var callback = ()=> {
-                            //console.log("Animation leave end");
-                            node.className = node.className.replace(' ' + animationClass + ' leave leave-active', '');
-                            node.removeEventListener('transitionend', callback);
-                            parentNode.removeChild(node);
+                    var style = window.getComputedStyle(node);
+                    var props = style.transitionProperty.split(', ');
+                    var durs = style.transitionDuration.split(', ');
+                    var delays = style.transitionDelay.split(', ');
+                    var maxDur = 0;
+                    var prop = '';
+                    for (var i = 0; i < props.length; i++) {
+                        var dur = parseFloat(durs[i]) + parseFloat(delays[i]);
+                        if (dur > maxDur){
+                            maxDur = dur;
+                            prop = props[i];
+                        }
+                    }
+                    //console.log(style.transitionDuration, style.transitionProperty, style.transitionDelay);
+                    //console.log(maxDur, prop);
+                    if (maxDur > 0) {
+                        var callback = (e: TransitionEvent)=> {
+                            if (e.propertyName === prop) {
+                                //console.log("Animation leave end");
+                                node.className = node.className.replace(' ' + animationClass + ' arg-leave arg-leave-active', '');
+                                node.removeEventListener('transitionend', callback);
+                                parentNode.removeChild(node);
+                            }
                         };
                         node.addEventListener('transitionend', callback)
                     }
                     else {
-                        node.className = node.className.replace(' ' + animationClass + ' leave', '');
+                        node.className = node.className.replace(' ' + animationClass + ' arg-leave', '');
                         parentNode.removeChild(node);
                     }
                 }

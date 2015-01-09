@@ -17,21 +17,38 @@ module Arg {
             var animationClass = tree.attrs.animation;
             var node = <HTMLElement>tree.node;
             node.className = node.className || '';
-            node.className += ' ' + animationClass + ' enter';
-            var style = window.getComputedStyle(node);
+            node.className += ' ' + animationClass + ' arg-enter';
             //noinspection BadExpressionStatementJS
-            style.width;//reflow
-            node.className += ' enter-active';
-            if (parseFloat(style.transitionDuration)) {
-                var callback = ()=> {
-                    //console.log("Animation enter end");
-                    node.className = node.className.replace(' ' + animationClass + ' enter enter-active', '');
-                    node.removeEventListener('transitionend', callback);
+            node.offsetHeight;//reflow
+            node.className += ' arg-enter-active';
+            var style = window.getComputedStyle(node);
+
+            var props = style.transitionProperty.split(', ');
+            var durs = style.transitionDuration.split(', ');
+            var delays = style.transitionDelay.split(', ');
+            var maxDur = 0;
+            var prop = '';
+            for (var i = 0; i < props.length; i++) {
+                var dur = parseFloat(durs[i]) + parseFloat(delays[i]);
+                if (dur > maxDur){
+                    maxDur = dur;
+                    prop = props[i];
+                }
+            }
+            //console.log(style.transitionDuration, style.transitionProperty, style.transitionDelay);
+            //console.log(maxDur, prop);
+            if (maxDur > 0) {
+                var callback = (e: TransitionEvent)=> {
+                    if (e.propertyName === prop) {
+                        //console.log("Animation enter end");
+                        node.className = node.className.replace(' ' + animationClass + ' arg-enter arg-enter-active', '');
+                        node.removeEventListener('transitionend', callback);
+                    }
                 };
                 node.addEventListener('transitionend', callback)
             }
             else {
-                node.className = node.className.replace(' ' + animationClass + ' enter', '');
+                node.className = node.className.replace(' ' + animationClass + ' arg-enter', '');
             }
         }
 
