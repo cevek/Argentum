@@ -22,7 +22,7 @@ module wrike {
                     ()=>this.task.get().completed ? 'Completed' : 'Complete'
                 ),
                 ag.mapRaw(this.task.get().subtasks, subtask=>
-                    new TaskItem(null, new Atom(this, {value: new TaskVM(subtask)}), this.task))
+                    new TaskItem(null, Atom.source(this,new TaskVM(subtask)), this.task))
             ])
         }
 
