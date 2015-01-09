@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface ITreeItem {
         [idx: string]: any;
         type:TreeType;

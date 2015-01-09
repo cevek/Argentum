@@ -13,9 +13,9 @@
 /// <reference path="form/Select.ts"/>
 /// <reference path="form/DatePicker.ts"/>
 
-module Arg {
+module ag {
     export var enableAtoms = true;
-    export var ns = ()=>Arg;
+    export var ns = ()=>ag;
 
     export var cssDom:HTMLStyleElement = null;
     export var createdCSSRules:{[idx: string]: boolean} = {};
@@ -82,7 +82,5 @@ module Arg {
         return dom.apply(null, children);
     }
 }
-
-import d = Arg.dom;
 
 

@@ -1,4 +1,4 @@
-module Arg {
+module ag {
 
     export function renderTag(tree:TreeItem) {
         //todo: do it to all cases
@@ -71,7 +71,7 @@ module Arg {
         tree.node = domNode;
         domNode.textContent = tree.value === void 0 ? '' : tree.value;
         if (tree.atom){
-            tree.atom.addListener(renderTextListener, Arg, tree);
+            tree.atom.addListener(renderTextListener, ag, tree);
         }
     }
 

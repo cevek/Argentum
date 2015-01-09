@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface IWhenCallback {
         (): TreeItem;
     }
@@ -9,10 +9,10 @@ module Arg {
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
             var getter:IAtomGetter<any> = condition;
-            atomCondition = new Atom<any>(Arg, {getter: getter, name: 'whenCondition'});
+            atomCondition = new Atom<any>(ag, {getter: getter, name: 'whenCondition'});
         }
         else if (condition.constructor !== Atom) {
-            atomCondition = new Atom<any>(Arg, {value: condition, name: 'whenCondition'});
+            atomCondition = new Atom<any>(ag, {value: condition, name: 'whenCondition'});
         }
 
         var child = atomCondition.get() ? convertToTree(callback()) : null;
@@ -33,8 +33,8 @@ module Arg {
             tree.children[0].nodeBefore = tree.node;
             render(tree.children[0]);
         }
-        if (Arg.enableAtoms) {
-            tree.whenCondition.addListener(renderWhenListener, Arg, tree);
+        if (ag.enableAtoms) {
+            tree.whenCondition.addListener(renderWhenListener, ag, tree);
         }
     }
 

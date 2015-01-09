@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface IFormElement {
         label: any;
         labelAttrs?: Attrs;

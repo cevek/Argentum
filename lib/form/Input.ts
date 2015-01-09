@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface IInput {
         model: Atom<string>;
         required?: any;
@@ -49,7 +49,7 @@ module Arg {
 
         render() {
             return root('', this.attrs,
-                d('label', this.params.labelAttrs, this.params.label, ":"),
+                dom('label', this.params.labelAttrs, this.params.label, ":"),
                 new Input(this.params, this.params.inputAttrs)
             );
         }

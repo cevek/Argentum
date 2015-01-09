@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface IDatePicker {
         model: Atom<Date>;
     }

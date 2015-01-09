@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface CSSProperties {
         [prop:string]: any;
         display?: any;

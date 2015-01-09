@@ -1,4 +1,4 @@
-module Arg {
+module ag {
 
     /*
      *===========================
@@ -31,7 +31,7 @@ module Arg {
     export function prepareAttr(tree:TreeItem, attr:string) {
         if (tree.attrs[attr] && tree.attrs[attr].constructor === Function && attr.substr(0, 2) !== 'on') {
             var getter:IAtomGetter<any> = tree.attrs[attr];
-            tree.attrs[attr] = new Atom(Arg, {getter: getter, name: 'attr'});
+            tree.attrs[attr] = new Atom(ag, {getter: getter, name: 'attr'});
         }
         if (tree.attrs[attr] && tree.attrs[attr].constructor === Atom) {
             var atom:Atom<any> = tree.attrs[attr];
@@ -68,8 +68,8 @@ module Arg {
         }
         else {
             renderAttrAtomListener(tree.attrs[attr], tree, attr);
-            if (tree.attrsAtoms && tree.attrsAtoms[attr] && Arg.enableAtoms) {
-                tree.attrsAtoms[attr].addListener(renderAttrAtomListener, Arg, tree, attr);
+            if (tree.attrsAtoms && tree.attrsAtoms[attr] && ag.enableAtoms) {
+                tree.attrsAtoms[attr].addListener(renderAttrAtomListener, ag, tree, attr);
             }
         }
     }
@@ -92,7 +92,7 @@ module Arg {
         for (var styleName in styles) {
             if (styles[styleName] && styles[styleName].constructor === Function) {
                 var getter:IAtomGetter<any> = styles[styleName];
-                styles[styleName] = new Atom(Arg, {getter: getter, name: 'style'});
+                styles[styleName] = new Atom(ag, {getter: getter, name: 'style'});
             }
             if (styles[styleName] && styles[styleName].constructor === Atom) {
                 var atom:Atom<any> = styles[styleName];
@@ -108,8 +108,8 @@ module Arg {
         //tree.node['style'][styleName] = styleCompleter(styleName, tree.attrs['style'][styleName]);
         applyStyleListener(tree.attrs['style'][styleName], tree, styleName);
 
-        if (tree.styleAtoms && tree.styleAtoms[styleName] && Arg.enableAtoms) {
-            tree.styleAtoms[styleName].addListener(applyStyleListener, Arg, tree, styleName);
+        if (tree.styleAtoms && tree.styleAtoms[styleName] && ag.enableAtoms) {
+            tree.styleAtoms[styleName].addListener(applyStyleListener, ag, tree, styleName);
         }
     }
 
@@ -140,7 +140,7 @@ module Arg {
         for (var i in classSet) {
             if (classSet[i] && classSet[i].constructor === Function) {
                 var getter = <IAtomGetter<any>>classSet[i];
-                classSet[i] = new Atom(Arg, {getter: getter, name: 'classSetItem'});
+                classSet[i] = new Atom(ag, {getter: getter, name: 'classSetItem'});
             }
             if (classSet[i] && classSet[i].constructor === Atom) {
                 var atom:Atom<any> = classSet[i];
@@ -158,8 +158,8 @@ module Arg {
 
     export function renderClassSet(tree:TreeItem, className:string) {
         //console.log(className, "changed", tree.classSetAtoms[className]);
-        if (Arg.enableAtoms) {
-            tree.classSetAtoms[className].addListener(classSetAtomListener, Arg, tree, className);
+        if (ag.enableAtoms) {
+            tree.classSetAtoms[className].addListener(classSetAtomListener, ag, tree, className);
         }
     }
 

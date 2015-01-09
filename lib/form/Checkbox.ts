@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface ICheckbox<T> extends IFormElement {
         model: Atom<T>;
         value: T;

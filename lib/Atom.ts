@@ -255,7 +255,7 @@ class Atom<T> {
     }
 
     private debugInfo(depth:number) {
-        if (this.owner !== Arg && Atom.updated[this.id]) {
+        if (this.owner !== ag && Atom.updated[this.id]) {
             var tt = typeof this.value;
             if (Atom.debugVisibled[this.id]) {
                 console.log(Atom.depthSpaces(depth) + '' + this.name + ' ^');

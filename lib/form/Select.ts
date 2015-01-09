@@ -1,4 +1,4 @@
-module Arg {
+module ag {
     export interface ISelect<T> {
         model?: Atom<T>;
         modelMultiple?: Atom<T[]>;
@@ -46,7 +46,7 @@ module Arg {
                     }
                 }
                 if (treeItem.type === TreeType.WHEN) {
-                    Select.debug && console.log("Arg.Select.whenCondition listener");
+                    Select.debug && console.log("ag.Select.whenCondition listener");
                     treeItem.whenCondition.addListener(this.childrenAtomChanged, this);
                 }
             });
@@ -148,7 +148,7 @@ module Arg {
 
         render() {
             return root('', this.attrs,
-                d('label', this.params.labelAttrs, this.params.label, ":"),
+                dom('label', this.params.labelAttrs, this.params.label, ":"),
                 new Select(this.params, this.params.selectAttrs, this.children)
             );
         }

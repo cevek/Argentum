@@ -1,4 +1,4 @@
-module Arg {
+module ag {
 
     export function traverseTree(startTree:TreeItem, callback:(tree:TreeItem)=>any) {
         if (startTree.children) {
@@ -18,7 +18,7 @@ module Arg {
         }
     }
 
-    //TODO: remove only Arg and this component atoms
+    //TODO: remove only ag and this component atoms
     export function removeTree(tree:TreeItem, isRoot = false) {
         if (!tree) {
             return;
@@ -165,7 +165,7 @@ module Arg {
             var constructor = val.constructor;
             if (constructor === Function) {
                 var getter:IAtomGetter<any> = val;
-                val = new Atom<any>(Arg, {getter: getter, name: 'atom'});
+                val = new Atom<any>(ag, {getter: getter, name: 'atom'});
                 constructor = Atom;
             }
             if (constructor === Atom) {
