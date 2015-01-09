@@ -58,7 +58,7 @@ function toCamelCase(s) {
 }
 function parseTag(data) {
 
-    var startS = "Arg.dom('" + data.name + "', ";
+    var startS = "ag.dom('" + data.name + "', ";
     var attrs = '{';
     var len = 0;
     for (var i in data.attribs) {

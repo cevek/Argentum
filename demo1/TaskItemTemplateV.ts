@@ -1,6 +1,6 @@
 module wrike {
     export function TaskItemTemplate(vm:TaskItem) {
-        return Arg.dom('div.task', {
+        return ag.dom('div.task', {
                 onclick: ()=>vm.clickTask(),
                 classSet: {
                     active: ()=>vm.activeTask.get() === vm.task.get().task,
@@ -11,7 +11,7 @@ module wrike {
                     top: ()=>vm.task.get().top
                 }
             },
-            Arg.dom('div.summary', null, v=>vm.task.get().task.summary)
+            ag.dom('div.summary', null, v=>vm.task.get().task.summary)
         );
     }
 }

@@ -9,7 +9,7 @@
 /// <reference path="Comment.ts"/>
 
 module wrike {
-    Arg.publicRender(document.body, new List());
+    ag.publicRender(document.body, new List());
 }
 
 

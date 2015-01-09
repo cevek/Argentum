@@ -1,15 +1,15 @@
 /// <reference path="Argentum.ts"/>
 class A {
     static counter;
-    complete = new Arg.Atomic(0);
+    complete = new ag.Atomic(0);
 
     constructor(val) {
         this.complete.set(val);
     }
 }
 
-var a = new Arg.Atomic<A>(new A(1));
-var fnAtom = new Arg.Atomic(function () {
+var a = new ag.Atomic<A>(new A(1));
+var fnAtom = new ag.Atomic(function () {
     a.get().complete.get();
 });
 console.dir(fnAtom);

@@ -1,8 +1,8 @@
 /// <reference path="TaskItemTemplate.ts"/>
 
 module wrike {
-    export class TaskItem implements Arg.Component {
-        constructor(public attrs:Arg.Attrs, public task:Atom<TaskVM>, public activeTask:Atom<Task>) {
+    export class TaskItem implements ag.Component {
+        constructor(public attrs:ag.Attrs, public task:Atom<TaskVM>, public activeTask:Atom<Task>) {
         }
 
         clickTask() {

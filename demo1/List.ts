@@ -1,11 +1,11 @@
 var glob:any = {};
 module wrike {
-    export class List implements Arg.Component {
+    export class List implements ag.Component {
         activeTask = new Atom(this, {value: new Task()});
 
         tasks:TaskVM[] = [];
 
-        constructor(attrs?:Arg.Attrs) {
+        constructor(attrs?:ag.Attrs) {
             glob.tasks = this.tasks;
             for (var i = 0; i < 1000; i++) {
 
@@ -23,7 +23,7 @@ module wrike {
         }
 
         render() {
-            return Arg.dom('div.list', null,
+            return ag.dom('div.list', null,
                 new TaskList(null, this.tasks, this.activeTask),
                 new TaskFull(null, this.activeTask));
         }
