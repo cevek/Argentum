@@ -42,7 +42,7 @@ interface IAtom<T> {
 
 
 class AtomSource<T> extends Atom<T>{
-    constructor(owner: any, value: T, params: IAtom<T> = {}){
+    constructor(owner: any, value?: T, params: IAtom<T> = {}){
         params.value = value;
         super(owner, null, params);
     }
@@ -65,7 +65,7 @@ class Atom<T> {
     private listeners:AtomListeners<T, Object, Object, Object>[] = [];
 
     //constructor(getterFn?:(atom:Atom<T>)=>void, setterFn?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:any, getter: (prevValue:T)=>T, params?:IAtom<T>) {
+    constructor(owner:any, getter?: (prevValue:T)=>T, params?:IAtom<T>) {
         this.id = ++Atom.lastId;
         this.owner = owner;
         if (owner) {
