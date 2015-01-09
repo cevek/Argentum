@@ -4,7 +4,7 @@ class User {
     name:string;
 }
 var glob:any = {};
-class TestForm implements Arg.Component {
+class TestForm implements ag.Component {
     input = new Atom(this, {value: 'input'});
     checkbox = new Atom(this, {value: 'yes'});
     required = new Atom(this, {value: true});
@@ -15,7 +15,7 @@ class TestForm implements Arg.Component {
     select = new Atom<User[]>(this, {value: [this.options[2]]});
     date = new Atom<Date>(this, {value: new Date()});
 
-    picker = new Atom<Arg.TreeItem>(this);
+    picker = new Atom<ag.TreeItem>(this);
 
     componentDidMount() {
         glob.picker = this.picker.get().component;
@@ -24,33 +24,33 @@ class TestForm implements Arg.Component {
     render() {
         var condItem = {name: "Condition"};
         //this.select.set(options);
-        return Arg.root('',
-            d('form', {onsubmit: ()=>false},
-                new Arg.DatePicker({model: this.date}, {self: this.picker}),
-                new Arg.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
-                new Arg.Checkbox({label: "Multiple", value: true, model: this.multiple}),
-                new Arg.Checkbox({label: "Required", value: true, model: this.required}),
-                new Arg.InputGroup({label: "My Text", model: this.input, required: true}),
-                new Arg.SelectGroup({
+        return ag.root('',
+            ag.dom('form', {onsubmit: ()=>false},
+                new ag.DatePicker({model: this.date}, {self: this.picker}),
+                new ag.Checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
+                new ag.Checkbox({label: "Multiple", value: true, model: this.multiple}),
+                new ag.Checkbox({label: "Required", value: true, model: this.required}),
+                new ag.InputGroup({label: "My Text", model: this.input, required: true}),
+                new ag.SelectGroup({
                         label: 'select',
                         modelMultiple: this.select,
                         multiple: this.multiple,
                         required: this.required
                     },
                     null,
-                    d('option', {argDefault: true}, 'None'),
-                    d('optgroup', {label: 'Lbl'},
+                    ag.dom('option', {argDefault: true}, 'None'),
+                    ag.dom('optgroup', {label: 'Lbl'},
                         ()=>this.checkbox.get() ?
-                            d('option', {argValue: condItem}, condItem.name) : null,
+                            ag.dom('option', {argValue: condItem}, condItem.name) : null,
 
-                        Arg.mapRaw(this.options, option =>
-                            d('option', {argValue: option}, option.name))
+                        ag.mapRaw(this.options, option =>
+                            ag.dom('option', {argValue: option}, option.name))
                     )
                 ),
-                Arg.map(this.select, item=>d('div', item.name)),
+                ag.map(this.select, item=>ag.dom('div', item.name)),
                 this.input,
-                d('button', {type: 'button', onclick: ()=>this.select.set([])}, 'clear'),
-                d('button', 'Send')
+                ag.dom('button', {type: 'button', onclick: ()=>this.select.set([])}, 'clear'),
+                ag.dom('button', 'Send')
             )
             /*
              this.checkbox,
@@ -61,7 +61,7 @@ class TestForm implements Arg.Component {
     }
 }
 
-class Bench implements Arg.Component {
+class Bench implements ag.Component {
 
     atoms:Atom<number>[] = [];
 
@@ -84,19 +84,19 @@ class Bench implements Arg.Component {
             rows[i] = i;
             this.atoms[i] = new Atom<number>(this);
         }
-        return Arg.root('',
-            Arg.dom('button', {onclick: ()=>this.click()}, 'click'),
-            Arg.dom('ul', {style: {display: 'none'}},
-                Arg.mapRaw(rows, (row, i)=>Arg.dom('li', 'item ' + row + ' ', this.atoms[i]))))
+        return ag.root('',
+            ag.dom('button', {onclick: ()=>this.click()}, 'click'),
+            ag.dom('ul', {style: {display: 'none'}},
+                ag.mapRaw(rows, (row, i)=>ag.dom('li', 'item ' + row + ' ', this.atoms[i]))))
     }
 }
 
 Atom.debugMode = false;
 var testForm = new TestForm();
-var dom = Arg.publicRender(document.body, testForm);
+var dom = ag.publicRender(document.body, testForm);
 
 /*
 var bench = new Bench();
 console.time('perf');
-var dom = Arg.publicRender(document.body, bench);
+var dom = ag.publicRender(document.body, bench);
 console.timeEnd('perf');*/
