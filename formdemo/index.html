@@ -22,9 +22,9 @@
     date-picker-calendar .week-name { font-weight: bold; text-align: center }
     date-picker-calendar .header { display: flex; justify-content: space-between }
 
-    .animation { -webkit-transition: all 0.3s; }
-    .animation.enter, .animation.leave.leave-active { opacity: 0; transform: scale(0.98) }
-    .animation.enter.enter-active, .animation.leave  { opacity: 1; transform: scale(1)}
+    .animation { transition: transform 2s, opacity 10.2s -1.1s; }
+    .animation.arg-enter, .animation.arg-leave.arg-leave-active { opacity: 0; transform: scale(0.98) }
+    .animation.arg-enter.arg-enter-active, .animation.arg-leave  { opacity: 1; transform: scale(1)}
 
 
 </style>
