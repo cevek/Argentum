@@ -172,9 +172,8 @@ module Arg {
                 var atom:Atom<any> = val;
                 var child = atom.get();
                 return new TreeItem({
-                    type: TreeType.ATOM,
-                    whenCondition: atom,
-                    children: child ? [child] : null,
+                    type: TreeType.TEXT,
+                    value: child,
                     atom: atom
                 });
             }

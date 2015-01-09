@@ -47,12 +47,12 @@ module Arg {
             tree.children = sub_tree ? [sub_tree] : null;
             render(sub_tree);
         }
-        if (tree.type === TreeType.ATOM && value !== null && value !== void 0) {
+        /*if (tree.type === TreeType.ATOM && value !== null && value !== void 0) {
             var sub_tree = convertToTree(value);
             sub_tree.parentNode = tree.parentNode;
             sub_tree.nodeBefore = tree.node;
             tree.children = sub_tree ? [sub_tree] : null;
             render(sub_tree);
-        }
+        }*/
     }
 }

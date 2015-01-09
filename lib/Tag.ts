@@ -69,6 +69,13 @@ module Arg {
         var domNode = document.createTextNode('');
         tree.parentNode.insertBefore(domNode, tree.nodeBefore);
         tree.node = domNode;
-        tree.node['textContent'] = tree.value === void 0 ? '' : tree.value;
+        domNode.textContent = tree.value === void 0 ? '' : tree.value;
+        if (tree.atom){
+            tree.atom.addListener(renderTextListener, Arg, tree);
+        }
+    }
+
+    export function renderTextListener(value: string, tree: TreeItem) {
+        tree.node.textContent = value;
     }
 }
