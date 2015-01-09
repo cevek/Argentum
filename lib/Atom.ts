@@ -40,6 +40,13 @@ interface IAtom<T> {
     slaves?: Atom<Object>[];
 }
 
+
+class AtomSource<T> extends Atom<T>{
+    constructor(owner: any, value: T, params: IAtom<T> = {}){
+        params.value = value;
+        super(owner, null, params);
+    }
+}
 class Atom<T> {
     static debugMode = true;
     private static lastId = 0;
@@ -58,7 +65,7 @@ class Atom<T> {
     private listeners:AtomListeners<T, Object, Object, Object>[] = [];
 
     //constructor(getterFn?:(atom:Atom<T>)=>void, setterFn?:(atom:Atom<T>)=>T, val?:T);
-    constructor(owner:any, params?:IAtom<T>) {
+    constructor(owner:any, getter: (prevValue:T)=>T, params?:IAtom<T>) {
         this.id = ++Atom.lastId;
         this.owner = owner;
         if (owner) {
@@ -66,9 +73,9 @@ class Atom<T> {
             owner.atoms.push(this);
         }
 
+        this.getterFn = getter;
         if (params) {
             this._name = params.name;
-            this.getterFn = params.getter;
             this.setterFn = params.setter;
             this.value = params.value === null ? void 0 : params.value;
             /*
@@ -90,7 +97,7 @@ class Atom<T> {
         }
     }
 
-    proxy(owner:any) {
+/*    proxy(owner:any) {
         return new Atom<T>(owner, {
             getter: ()=>this.get(),
             setter: (atom)=> {
@@ -98,7 +105,7 @@ class Atom<T> {
             },
             name: this.name + 'Proxy'
         });
-    }
+    }*/
 
     get name() {
         if (this.owner) {
@@ -297,11 +304,11 @@ class Atom<T> {
         }
     }
 
-    addListener2(owner: any, callback: (val: T)=>void){
-        var atom = new Atom(owner, {getter: ()=>{ callback.call(owner, this.get()); return null; }/*, masters: [this]*/, name: this.name + '.listener'});
+   /* addListener2(owner: any, callback: (val: T)=>void){
+        var atom = new Atom(owner, {getter: ()=>{ callback.call(owner, this.get()); return null; }*//*, masters: [this]*//*, name: this.name + '.listener'});
         atom.get();
         return this;
-    }
+    }*/
 
     addListener<A1, A2, A3>(fn:AtomListenerCallback<T, A1, A2, A3>,
                             thisArg?:any/*checked*/,
