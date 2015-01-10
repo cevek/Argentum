@@ -39,6 +39,7 @@ module ag {
         node:Node;
         parentNode:Node;
         nodeBefore:Node;
+        activeAnimation: {callback: (e:TransitionEvent)=>void; timeout: number; cls: string; node: HTMLElement};
 
         removed:boolean;
 

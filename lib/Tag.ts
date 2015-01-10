@@ -12,45 +12,7 @@ module ag {
         renderAttrs(tree);
 
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
-        if (tree.attrs && tree.attrs.animation && tree.type == TreeType.TAG) {
-            //console.log("Run animation enter");
-            var animationClass = tree.attrs.animation;
-            var node = <HTMLElement>tree.node;
-            node.className = node.className || '';
-            node.className += ' ' + animationClass + ' ag-enter';
-            //noinspection BadExpressionStatementJS
-            node.offsetHeight;//reflow
-            node.className += ' ag-enter-active';
-            var style = window.getComputedStyle(node);
-
-            var props = style.transitionProperty.split(', ');
-            var durs = style.transitionDuration.split(', ');
-            var delays = style.transitionDelay.split(', ');
-            var maxDur = 0;
-            var prop = '';
-            for (var i = 0; i < props.length; i++) {
-                var dur = parseFloat(durs[i]) + parseFloat(delays[i]);
-                if (dur > maxDur){
-                    maxDur = dur;
-                    prop = props[i];
-                }
-            }
-            //console.log(style.transitionDuration, style.transitionProperty, style.transitionDelay);
-            //console.log(maxDur, prop);
-            if (maxDur > 0) {
-                var callback = (e: TransitionEvent)=> {
-                    if (e.propertyName === prop) {
-                        //console.log("Animation enter end");
-                        node.className = node.className.replace(' ' + animationClass + ' ag-enter ag-enter-active', '');
-                        node.removeEventListener('transitionend', callback);
-                    }
-                };
-                node.addEventListener('transitionend', callback)
-            }
-            else {
-                node.className = node.className.replace(' ' + animationClass + ' ag-enter', '');
-            }
-        }
+        animate(tree, false);
 
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {

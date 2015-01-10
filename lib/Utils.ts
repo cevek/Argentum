@@ -24,10 +24,6 @@ module ag {
             return;
         }
 
-        if (tree.attrs && tree.attrs.animation) {
-            console.log(tree);
-        }
-
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
                 removeTree(tree.children[i]);
@@ -38,58 +34,12 @@ module ag {
         tree.removed = true;
         if (tree.node) {
             if (isRoot) {
-                //todo: remove component html listeners before
-                if (tree.attrs && tree.attrs.animation && tree.type == TreeType.TAG) {
-                    //console.log("Run animation leave");
-                    var animationClass = tree.attrs.animation;
-                    var node = <HTMLElement>tree.node;
-                    node.className = node.className || '';
-                    node.className = node.className.replace(' ag-enter', '');
-                    node.className = node.className.replace(' ag-enter-active', '');
-                    node.className += ' ' + animationClass + ' ag-leave';
-                    //noinspection BadExpressionStatementJS
-                    node.offsetHeight; // reflow
-                    node.className += ' ag-leave-active';
-                    var parentNode = tree.parentNode;
-                    var style = window.getComputedStyle(node);
-                    var props = style.transitionProperty.split(', ');
-                    var durs = style.transitionDuration.split(', ');
-                    var delays = style.transitionDelay.split(', ');
-                    var maxDur = 0;
-                    var prop = '';
-                    for (var i = 0; i < props.length; i++) {
-                        var dur = parseFloat(durs[i]) + parseFloat(delays[i]);
-                        if (dur > maxDur){
-                            maxDur = dur;
-                            prop = props[i];
-                        }
-                    }
-                    //console.log(style.transitionDuration, style.transitionProperty, style.transitionDelay);
-                    //console.log(maxDur, prop);
-                    if (maxDur > 0) {
-                        var callback = (e: TransitionEvent)=> {
-                            if (e.propertyName === prop) {
-                                //console.log("Animation leave end");
-                                node.className = node.className.replace(' ' + animationClass + ' ag-leave ag-leave-active', '');
-                                node.removeEventListener('transitionend', callback);
-                                parentNode.removeChild(node);
-                            }
-                        };
-                        node.addEventListener('transitionend', callback)
-                    }
-                    else {
-                        node.className = node.className.replace(' ' + animationClass + ' ag-leave', '');
-                        parentNode.removeChild(node);
-                    }
-                }
-                else {
-                    tree.node.parentNode.removeChild(tree.node);
-                }
+                animate(tree, true);
             }
 
-            if (tree.attrs){
-                for (var key in tree.attrs){
-                    if (key.substr(0,2) === 'on'){
+            if (tree.attrs) {
+                for (var key in tree.attrs) {
+                    if (key.substr(0, 2) === 'on') {
                         tree.node[key] = null;
                     }
                 }

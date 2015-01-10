@@ -7,6 +7,7 @@
 /// <reference path="Tag.ts"/>
 /// <reference path="When.ts"/>
 /// <reference path="DOMUtils.ts"/>
+/// <reference path="Animation.ts"/>
 /// <reference path="form/FormElement.ts"/>
 /// <reference path="form/Checkbox.ts"/>
 /// <reference path="form/Input.ts"/>
