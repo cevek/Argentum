@@ -13,7 +13,7 @@ class TestForm implements ag.Component {
 
     options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
     //select = new Atom<User[]>(this, {name: 'select', value: []});
-    select = Atom.source<User[]>(this, [this.options[2]]);
+    select = Atom.source(this, [this.options[2]]);
     date = Atom.source(this, new Date());
 
     picker = new Atom<ag.TreeItem>(this);
@@ -66,6 +66,12 @@ class Bench implements ag.Component {
 
     atoms:Atom<number>[] = [];
 
+    constructor(){
+        for (var i = 0; i < 10000; i++) {
+            this.atoms[i] = Atom.source(this, 0);
+        }
+    }
+
     click() {
         var start = Math.random() * 1000 | 0;
         for (var i = 0; i < 10000; i++) {
@@ -80,15 +86,10 @@ class Bench implements ag.Component {
     }
 
     render() {
-        var rows:number[] = [];
-        for (var i = 0; i < 10000; i++) {
-            rows[i] = i;
-            this.atoms[i] = new Atom<number>(this);
-        }
         return ag.root('',
             ag.dom('button', {onclick: ()=>this.click()}, 'click'),
             ag.dom('ul', {style: {display: 'none'}},
-                ag.mapRaw(rows, (row, i)=>ag.dom('li', 'item ' + row + ' ', this.atoms[i]))))
+                ag.mapRaw(this.atoms, (atom, i)=>ag.dom('li', 'item ' + i + ' ', atom))))
     }
 }
 
@@ -97,7 +98,8 @@ var testForm = new TestForm();
 var dom = ag.publicRender(document.body, testForm);
 
 /*
- var bench = new Bench();
- console.time('perf');
- var dom = ag.publicRender(document.body, bench);
- console.timeEnd('perf');*/
+var bench = new Bench();
+console.time('perf');
+var dom = ag.publicRender(document.body, bench);
+console.timeEnd('perf');
+*/
