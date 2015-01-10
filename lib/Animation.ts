@@ -46,7 +46,7 @@ module ag{
                         }
                         clearTimeout(timeout);
                         timeout = null;
-                        console.log("Animation " + cls + " end");
+                        //console.log("Animation " + cls + " end");
                         node.className = node.className.split(' ').filter(
                                 cl => cl !== animationClass && cl !== cls && cl !== activeCls).join(' ');
                         node.removeEventListener('transitionend', callback);
@@ -58,14 +58,14 @@ module ag{
                 };
                 if (tree.activeAnimation){
                     clearTimeout(tree.activeAnimation.timeout);
-                    tree.activeAnimation.node.removeEventListener('transitionend', tree.activeAnimation.callback);
+                    node.removeEventListener('transitionend', tree.activeAnimation.callback);
                 }
                 var timeout = setTimeout(callback, maxDur * 1100);
                 node.addEventListener('transitionend', callback);
-                tree.activeAnimation = {callback: callback, timeout: timeout, cls: cls, node: node};
+                tree.activeAnimation = {callback: callback, timeout: timeout, cls: cls};
             }
             else {
-                console.log("dur 0");
+                console.log("timeout duration is 0");
                 node.className = node.className.split(' ').filter(
                         cl => cl !== animationClass && cl !== cls && cl !== activeCls).join(' ');
                 if (isLeave) {
