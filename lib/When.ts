@@ -39,20 +39,34 @@ module ag {
     }
 
     export function renderWhenListener(value:any, tree:TreeItem) {
-        removeTreeChildren(tree);
-        if (tree.type === TreeType.WHEN && value) {
-            var sub_tree = convertToTree(tree.whenCallback());
-            sub_tree.parentNode = tree.parentNode;
-            sub_tree.nodeBefore = tree.node;
-            tree.children = sub_tree ? [sub_tree] : null;
-            render(sub_tree);
+        if (tree.type === TreeType.WHEN) {
+            removeTreeChildren(tree);
+            if (value) {
+                var sub_tree = convertToTree(tree.whenCallback());
+                sub_tree.parentNode = tree.parentNode;
+                sub_tree.nodeBefore = tree.node;
+                tree.children = sub_tree ? [sub_tree] : null;
+                render(sub_tree);
+            }
         }
-        /*if (tree.type === TreeType.ATOM && value !== null && value !== void 0) {
-            var sub_tree = convertToTree(value);
-            sub_tree.parentNode = tree.parentNode;
-            sub_tree.nodeBefore = tree.node;
-            tree.children = sub_tree ? [sub_tree] : null;
-            render(sub_tree);
-        }*/
+        if (tree.type === TreeType.ATOM) {
+            // optimizing for textcontent
+            if (tree.children && tree.children[0] && tree.children[0].type === TreeType.TEXT &&
+                ((value && !value.render && value.constructor !== Function &&
+                value.constructor !== Array && value.constructor !== Atom) || !value)) {
+                var text = value !== null && value !== void 0 ? value : '';
+                renderTextContent(text, tree.children[0]);
+            }
+            else {
+                removeTreeChildren(tree);
+                if (value !== null && value !== void 0) {
+                    var sub_tree = convertToTree(value);
+                    sub_tree.parentNode = tree.parentNode;
+                    sub_tree.nodeBefore = tree.node;
+                    tree.children = sub_tree ? [sub_tree] : null;
+                    render(sub_tree);
+                }
+            }
+        }
     }
 }

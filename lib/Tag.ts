@@ -70,12 +70,9 @@ module ag {
         tree.parentNode.insertBefore(domNode, tree.nodeBefore);
         tree.node = domNode;
         domNode.textContent = tree.value === void 0 ? '' : tree.value;
-        if (tree.atom){
-            tree.atom.addListener(renderTextListener, ag, tree);
-        }
     }
 
-    export function renderTextListener(value: string, tree: TreeItem) {
+    export function renderTextContent(value: string, tree: TreeItem) {
         tree.node.textContent = value;
     }
 }
