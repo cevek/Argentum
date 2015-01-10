@@ -225,17 +225,17 @@ module ag {
 
         if (className) {
             if (tree.attrs) {
-                if (!tree.attrs['className']) {
-                    tree.attrs['className'] = className;
-                    tree.attrs['baseClassName'] = className;
+                if (!tree.attrs.className) {
+                    tree.attrs.className = className;
+                    tree.attrs.baseClassName = className;
                 }
             } else {
                 tree.attrs = {className: className, baseClassName: className};
             }
         }
         else {
-            if (tree.attrs && tree.attrs['className']) {
-                tree.attrs['baseClassName'] = tree.attrs['className'];
+            if (tree.attrs && tree.attrs.className) {
+                tree.attrs.baseClassName = tree.attrs.className;
             }
 
         }
