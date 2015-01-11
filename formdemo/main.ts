@@ -1,8 +1,5 @@
 /// <reference path="../lib/Argentum.ts"/>
 //Atom.debugMode = false;
-class User {
-    name:string;
-}
 var glob:any = {};
 
 class TestForm implements ag.Component {
@@ -66,7 +63,7 @@ class Bench implements ag.Component {
 
     atoms:Atom<number>[] = [];
 
-    constructor(){
+    constructor() {
         for (var i = 0; i < 10000; i++) {
             this.atoms[i] = Atom.source(this, 0);
         }
@@ -97,9 +94,69 @@ Atom.debugMode = false;
 var testForm = new TestForm();
 var dom = ag.publicRender(document.body, testForm);
 
+
+ag.Rout.listen();
+class R {
+    static index = new ag.Rout('/');
+    static about = new ag.Rout('/about');
+    static company = new ag.Rout('/company');
+    static users = new ag.Rout('/users');
+    static userInfo = new ag.Rout<{user: any}>('/users/:user');
+    static userProfile = new ag.Rout<{user: any}>('/users/:user/profile');
+    static userProfileContacts = new ag.Rout<{user: any}>('/users/:user/profile/contacts');
+    static userProfileFriends = new ag.Rout<{user: any}>('/users/:user/profile/friends');
+    static userProfileOffers = new ag.Rout<{user: any}>('/users/:user/profile/offers');
+    static userProfileOffersItem = new ag.Rout<{user: any; offer: any}>('/users/:user/profile/offers/:offer');
+}
+
+
+class Index implements ag.Component {
+    render() {
+
+    }
+}
+
+class User implements ag.Component {
+    render() {
+
+    }
+}
+class UserProfile implements ag.Component {
+    render() {
+
+    }
+}
+class Users {
+    page = new Atom<ag.Component>(this);
+
+    constructor() {
+        ag.Rout.activeRoute.addListener(route => {
+            switch (route) {
+                case R.userInfo:
+                    this.page.set(new User());
+                    break;
+
+                case R.userProfile:
+                    this.page.set(new UserProfile());
+                    break;
+            }
+        }, this);
+    }
+
+    render() {
+        return ag.dom('div',
+            new ag.Link({href: R.userProfileOffersItem.url({user: 123, offer: 435})}, 'MyOffer 1'),
+            this.page);
+    }
+}
+
+
+ag.publicRender(document.body, new ag.Link({href: R.company.url({})}, 'Company'));
+ag.publicRender(document.body, new Users());
+
 /*
-var bench = new Bench();
-console.time('perf');
-var dom = ag.publicRender(document.body, bench);
-console.timeEnd('perf');
-*/
+ var bench = new Bench();
+ console.time('perf');
+ var dom = ag.publicRender(document.body, bench);
+ console.timeEnd('perf');
+ */
