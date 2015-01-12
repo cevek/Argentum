@@ -1,23 +1,23 @@
 module ag {
-    export class Rout<T> {
+    export class Route<T> {
         private regexp:RegExp;
         private url:string;
         private names:string[] = [];
         private currentUrl:string;
 
         constructor(url:string) {
-            url = '/' + url.replace(/(^\/+|\/+$)/g, '') + '$';
+            url = '/' + url.replace(/(^\/+|\/+$)/g, '');
             url = url === '/' ? url : url + '/';
             var m = url.match(/(:([^\/]+))/g);
             var v:RegExpExecArray;
             var reg = /:([^\/]+)/g;
             while (v = reg.exec(url))
                 this.names.push(v[1]);
-            var r = url.replace(/(:([^\/]+))/g, '([^\/]+)');
+            var r = '^' + url.replace(/(:([^\/]+))/g, '([^\/]+)') + '$';
             this.regexp = new RegExp(r);
             this.url = url;
             //console.log(this);
-            Rout.routes.push(this);
+            Route.routes.push(this);
         }
 
         toURL(paramss:T) {
@@ -34,17 +34,20 @@ module ag {
             return this.regexp.test(url);
         }
 
-        static activeRoute = new Atom<Rout<any>>(Rout);
+        static activeRoute = new Atom<Route<any>>(Route);
+
+        static urlChanged() {
+            var route = Route.routes.filter(route => route.is(location.pathname)).pop();
+            if (route) {
+                route.currentUrl = location.pathname;
+            }
+            Route.activeRoute.set(route);
+            console.log(route);
+        }
 
         static listen() {
-            window.addEventListener('popstate', function (e:PopStateEvent) {
-                var route = Rout.routes.filter(route => route.is(location.pathname)).pop();
-                if (route) {
-                    route.currentUrl = location.pathname;
-                }
-                Rout.activeRoute.set(route);
-                console.log(route);
-            }, false);
+            Route.urlChanged();
+            window.addEventListener('popstate', Route.urlChanged, false);
         }
 
         getParams():T {
@@ -59,7 +62,7 @@ module ag {
             return ret;
         }
 
-        private static routes:Rout<any>[] = [];
+        private static routes:Route<any>[] = [];
     }
 
     /*
@@ -120,6 +123,7 @@ module ag {
         click(e:Event) {
             e.preventDefault();
             history.pushState(this.attrs['state'], '', this.attrs.href);
+            Route.urlChanged();
         }
 
         render() {
