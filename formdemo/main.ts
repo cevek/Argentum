@@ -94,18 +94,18 @@ Atom.debugMode = false;
 var testForm = new TestForm();
 var dom = ag.publicRender(document.body, testForm);
 
-ag.Rout.listen();
+ag.Route.listen();
 module R {
-    export var index = new ag.Rout('/');
-    export var about = new ag.Rout('/about');
-    export var company = new ag.Rout('/company');
-    export var users = new ag.Rout('/users');
-    export var userInfo = new ag.Rout<{user: any}>('/users/:user');
-    export var userProfile = new ag.Rout<{user: any}>('/users/:user/profile');
-    export var userProfileContacts = new ag.Rout<{user: any}>('/users/:user/profile/contacts');
-    export var userProfileFriends = new ag.Rout<{user: any}>('/users/:user/profile/friends');
-    export var userProfileOffers = new ag.Rout<{user: any}>('/users/:user/profile/offers');
-    export var userProfileOffersItem = new ag.Rout<{user: any; offer: any}>('/users/:user/profile/offers/:offer');
+    export var index = new ag.Route('/');
+    export var about = new ag.Route('/about');
+    export var company = new ag.Route('/company');
+    export var users = new ag.Route('/users');
+    export var userInfo = new ag.Route<{user: any}>('/users/:user');
+    export var userProfile = new ag.Route<{user: any}>('/users/:user/profile');
+    export var userProfileContacts = new ag.Route<{user: any}>('/users/:user/profile/contacts');
+    export var userProfileFriends = new ag.Route<{user: any}>('/users/:user/profile/friends');
+    export var userProfileOffers = new ag.Route<{user: any}>('/users/:user/profile/offers');
+    export var userProfileOffersItem = new ag.Route<{user: any; offer: any}>('/users/:user/profile/offers/:offer');
 }
 
 class Index implements ag.Component {
@@ -128,7 +128,7 @@ class Users {
     page = new Atom<ag.Component>(this);
 
     constructor() {
-        ag.Rout.activeRoute.addListener(route => {
+        ag.Route.activeRoute.addListener(route => {
             switch (route) {
                 case R.userInfo:
                     this.page.set(new User());
