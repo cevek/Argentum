@@ -1,18 +1,27 @@
 module ag {
     export class Rout<T> {
         private regexp:RegExp;
-        private _url:string;
+        private url:string;
+        private names:string[] = [];
+        private currentUrl:string;
 
         constructor(url:string) {
-            var r = url = '/' + url.replace(/(^\/+|\/+$)/g, '') + '/';
-            r = r.replace(/(:([^\/]+))/g, '([^\/]+)');
+            url = '/' + url.replace(/(^\/+|\/+$)/g, '');
+            url = url === '/' ? url : url + '/';
+            var m = url.match(/(:([^\/]+))/g);
+            var v:RegExpExecArray;
+            var reg = /:([^\/]+)/g;
+            while (v = reg.exec(url))
+                this.names.push(v[1]);
+            var r = url.replace(/(:([^\/]+))/g, '([^\/]+)');
             this.regexp = new RegExp(r);
-            this._url = url;
+            this.url = url;
+            //console.log(this);
             Rout.routes.push(this);
         }
 
-        url(paramss:T) {
-            var url = this._url;
+        toURL(paramss:T) {
+            var url = this.url;
             var params = <any>paramss;
             for (var i in params) {
                 var param = params[i];
@@ -30,9 +39,24 @@ module ag {
         static listen() {
             window.addEventListener('popstate', function (e:PopStateEvent) {
                 var route = Rout.routes.filter(route => route.is(location.pathname)).pop();
+                if (route) {
+                    route.currentUrl = location.pathname;
+                }
                 Rout.activeRoute.set(route);
                 console.log(route);
             }, false);
+        }
+
+        getParams():T {
+            var ret:any = {};
+            var m = this.currentUrl.match(this.regexp);
+            if (m) {
+                for (var i = 1; i < m.length; i++) {
+                    ret[this.names[i - 1]] = m[i];
+                }
+            }
+            //console.log(ret);
+            return ret;
         }
 
         private static routes:Rout<any>[] = [];
