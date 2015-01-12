@@ -94,21 +94,19 @@ Atom.debugMode = false;
 var testForm = new TestForm();
 var dom = ag.publicRender(document.body, testForm);
 
-
 ag.Rout.listen();
-class R {
-    static index = new ag.Rout('/');
-    static about = new ag.Rout('/about');
-    static company = new ag.Rout('/company');
-    static users = new ag.Rout('/users');
-    static userInfo = new ag.Rout<{user: any}>('/users/:user');
-    static userProfile = new ag.Rout<{user: any}>('/users/:user/profile');
-    static userProfileContacts = new ag.Rout<{user: any}>('/users/:user/profile/contacts');
-    static userProfileFriends = new ag.Rout<{user: any}>('/users/:user/profile/friends');
-    static userProfileOffers = new ag.Rout<{user: any}>('/users/:user/profile/offers');
-    static userProfileOffersItem = new ag.Rout<{user: any; offer: any}>('/users/:user/profile/offers/:offer');
+module R {
+    export var index = new ag.Rout('/');
+    export var about = new ag.Rout('/about');
+    export var company = new ag.Rout('/company');
+    export var users = new ag.Rout('/users');
+    export var userInfo = new ag.Rout<{user: any}>('/users/:user');
+    export var userProfile = new ag.Rout<{user: any}>('/users/:user/profile');
+    export var userProfileContacts = new ag.Rout<{user: any}>('/users/:user/profile/contacts');
+    export var userProfileFriends = new ag.Rout<{user: any}>('/users/:user/profile/friends');
+    export var userProfileOffers = new ag.Rout<{user: any}>('/users/:user/profile/offers');
+    export var userProfileOffersItem = new ag.Rout<{user: any; offer: any}>('/users/:user/profile/offers/:offer');
 }
-
 
 class Index implements ag.Component {
     render() {
@@ -136,7 +134,8 @@ class Users {
                     this.page.set(new User());
                     break;
 
-                case R.userProfile:
+                case R.userProfileOffersItem:
+                    R.userProfileOffersItem.getParams();
                     this.page.set(new UserProfile());
                     break;
             }
@@ -145,13 +144,12 @@ class Users {
 
     render() {
         return ag.dom('div',
-            new ag.Link({href: R.userProfileOffersItem.url({user: 123, offer: 435})}, 'MyOffer 1'),
+            new ag.Link({href: R.userProfileOffersItem.toURL({user: 123, offer: 435})}, 'MyOffer 1'),
             this.page);
     }
 }
 
-
-ag.publicRender(document.body, new ag.Link({href: R.company.url({})}, 'Company'));
+ag.publicRender(document.body, new ag.Link({href: R.company.toURL({})}, 'Company'));
 ag.publicRender(document.body, new Users());
 
 /*
