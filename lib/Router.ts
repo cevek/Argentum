@@ -6,7 +6,7 @@ module ag {
         private currentUrl:string;
 
         constructor(url:string) {
-            url = '/' + url.replace(/(^\/+|\/+$)/g, '');
+            url = '/' + url.replace(/(^\/+|\/+$)/g, '') + '$';
             url = url === '/' ? url : url + '/';
             var m = url.match(/(:([^\/]+))/g);
             var v:RegExpExecArray;
