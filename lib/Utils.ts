@@ -1,10 +1,12 @@
 module ag {
 
-    export function traverseTree(startTree:TreeItem, callback:(tree:TreeItem)=>any) {
+    export function traverseTree(startTree:TreeItem, callback:(tree:TreeItem)=>any, maxDepth = 0) {
         if (startTree.children) {
             for (var i = 0; i < startTree.children.length; i++) {
                 callback(startTree.children[i]);
-                traverseTree(startTree.children[i], callback);
+                if (maxDepth === 0 || maxDepth > 1) {
+                    traverseTree(startTree.children[i], callback, maxDepth ? maxDepth - 1 : 0);
+                }
             }
         }
     }
@@ -136,6 +138,7 @@ module ag {
                 treeItem.tag = treeItem.tag || prepareViewName(val.constructor.name);
                 treeItem.type = TreeType.TAG;
                 treeItem.component = val;
+                treeItem.component.tree = treeItem;
                 return treeItem;
             }
         }
