@@ -48,7 +48,19 @@ class TestForm implements ag.Component {
                 ag.map(this.select, item=>ag.dom('div', item.name)),
                 this.input,
                 ag.dom('button', {type: 'button', onclick: ()=>this.select.set([])}, 'clear'),
-                ag.dom('button', 'Send')
+                ag.dom('button', {
+                    type: 'button', onclick: ()=> {
+                        var dialog = new ag.Dialog({header: 'hey', body: 'boy', footer: 'clickme'});
+                        dialog.open();
+
+                    }
+                }, 'dialog'),
+                ag.dom('button', 'Send'),
+                new ag.Tabs({model: new Atom(this)}, [
+                    new ag.Tab({title: "Tab 1"}, {}, 'Content1'),
+                    new ag.Tab({title: "Tab 2"}, {}, 'Content2'),
+                    new ag.Tab({title: "Tab 3"}, {}, 'Content3')
+                ])
             )
             /*
              this.checkbox,
@@ -58,6 +70,7 @@ class TestForm implements ag.Component {
         );
     }
 }
+
 
 class Bench implements ag.Component {
 
