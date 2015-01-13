@@ -9,6 +9,8 @@
 /// <reference path="DOMUtils.ts"/>
 /// <reference path="Animation.ts"/>
 /// <reference path="Router.ts"/>
+/// <reference path="components/Dialog.ts"/>
+/// <reference path="components/Tabs.ts"/>
 /// <reference path="form/FormElement.ts"/>
 /// <reference path="form/Checkbox.ts"/>
 /// <reference path="form/Input.ts"/>
@@ -58,12 +60,26 @@ module ag {
         }
     }
 
+    export function flattenArray(arr:Object[]) {
+        var ret:Object[] = [];
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] && arr[i].constructor === Array) {
+                ret = ret.concat(flattenArray(<Object[]>arr[i]));
+            }
+            else {
+                ret.push(arr[i]);
+            }
+        }
+        return ret;
+    }
+
     export function dom(tagExpr:string, ...children:any[]) {
         if (children[0] && children[0].constructor === Object) {
             var attrs = children.shift();
         }
-        if (children[0] && children[0].constructor === Array && children[1] === void 0) {
-            children = children[0];
+
+        if (children && children.constructor === Array) {
+            children = flattenArray(children);
         }
 
         var treeItem = new TreeItem({
