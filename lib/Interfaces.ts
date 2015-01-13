@@ -39,7 +39,7 @@ module ag {
         node:Node;
         parentNode:Node;
         nodeBefore:Node;
-        activeAnimation: {callback: (e:TransitionEvent)=>void; timeout: number; cls: string};
+        activeAnimation:{callback: (e:TransitionEvent)=>void; timeout: number; cls: string};
 
         removed:boolean;
 
@@ -63,6 +63,10 @@ module ag {
                     this.children[i] = convertToTree(this.children[i]);
                 }
             }
+        }
+
+        destroy() {
+            removeTree(this, true);
         }
 
         toJSON() {
