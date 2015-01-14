@@ -1,24 +1,23 @@
+//todo: traverseToParents()
 module ag {
+    interface ITabs {
+        model: Atom<any>;
+        attrs?: Attrs;
+    }
+
+    export function tabs(attrs:ITabs, ...children:any[]) {return new Tabs(attrs, children)}
+
     export class Tabs implements Component {
         items:Atom<Tab[]> = new Atom(this, null, {value: []});
         tree:TreeItem;
         activeTab = new Atom<Tab>(this);
         activeContent = new Atom(this, () => {
             if (this.activeTab.get()) {
-                return this.activeTab.get().params.content();
+                return this.activeTab.get().children;
             }
         });
 
-        constructor(private params:{model: Atom<any>}, private attrs?:Attrs, private children?:any) {
-            /*
-             this.activeTab.set(this.items[0]);
-             for (var i = 0; i < this.items.length; i++) {
-             var item = this.items[i];
-             if (item.params.active) {
-             this.activeTab.set(item)
-             }
-             }
-             */
+        constructor(private params:ITabs, private children?:any) {
             this.activeTab.addListener(this.activeTabChanged, this);
             this.params.model.addListener(this.modelChanged, this);
         }
@@ -46,59 +45,48 @@ module ag {
                 if (item.component instanceof Tab) {
                     var tab = <Tab>item.component;
                     tab.parent = this;
-                    if (this.activeTab.isEmpty() || tab.params.active) {
+                    if (this.activeTab.isEmpty() || tab.params.default) {
                         this.activeTab.set(tab)
                     }
                     items.push(tab);
                 }
             });
-            /*
-             for (var i = 0; i < items.length; i++) {
-             var tab = items[i];
-
-             }
-             */
             this.items.set(items);
         }
 
         render() {
-            return root('', this.attrs,
-                dom('ul.nav', this.children),
+            return root(this.params.attrs,
+                ul('.nav', this.children),
                 this.activeContent
-            );
+            )
         }
     }
-    export class Tab implements Component {
-        constructor(public params:{title: any; content: ()=>any; active?: any; value?: any; disabled?: any},
-                    public attrs?:Attrs,
-                    public children?:any) {
+
+    interface ITab {
+        title: any;
+        default?: boolean;
+        value?: any;
+        disabled?: any;
+        attrs?: Attrs;
+    }
+
+    export function tab(attrs:ITab, ...children:any[]) {return new Tab(attrs, children)}
+
+    class Tab implements Component {
+        constructor(public params:ITab, public children:any) {
+            params.disabled = Atom.createIfNot(this, params.disabled);
         }
 
         parent:Tabs;
         tree:TreeItem;
-        /*
-         componentWillMount() {
-         //todo: traverseToParents()
-         this.parent = <Tabs>this.tree.parentTree.parentTree.component;
-         if (!this.parent.activeTab.get() || this.params.active) {
-         this.parent.activeTab.set(this);
-         }
-         }
-
-         componentWillUnmount(){
-         //todo: set first tab
-         if (this.parent.activeTab.isEqual(this)) {
-         this.parent.activeTab.set(null);
-         }
-         }*/
 
         render() {
-            return dom('li', this.attrs,
-                dom('a', {
-                    onclick: ()=>this.parent.activeTab.set(this),
+            return li(this.params.attrs,
+                a({
+                    onclick: ()=>!this.params.disabled.get() && this.parent.activeTab.set(this),
                     classSet: {
-                        active: ()=>
-                            this.parent.activeTab.isEqual(this)
+                        disabled: this.params.disabled,
+                        active: ()=>this.parent.activeTab.isEqual(this)
                     }
                 }, this.params.title)
             )
