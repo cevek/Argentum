@@ -9,6 +9,8 @@ module ag {
         tree.node = document.createElement(tree.tag || 'div');
         if (tree.component) {
         }
+
+        prepareAttrs(tree);
         renderAttrs(tree);
 
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
@@ -17,6 +19,7 @@ module ag {
         if (tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
                 tree.children[i].parentNode = tree.node;
+                tree.children[i].parentTree = tree;
                 render(tree.children[i]);
             }
         }

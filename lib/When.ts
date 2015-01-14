@@ -31,6 +31,7 @@ module ag {
         if (tree.children && tree.children[0]) {
             tree.children[0].parentNode = tree.parentNode;
             tree.children[0].nodeBefore = tree.node;
+            tree.children[0].parentTree = tree;
             render(tree.children[0]);
         }
         if (ag.enableAtoms) {
@@ -45,6 +46,7 @@ module ag {
                 var sub_tree = convertToTree(tree.whenCallback());
                 sub_tree.parentNode = tree.parentNode;
                 sub_tree.nodeBefore = tree.node;
+                sub_tree.parentTree = tree;
                 tree.children = sub_tree ? [sub_tree] : null;
                 render(sub_tree);
             }
@@ -63,6 +65,7 @@ module ag {
                     var sub_tree = convertToTree(value);
                     sub_tree.parentNode = tree.parentNode;
                     sub_tree.nodeBefore = tree.node;
+                    sub_tree.parentTree = tree;
                     tree.children = sub_tree ? [sub_tree] : null;
                     render(sub_tree);
                 }
