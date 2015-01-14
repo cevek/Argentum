@@ -9,7 +9,7 @@ module ag {
         attrsAtoms?:{[idx: string]: Atom<any>};
         styleAtoms?:{[idx: string]: Atom<any>};
         classSetAtoms?:{[idx: string]: Atom<any>};
-        children?:TreeItem[];
+        children?:any[];
         node?:Node;
         parentNode?:Node;
         nodeBefore?:Node;

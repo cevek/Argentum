@@ -1,5 +1,6 @@
 /// <reference path="Atom.ts"/>
 /// <reference path="Interfaces.ts"/>
+/// <reference path="HTML.ts"/>
 /// <reference path="HTMLAttrs.ts"/>
 /// <reference path="Utils.ts"/>
 /// <reference path="Attributes.ts"/>
@@ -60,9 +61,9 @@ module ag {
         }
     }
 
-    export function flattenArray(arr:Object[]) {
+    export function flattenArray(arr:Object[], startPos = 0) {
         var ret:Object[] = [];
-        for (var i = 0; i < arr.length; i++) {
+        for (var i = startPos; i < arr.length; i++) {
             if (arr[i] && arr[i].constructor === Array) {
                 ret = ret.concat(flattenArray(<Object[]>arr[i]));
             }
