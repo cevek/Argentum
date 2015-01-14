@@ -105,6 +105,15 @@ class Atom<T> {
      });
      }*/
 
+    static createIfNot<T>(owner:any, val:Atom<T>):Atom<T>;
+    static createIfNot<T>(owner:any, val:T):Atom<T>;
+    static createIfNot<T>(owner:any, val:any):Atom<T> {
+        if (val instanceof Atom) {
+            return val;
+        }
+        return new Atom(owner, null, {value: val});
+    }
+
     get name() {
         if (this.owner) {
             if (this._name && this._name.indexOf('.') === -1) {
