@@ -19,6 +19,8 @@ class TestForm implements ag.Component {
         glob.picker = this.picker.get().component;
     }
 
+
+    activeTab = new Atom(this, null, {value: 2});
     render() {
         var condItem = {name: "Condition"};
         //this.select.set(options);
@@ -56,10 +58,14 @@ class TestForm implements ag.Component {
                     }
                 }, 'dialog'),
                 ag.dom('button', 'Send'),
-                new ag.Tabs({model: new Atom(this)}, [
-                    new ag.Tab({title: "Tab 1"}, {}, 'Content1'),
-                    new ag.Tab({title: "Tab 2"}, {}, 'Content2'),
-                    new ag.Tab({title: "Tab 3"}, {}, 'Content3')
+                ag.dom('button', {onclick: ()=>this.activeTab.set(1)}, 'Tab1'),
+                ag.dom('button', {onclick: ()=>this.activeTab.set(2)}, 'Tab2'),
+                ag.dom('button', {onclick: ()=>this.activeTab.set(3)}, 'Tab3'),
+                this.activeTab,
+                new ag.Tabs({model: this.activeTab}, {}, [
+                    new ag.Tab({title: "Tab 1", value: 1, content: () => 'Content1'}),
+                    new ag.Tab({title: "Tab 2", value: 2, content: () => 'Content2'}),
+                    new ag.Tab({title: "Tab 3", value: 3, content: () => 'Content3'}),
                 ])
             )
             /*
