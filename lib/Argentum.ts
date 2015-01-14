@@ -95,11 +95,6 @@ module ag {
         parseTagExpr(tagExpr, treeItem);
         return treeItem;
     }
-
-    export function root(tagExpr:string, ...children:any[]):TreeItem {
-        children.unshift(tagExpr.replace(/^[^.\[\#]+/, 'root'));
-        return dom.apply(null, children);
-    }
 }
 
 

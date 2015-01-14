@@ -18,7 +18,6 @@ module ag {
         self?: Atom<TreeItem>;
 
         children?: any;
-
         onmouseleave?:(ev:MouseEvent) => any;
         onbeforecut?:(ev:DragEvent) => any;
         onkeydown?:(ev:KeyboardEvent) => any;
@@ -114,7 +113,7 @@ module ag {
         onload?:(ev:Event) => any;
         oninput?:(ev:Event) => any;
 
-
+        aria?: any;
         accept?: any;
         acceptCharset?: any;
         accessKey?: any;
