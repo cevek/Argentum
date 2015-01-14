@@ -1,13 +1,16 @@
 module ag {
     export interface IDatePicker {
         model: Atom<Date>;
+        attrs?: Attrs;
     }
-    export class DatePicker implements Component {
+
+    export function datepicker(params: IDatePicker){return new DatePicker(params)}
+    class DatePicker implements Component {
         inputTree = new Atom<TreeItem>(this);
         calendar = new Atom<TreeItem>(this);
         focused = Atom.source(this, false);
 
-        constructor(private params:IDatePicker, private attrs:Attrs = {}) {}
+        constructor(private params:IDatePicker) {}
 
         parser() {
             var node = <HTMLInputElement>this.inputTree.get().node;
@@ -78,8 +81,8 @@ module ag {
         }
 
         render() {
-            return root('', this.attrs,
-                dom('input', {
+            return root('', this.params.attrs,
+                d('input', {
                     self: this.inputTree,
                     type: 'text',
                     required: true,
@@ -175,7 +178,7 @@ module ag {
         }
 
         render() {
-            return root('', this.attrs,
+            return root(this.attrs,
                 dom('.header',
                     dom('.month-year', ()=>DatePickerCalendar.months[this.firstDayOfMonth.get().getMonth()], " ", ()=>this.firstDayOfMonth.get().getFullYear()),
 

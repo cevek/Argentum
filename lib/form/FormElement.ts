@@ -2,21 +2,21 @@ module ag {
     export interface IFormElement {
         label: any;
         labelAttrs?: Attrs;
+        attrs?: Attrs;
     }
     export class FormElement {
         params:IFormElement;
-        attrs:Attrs;
 
-        constructor(params:IFormElement, attrs:Attrs) {
+        constructor(params:IFormElement) {
             this.params = params;
-            this.attrs = attrs || {};
-            this.attrs.id = this.attrs.id || Math.random().toString(33).substr(2, 3);
+            this.params.attrs = params.attrs || {};
+            this.params.attrs.id = this.params.attrs.id || Math.random().toString(33).substr(2, 3);
         }
 
         label() {
-            return dom('label', {
-                htmlFor: this.attrs.id,
-                classSet: {required: this.attrs.required}
+            return label({
+                htmlFor: this.params.attrs.id,
+                classSet: {required: this.params.attrs.required}
             }, this.params.label)
         }
     }

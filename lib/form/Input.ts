@@ -39,17 +39,21 @@ module ag {
         label: any;
         inputAttrs?: Attrs;
         labelAttrs?: Attrs;
+        attrs?: Attrs;
     }
-    export class InputGroup implements Component {
-        constructor(private params:IInputGroup, private attrs:Attrs = {}) {
+
+    export function inputgroup(params:IInputGroup) {return new InputGroup(params)}
+
+    class InputGroup implements Component {
+        constructor(private params:IInputGroup) {
             params.labelAttrs = params.labelAttrs || {};
             params.inputAttrs = params.inputAttrs || {};
             params.inputAttrs.id = params.labelAttrs.htmlFor = params.inputAttrs.id || Math.random().toString(33).substr(2, 3);
         }
 
         render() {
-            return root('', this.attrs,
-                dom('label', this.params.labelAttrs, this.params.label, ":"),
+            return root(this.params.attrs,
+                label(this.params.labelAttrs, this.params.label, ":"),
                 new Input(this.params, this.params.inputAttrs)
             );
         }

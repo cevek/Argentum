@@ -4,19 +4,23 @@ module ag {
         modelMultiple?: Atom<T[]>;
         multiple?: any;
         required?: any;
+        attrs?: Attrs;
     }
 
-    export class Select<T> implements Component {
+    export function select<T>(params:ISelect<T>, ...children:any[]) {return new Select(params, children)}
+
+    class Select<T> implements Component {
         isBlock = false;
         tree:TreeItem;
         children:any[];
         optionsTree:TreeItem[] = [];
         static debug = false;
 
-        constructor(private params:ISelect<T>, private attrs:Attrs, children:any[]) {
-            this.attrs.oninput = ()=>this.onChange();
-            this.attrs.required = this.attrs.required || this.params.required;
-            this.attrs.multiple = this.attrs.multiple || this.params.multiple;
+        constructor(private params:ISelect<T>, children:any[]) {
+            this.params.attrs = params.attrs || {};
+            this.params.attrs.oninput = ()=>this.onChange();
+            this.params.attrs.required = this.params.attrs.required || this.params.required;
+            this.params.attrs.multiple = this.params.attrs.multiple || this.params.multiple;
             this.children = children;
             this.params.modelMultiple.addListener(this.modelChanged, this);
         }
@@ -119,7 +123,7 @@ module ag {
 
         render() {
             Select.debug && console.log("Select render");
-            return dom('select', this.attrs, this.children);
+            return dom('select', this.params.attrs, this.children);
         }
     }
 
@@ -127,11 +131,15 @@ module ag {
         label: any;
         selectAttrs?: Attrs;
         labelAttrs?: Attrs;
+        attrs?: Attrs;
     }
-    export class SelectGroup<T> implements Component {
+
+    export function selectgroup<T>(params:ISelectGroup<T>, ...children:any[]) {return new SelectGroup(params, children)}
+
+    class SelectGroup<T> implements Component {
         private children:any[];
 
-        constructor(private params:ISelectGroup<T>, private attrs:Attrs, ...children:any[]) {
+        constructor(private params:ISelectGroup<T>, ...children:any[]) {
             //todo: arrays for children
             if (children[0] && children[0].constructor === Array) {
                 var child:any[] = [];
@@ -147,9 +155,9 @@ module ag {
         }
 
         render() {
-            return root('', this.attrs,
-                dom('label', this.params.labelAttrs, this.params.label, ":"),
-                new Select(this.params, this.params.selectAttrs, this.children)
+            return root(this.params.attrs,
+                label(this.params.labelAttrs, this.params.label, ":"),
+                select(this.params, this.params.selectAttrs, this.children)
             );
         }
     }
