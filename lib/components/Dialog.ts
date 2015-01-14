@@ -3,10 +3,6 @@ module ag {
         tree:TreeItem;
 
         constructor(private params:{header: any; body: any; footer: any;}, private attrs:Attrs = {}) {
-
-        }
-
-        open() {
             publicRender(document.body, this);
         }
 
