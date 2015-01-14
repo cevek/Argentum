@@ -193,7 +193,6 @@ module ag {
 
         }
 
-        prepareAttrs(tree);
         return tree;
     }
 
