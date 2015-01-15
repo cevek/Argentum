@@ -22,6 +22,8 @@ module ag.test {
 
         activeTab = new Atom(this, null, {value: 2});
 
+        radio = new Atom(this);
+
         render() {
             var condItem = {name: "Condition"};
             //this.select.set(options);
@@ -64,7 +66,16 @@ module ag.test {
                         tab({title: "Tab 1", value: 1}, 'Content1'),
                         tab({title: "Tab 2", value: 2, disabled: true}, 'Content2'),
                         tab({title: "Tab 3", value: 3}, 'Content3')
-                    )
+                    ),
+                    radiogroup({model: this.radio},
+                       radio({label: "hey", value: 11, default: true}),
+                       radio({label: "hey boy", value: 2}),
+                       radio({label: "hey girl", value: 3})
+                    ),
+                    button({onclick: ()=>this.radio.set(2)}, 'set 2'),
+                    this.radio
+
+
                 )
                 /*
                  this.checkbox,
