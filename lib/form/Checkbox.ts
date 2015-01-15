@@ -1,24 +1,20 @@
 module ag {
-    export interface ICheckbox<T> extends IFormElement {
-        model: Atom<T>;
-        value: T;
+    export interface ICheckbox<T> {
+        model?: Atom<T>;
+        value?: T;
+        inputAttrs?: Attrs;
         attrs?: Attrs;
     }
 
-    export function checkbox<T>(params:ICheckbox<T>) {return new Checkbox(params)}
+    export function checkbox<T>(params:ICheckbox<T>, ...children: any[]) {return new Checkbox(params, children)}
 
-    class Checkbox<T> extends FormElement implements Component {
+    export class Checkbox<T> implements Component {
         //isBlock = false;
-        params:ICheckbox<T>;
+        type = 'checkbox';
 
-        constructor(params:ICheckbox<T>) {
-            super(params);
-            this.params.attrs.type = 'checkbox';
-            this.params.attrs.onchange = (e)=>this.onChange(e);
-            this.params.attrs.checked = ()=>this.params.model.isEqual(this.params.value);
-        }
+        constructor(public params:ICheckbox<T>, public children: any) {}
 
-        private onChange(e:Event) {
+        onChange(e:Event) {
             var target = <HTMLInputElement>e.target;
             if (target.checked) {
                 this.params.model.set(this.params.value);
@@ -29,9 +25,13 @@ module ag {
         }
 
         render() {
-            return root(
-                d('input', this.params.attrs),
-                this.label()
+            return label(this.params.attrs,
+                input(extendsAttrs(this.params.inputAttrs, {
+                    type: this.type,
+                    onchange: (e:Event)=>this.onChange(e),
+                    checked: ()=>this.params.model.isEqual(this.params.value)
+                })),
+                this.children
             );
         }
     }
