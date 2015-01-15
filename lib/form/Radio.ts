@@ -4,6 +4,7 @@ module ag {
         model: Atom<T>;
         attrs?: Attrs;
     }
+
     export function radiogroup<T>(params:IRadioGroup<T>, ...children:any[]) {return new RadioGroup(params, children)}
 
     class RadioGroup<T> implements Component {
@@ -16,7 +17,7 @@ module ag {
                 if (item.component instanceof Radio) {
                     var radio = <Radio<T>>item.component;
                     radio.params.model = this.params.model;
-                    if (this.params.model.isEmpty() || radio.params.default){
+                    if (this.params.model.isEmpty() || radio.params.default) {
                         this.params.model.set(radio.params.value);
                         console.log("set", this.params.model.get());
                     }
@@ -29,41 +30,15 @@ module ag {
         }
     }
 
-    interface IRadio<T> extends IFormElement {
-        value: T;
-        model?: Atom<T>;
+    interface IRadio<T> extends ICheckbox<T>{
         default?: boolean;
-        attrs?: Attrs;
     }
-    export function radio<T>(params:IRadio<T>) {return new Radio(params)}
+    export function radio<T>(params:IRadio<T>, ...children: any[]) {return new Radio(params, children)}
 
-    class Radio<T> extends FormElement implements Component {
-        tree:TreeItem;
-
-        constructor(public params:IRadio<T>) {
-            super(params);
-        }
-
-        private onChange(e:Event) {
-            var target = <HTMLInputElement>e.target;
-            if (target.checked) {
-                this.params.model.set(this.params.value);
-            }
-            else {
-                this.params.model.setNull();
-            }
-        }
-
-        render() {
-            return root(
-                input(extendsAttrs(this.params.attrs, {
-                    type: 'radio',
-                    onchange: (e:Event)=>this.onChange(e),
-                    checked: ()=>this.params.model.isEqual(this.params.value)
-                })),
-                this.label()
-            )
+    class Radio<T> extends Checkbox<T> {
+        type = 'radio';
+        constructor(params:IRadio<T>, children: any) {
+            super(params, children);
         }
     }
-
 }
