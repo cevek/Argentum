@@ -37,7 +37,7 @@ module ag {
 
     class Radio<T> extends Checkbox<T> {
         type = 'radio';
-        constructor(params:IRadio<T>, children: any) {
+        constructor(public params:IRadio<T>, public children: any) {
             super(params, children);
         }
     }
