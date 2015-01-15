@@ -5,18 +5,10 @@ module ag {
     }
 
     export function map<R>(atomArray:Atom<R[]>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
-        var children:TreeItem[] = [];
-        var array = (atomArray.get() || []).slice();
-        for (var i = 0; i < array.length; i++) {
-            children[i] = convertToTree(mapIterator(array[i], i));
-        }
-
         return new TreeItem({
             type: TreeType.MAP,
             map: atomArray,
             split: split,
-            children: children,
-            mapValues: array,
             mapIterator: mapIterator
         });
     }
@@ -30,6 +22,12 @@ module ag {
         tree.node = document.createComment("/for");
         (<any>tree.node).tree = tree;
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
+
+        tree.children = [];
+        var array = (tree.map.get() || []).slice();
+        for (var i = 0; i < array.length; i++) {
+            tree.children[i] = convertToTree(tree.mapIterator(array[i], i));
+        }
 
         for (var i = 0; i < tree.children.length; i++) {
             var itemTree = tree.children[i];
