@@ -1,19 +1,18 @@
 module ag {
-    export interface IInput {
+    export interface IInputText {
         model: Atom<string>;
+        type?: any;
         required?: any;
+        attrs?: Attrs;
     }
 
-    export class Input implements Component {
+    export function inputtext(params:IInputText) {return new InputText(params)}
+
+    export class InputText implements Component {
         isBlock = false;
         domNode:HTMLInputElement;
 
-        constructor(private params:IInput, private attrs:Attrs = {}) {
-            this.attrs.type = this.attrs.type || 'text';
-            this.attrs.oninput = ()=>this.onInput();
-            this.attrs.onblur = ()=>this.updateInput();
-            this.attrs.required = this.attrs.required || this.params.required;
-        }
+        constructor(public params:IInputText) {}
 
         onInput() {
             this.params.model.set(this.domNode.value);
@@ -31,30 +30,43 @@ module ag {
         }
 
         render() {
-            return dom('input', this.attrs);
+            return input(extendsAttrs(this.params.attrs, {
+                type: this.params.type || 'text',
+                oninput: ()=>this.onInput(),
+                onblur: ()=>this.updateInput(),
+                required: this.params.required
+            }));
         }
     }
 
-    export interface IInputGroup extends IInput {
+    export interface IInputGroup extends IInputText {
         label: any;
         inputAttrs?: Attrs;
         labelAttrs?: Attrs;
         attrs?: Attrs;
     }
 
-    export function inputgroup(params:IInputGroup) {return new InputGroup(params)}
+    export function inputgroup(params:IInputGroup, ...children:any[]) {return new InputGroup(params, children)}
 
     class InputGroup implements Component {
-        constructor(private params:IInputGroup) {
-            params.labelAttrs = params.labelAttrs || {};
-            params.inputAttrs = params.inputAttrs || {};
-            params.inputAttrs.id = params.labelAttrs.htmlFor = params.inputAttrs.id || Math.random().toString(33).substr(2, 3);
+        id = Math.random().toString(33).substr(2, 3);
+
+        constructor(public params:IInputGroup, public children?:any) {
+            if (params.inputAttrs && params.inputAttrs.id) {
+                this.id = params.inputAttrs.id;
+            }
         }
 
         render() {
             return root(this.params.attrs,
-                label(this.params.labelAttrs, this.params.label, ":"),
-                new Input(this.params, this.params.inputAttrs)
+                label(extendsAttrs(this.params.labelAttrs, {
+                    htmlFor: this.id,
+                    classSet: {required: this.params.required}
+                }), this.params.label, ":"),
+                input(extendsAttrs(this.params.inputAttrs, {
+                    id: this.id,
+                    type: this.params.type
+                }))
             );
         }
     }
