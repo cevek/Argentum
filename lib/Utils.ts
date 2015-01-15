@@ -196,6 +196,16 @@ module ag {
         return tree;
     }
 
+    export function extendsAttrs(attrs: any, extendsAttrs: any) {
+        attrs = attrs || {};
+        if (extendsAttrs){
+            for (var attr in extendsAttrs) {
+                attrs[attr] = extendsAttrs[attr];
+            }
+        }
+        return attrs;
+    }
+
     export function log(param:any) {
         console.log(param);
         return param;
