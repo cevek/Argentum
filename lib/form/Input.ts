@@ -58,12 +58,12 @@ module ag {
         }
 
         render() {
-            return root(this.params.attrs,
-                label(extendsAttrs(this.params.labelAttrs, {
+            return root('.form-group', this.params.attrs,
+                label('.control-label', extendsAttrs(this.params.labelAttrs, {
                     htmlFor: this.id,
                     classSet: {required: this.params.required}
                 }), this.params.label, ":"),
-                input(extendsAttrs(this.params.inputAttrs, {
+                input('.form-control', extendsAttrs(this.params.inputAttrs, {
                     id: this.id,
                     type: this.params.type
                 }))
