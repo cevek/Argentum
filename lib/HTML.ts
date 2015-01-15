@@ -26,7 +26,7 @@ module ag {
         return treeItem;
     }
 
-    export function root(...args:any[]) {return _d('root', args)}
+    export function root(...args:any[]) {return _d('', args)}
 
     export function a(...args:any[]) {return _d('a', args)}
 
