@@ -4,15 +4,16 @@ module ag {
         value?: T;
         inputAttrs?: Attrs;
         attrs?: Attrs;
+        labelAttrs?: Attrs;
     }
 
-    export function checkbox<T>(params:ICheckbox<T>, ...children: any[]) {return new Checkbox(params, children)}
+    export function checkbox<T>(params:ICheckbox<T>, ...children:any[]) {return new Checkbox(params, children)}
 
     export class Checkbox<T> implements Component {
         //isBlock = false;
         type = 'checkbox';
 
-        constructor(public params:ICheckbox<T>, public children: any) {}
+        constructor(public params:ICheckbox<T>, public children:any) {}
 
         onChange(e:Event) {
             var target = <HTMLInputElement>e.target;
@@ -25,14 +26,15 @@ module ag {
         }
 
         render() {
-            return label(this.params.attrs,
-                input(extendsAttrs(this.params.inputAttrs, {
-                    type: this.type,
-                    onchange: (e:Event)=>this.onChange(e),
-                    checked: ()=>this.params.model.isEqual(this.params.value)
-                })),
-                this.children
-            );
+            return root('.' + this.type, this.params.attrs,
+                label(this.params.labelAttrs,
+                    input(extendsAttrs(this.params.inputAttrs, {
+                        type: this.type,
+                        onchange: (e:Event)=>this.onChange(e),
+                        checked: ()=>this.params.model.isEqual(this.params.value)
+                    })),
+                    this.children
+                ));
         }
     }
 }
