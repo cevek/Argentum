@@ -7,6 +7,7 @@ module ag {
         }
 
         tree.node = document.createElement(tree.tag || 'div');
+        (<any>tree.node).tree = tree;
         if (tree.component) {
         }
 
@@ -32,12 +33,13 @@ module ag {
 
     export function renderText(tree:TreeItem) {
         var domNode = document.createTextNode('');
+        (<any>domNode).tree = tree;
         tree.parentNode.insertBefore(domNode, tree.nodeBefore);
         tree.node = domNode;
         domNode.textContent = tree.value === void 0 ? '' : tree.value;
     }
 
-    export function renderTextContent(value: string, tree: TreeItem) {
+    export function renderTextContent(value:string, tree:TreeItem) {
         tree.node.textContent = value;
     }
 }

@@ -27,6 +27,7 @@ module ag {
 
     export function renderWhen(tree:TreeItem) {
         tree.node = document.createComment("/if");
+        (<any>tree.node).tree = tree;
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
         if (tree.children && tree.children[0]) {
             tree.children[0].parentNode = tree.parentNode;

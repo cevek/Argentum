@@ -28,6 +28,7 @@ module ag {
 
     export function renderMap(tree:TreeItem) {
         tree.node = document.createComment("/for");
+        (<any>tree.node).tree = tree;
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
 
         for (var i = 0; i < tree.children.length; i++) {
@@ -68,6 +69,7 @@ module ag {
     export function mapArrayListener(array:any[], tree:TreeItem) {
         counter++;
         var node = document.createComment("/for" + counter);
+        (<any>tree.node).tree = tree;
         tree.parentNode.insertBefore(node, tree.node.nextSibling);
         tree.parentNode.removeChild(tree.node);
         var children:TreeItem[] = [];
