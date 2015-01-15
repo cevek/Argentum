@@ -126,7 +126,6 @@ module ag {
                 return new TreeItem({
                     type: TreeType.ATOM,
                     whenCondition: atom,
-                    children: child === void 0 || child === null ? null : [child],
                     atom: atom
                 });
             }

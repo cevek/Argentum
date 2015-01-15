@@ -15,12 +15,9 @@ module ag {
             atomCondition = new Atom<any>(ag, null, {value: condition, name: 'whenCondition'});
         }
 
-        var child = atomCondition.get() ? convertToTree(callback()) : null;
-
         return new TreeItem({
             type: TreeType.WHEN,
             whenCondition: atomCondition,
-            children: child ? [child] : null,
             whenCallback: callback
         });
     }
@@ -29,11 +26,18 @@ module ag {
         tree.node = document.createComment("/if");
         (<any>tree.node).tree = tree;
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
-        if (tree.children && tree.children[0]) {
-            tree.children[0].parentNode = tree.parentNode;
-            tree.children[0].nodeBefore = tree.node;
-            tree.children[0].parentTree = tree;
-            render(tree.children[0]);
+        if (tree.type === TreeType.ATOM) {
+            var child = convertToTree(tree.whenCondition.get());
+        }
+        if (tree.type === TreeType.WHEN) {
+            var child = tree.whenCondition.get() ? convertToTree(tree.whenCallback()) : null;
+        }
+        tree.children = child ? [child] : null;
+        if (child) {
+            child.parentNode = tree.parentNode;
+            child.nodeBefore = tree.node;
+            child.parentTree = tree;
+            render(child);
         }
         if (ag.enableAtoms) {
             tree.whenCondition.addListener(renderWhenListener, ag, tree);
