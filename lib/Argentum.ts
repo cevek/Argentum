@@ -14,6 +14,7 @@
 /// <reference path="components/Tabs.ts"/>
 /// <reference path="form/FormElement.ts"/>
 /// <reference path="form/Checkbox.ts"/>
+/// <reference path="form/Radio.ts"/>
 /// <reference path="form/Input.ts"/>
 /// <reference path="form/Select.ts"/>
 /// <reference path="form/DatePicker.ts"/>
