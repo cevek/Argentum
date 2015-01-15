@@ -30,10 +30,10 @@ module ag.test {
             return root('',
                 form({onsubmit: ()=>false},
                     datepicker({model: this.date, attrs: {self: this.picker}}),
-                    checkbox({label: "Click me", value: 'yes', model: this.checkbox}),
-                    checkbox({label: "Multiple", value: true, model: this.multiple}),
-                    checkbox({label: "Required", value: true, model: this.required}),
-                    inputgroup({label: "My Text", model: this.input, required: true}),
+                    checkbox({value: 'yes', model: this.checkbox}, 'Click me'),
+                    checkbox({value: true, model: this.multiple}, 'Multiple'),
+                    checkbox({value: true, model: this.required}, 'Required'),
+                    inputgroup({label: "My Text", model: this.input, required: this.required}),
                     selectgroup({
                             label: 'select',
                             modelMultiple: this.select,
@@ -68,9 +68,9 @@ module ag.test {
                         tab({title: "Tab 3", value: 3}, 'Content3')
                     ),
                     radiogroup({model: this.radio},
-                       radio({label: "hey", value: 11, default: true}),
-                       radio({label: "hey boy", value: 2}),
-                       radio({label: "hey girl", value: 3})
+                       radio({value: 11, default: true}, 'hey'),
+                       radio({value: 2}, 'hey boy'),
+                       radio({value: 3}, 'hey girl')
                     ),
                     button({onclick: ()=>this.radio.set(2)}, 'set 2'),
                     this.radio
