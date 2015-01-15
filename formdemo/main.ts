@@ -27,7 +27,8 @@ module ag.test {
         render() {
             var condItem = {name: "Condition"};
             //this.select.set(options);
-            return root('',
+            return root(
+                alertcontainer(),
                 form({onsubmit: ()=>false},
                     datepicker({model: this.date, attrs: {self: this.picker}}),
                     checkbox({value: 'yes', model: this.checkbox}, 'Click me'),
@@ -52,15 +53,12 @@ module ag.test {
                     ),
                     map(this.select, item=>div(item.name)),
                     this.input,
-                    button({type: 'button', onclick: ()=>this.select.set([])}, 'clear'),
-                    button({
-                        type: 'button',
-                        onclick: ()=> {new Dialog({header: 'hey', body: 'boy', footer: 'clickme'})}
-                    }, 'dialog'),
-                    button('Send'),
-                    button({onclick: ()=>this.activeTab.set(1)}, 'Tab1'),
-                    button({onclick: ()=>this.activeTab.set(2)}, 'Tab2'),
-                    button({onclick: ()=>this.activeTab.set(3)}, 'Tab3'),
+                    btndanger({onclick: ()=>this.select.set([])}, 'clear'),
+                    btninfo({onclick: ()=> {new Dialog({header: 'hey', body: 'boy', footer: 'clickme'})}}, 'dialog'),
+                    submitsuccess({}, 'Send'),
+                    btn({onclick: ()=>this.activeTab.set(1)}, 'Tab1'),
+                    btn({onclick: ()=>this.activeTab.set(2)}, 'Tab2'),
+                    btn({onclick: ()=>this.activeTab.set(3)}, 'Tab3'),
                     this.activeTab,
                     tabs({model: this.activeTab},
                         tab({title: "Tab 1", value: 1}, 'Content1'),
@@ -72,9 +70,9 @@ module ag.test {
                        radio({value: 2}, 'hey boy'),
                        radio({value: 3}, 'hey girl')
                     ),
-                    button({onclick: ()=>this.radio.set(2)}, 'set 2'),
-                    this.radio
-
+                    btn({onclick: ()=>this.radio.set(2)}, 'set 2'),
+                    this.radio,
+                    btninfo({onclick: ()=>new Alert({type: Alert.types.INFO}, 'hello')}, 'alert')
 
                 )
                 /*
