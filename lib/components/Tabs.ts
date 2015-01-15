@@ -3,6 +3,9 @@ module ag {
     interface ITabs {
         model: Atom<any>;
         attrs?: Attrs;
+        pills?: boolean;
+        stacked?: boolean;
+        ulAttrs?: Attrs;
     }
 
     export function tabs(attrs:ITabs, ...children:any[]) {return new Tabs(attrs, children)}
@@ -56,7 +59,13 @@ module ag {
 
         render() {
             return root(this.params.attrs,
-                ul('.nav', this.children),
+                ul('.nav', extendsAttrs(this.params.ulAttrs, {
+                    classSet: {
+                        'nav-pills': this.params.pills,
+                        'nav-tabs': !this.params.pills,
+                        'nav-stacked': this.params.stacked
+                    }
+                }), this.children),
                 this.activeContent
             )
         }
@@ -81,14 +90,13 @@ module ag {
         tree:TreeItem;
 
         render() {
-            return li(this.params.attrs,
-                a({
-                    onclick: ()=>!this.params.disabled.get() && this.parent.activeTab.set(this),
+            return li(extendsAttrs(this.params.attrs, {
                     classSet: {
                         disabled: this.params.disabled,
                         active: ()=>this.parent.activeTab.isEqual(this)
                     }
-                }, this.params.title)
+                }),
+                a({onclick: ()=>!this.params.disabled.get() && this.parent.activeTab.set(this)}, this.params.title)
             )
         }
     }
