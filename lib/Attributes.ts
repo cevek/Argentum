@@ -29,9 +29,15 @@ module ag {
     }
 
     export function prepareAttr(tree:TreeItem, attr:string) {
-        if (tree.attrs[attr] && tree.attrs[attr].constructor === Function && attr.substr(0, 2) !== 'on') {
-            var getter:IAtomGetter<any> = tree.attrs[attr];
-            tree.attrs[attr] = new Atom(ag, getter, {name: 'attr'});
+        if (tree.attrs[attr] && tree.attrs[attr].constructor === Function) {
+            if (attr.substr(0, 2) === 'on'){
+                var fn = tree.attrs[attr];
+                tree.attrs[attr] = ()=>fn.apply(tree.component, arguments);
+            }
+            else {
+                var getter:IAtomGetter<any> = tree.attrs[attr];
+                tree.attrs[attr] = new Atom(ag, getter, {name: 'attr'});
+            }
         }
         if (tree.attrs[attr] && tree.attrs[attr].constructor === Atom) {
             var atom:Atom<any> = tree.attrs[attr];
