@@ -11,7 +11,7 @@ module ag.internal {
                 if (key.substr(0, 3) === 'arg') {
                     continue;
                 }
-                if (key === 'self' && tree.attrs[key] && tree.attrs[key].constructor === Atom) {
+                if (key === 'self' && tree.attrs[key] && tree.attrs[key] instanceof Atom) {
                     var selfAtom = <Atom<TreeItem>>tree.attrs[key];
                     selfAtom.set(tree);
                     continue;
@@ -39,7 +39,7 @@ module ag.internal {
                 tree.attrs[attr] = new Atom(ag, getter, {name: 'attr'});
             }
         }
-        if (tree.attrs[attr] && tree.attrs[attr].constructor === Atom) {
+        if (tree.attrs[attr] && tree.attrs[attr] instanceof Atom) {
             var atom:Atom<any> = tree.attrs[attr];
             tree.attrs[attr] = atom.get();
 
@@ -100,7 +100,7 @@ module ag.internal {
                 var getter:IAtomGetter<any> = styles[styleName];
                 styles[styleName] = new Atom(ag, getter, {getter: getter, name: 'style'});
             }
-            if (styles[styleName] && styles[styleName].constructor === Atom) {
+            if (styles[styleName] && styles[styleName] instanceof Atom) {
                 var atom:Atom<any> = styles[styleName];
                 styles[styleName] = atom.get();
 
@@ -148,7 +148,7 @@ module ag.internal {
                 var getter = <IAtomGetter<any>>classSet[i];
                 classSet[i] = new Atom(ag, getter, {name: 'classSetItem'});
             }
-            if (classSet[i] && classSet[i].constructor === Atom) {
+            if (classSet[i] && classSet[i] instanceof Atom) {
                 var atom:Atom<any> = classSet[i];
                 classSet[i] = atom.get();
                 tree.classSetAtoms = tree.classSetAtoms || {};

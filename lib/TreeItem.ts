@@ -99,7 +99,7 @@ module ag {
             tree.parentNode = null;
             tree.parentTree = null;
 
-            if (tree.attrs && tree.attrs.self && tree.attrs.self.constructor === Atom) {
+            if (tree.attrs && tree.attrs.self && tree.attrs.self instanceof Atom) {
                 tree.attrs.self.setNull();
             }
             tree.attrs = null;
@@ -181,7 +181,7 @@ module ag {
                     val = new Atom<any>(ag, getter, {name: 'atom'});
                     constructor = Atom;
                 }
-                if (constructor === Atom) {
+                if (val instanceof Atom) {
                     var atom:Atom<any> = val;
                     var child = atom.get();
                     return new TreeItem({
