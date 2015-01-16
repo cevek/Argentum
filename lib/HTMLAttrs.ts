@@ -1,5 +1,5 @@
 module ag {
-    export interface CSSProperties {
+    interface CSSProperties {
         [prop:string]: any;
         display?: any;
         width?: any;

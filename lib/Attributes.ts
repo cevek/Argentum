@@ -1,4 +1,4 @@
-module ag {
+module ag.internal {
 
     /*
      *===========================

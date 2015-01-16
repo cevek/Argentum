@@ -1,4 +1,4 @@
-module ag{
+module ag {
     export interface ITreeItem {
         [idx: string]: any;
         type:TreeType;
@@ -16,7 +16,7 @@ module ag{
 
         removed?:boolean;
 
-        mapIterator?:IMapIterator<any>;
+        mapIterator?:internal.IMapIterator<any>;
         map?:Atom<any[]>;
         mapSplit?:string;
         mapValues?:any[];
@@ -44,7 +44,7 @@ module ag{
 
         removed:boolean;
 
-        mapIterator:IMapIterator<any>;
+        mapIterator:internal.IMapIterator<any>;
         map:Atom<any[]>;
         mapSplit:string;
         mapValues:any[];
@@ -83,7 +83,7 @@ module ag{
             tree.removed = true;
             if (tree.node) {
                 if (isRoot) {
-                    animate(tree, true);
+                    internal.animate(tree, true);
                 }
 
                 if (tree.attrs) {
@@ -170,6 +170,38 @@ module ag{
                 }
             }
             return obj;
+        }
+
+        static convertToTree(val:any):TreeItem {
+            if (val) {
+                var constructor = val.constructor;
+                if (constructor === Function) {
+                    var getter:IAtomGetter<any> = val;
+                    val = new Atom<any>(ag, getter, {name: 'atom'});
+                    constructor = Atom;
+                }
+                if (constructor === Atom) {
+                    var atom:Atom<any> = val;
+                    var child = atom.get();
+                    return new TreeItem({
+                        type: TreeType.ATOM,
+                        whenCondition: atom,
+                        atom: atom
+                    });
+                }
+                if (constructor === TreeItem) {
+                    return val;
+                }
+                if (val.render) {
+                    var treeItem = convertToTree(val.render());
+                    treeItem.tag = treeItem.tag || prepareViewName(val.constructor.name);
+                    treeItem.type = TreeType.TAG;
+                    treeItem.component = val;
+                    treeItem.component.tree = treeItem;
+                    return treeItem;
+                }
+            }
+            return new TreeItem({type: TreeType.TEXT, value: val});
         }
     }
 

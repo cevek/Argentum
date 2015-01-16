@@ -1,4 +1,4 @@
-module ag{
+module ag.internal{
     export function animate(tree:TreeItem, isLeave:boolean) {
         var enterClass = 'ag-enter';
         var leaveClass = 'ag-leave';

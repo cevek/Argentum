@@ -1,8 +1,4 @@
-module ag {
-    export interface IWhenCallback {
-        (): TreeItem;
-    }
-
+module ag{
     export function when(condition:Atom<any>, callback:()=>any):TreeItem;
     export function when(condition:()=>any, callback:()=>any):TreeItem;
     export function when(condition:any, callback:()=>any):TreeItem {
@@ -21,16 +17,21 @@ module ag {
             whenCallback: callback
         });
     }
+}
+module ag.internal {
+    export interface IWhenCallback {
+        (): TreeItem;
+    }
 
     export function renderWhen(tree:TreeItem) {
         tree.node = document.createComment("/if");
         (<any>tree.node).tree = tree;
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
         if (tree.type === TreeType.ATOM) {
-            var child = convertToTree(tree.whenCondition.get());
+            var child = TreeItem.convertToTree(tree.whenCondition.get());
         }
         if (tree.type === TreeType.WHEN) {
-            var child = tree.whenCondition.get() ? convertToTree(tree.whenCallback()) : null;
+            var child = tree.whenCondition.get() ? TreeItem.convertToTree(tree.whenCallback()) : null;
         }
         tree.children = child ? [child] : null;
         if (child) {

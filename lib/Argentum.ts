@@ -26,8 +26,8 @@ module ag {
     export var enableAtoms = true;
     export var ns = ()=>ag;
 
-    export var cssDom:HTMLStyleElement = null;
-    export var createdCSSRules:{[idx: string]: boolean} = {};
+    var cssDom:HTMLStyleElement = null;
+    var createdCSSRules:{[idx: string]: boolean} = {};
 
     export function publicRender(node:Node, treeItem:any) {
 
@@ -51,17 +51,17 @@ module ag {
             }
         }
         if (tree.type === TreeType.TAG) {
-            renderTag(tree);
+            internal.renderTag(tree);
         }
         if (tree.type === TreeType.TEXT) {
-            renderText(tree);
+            internal.renderText(tree);
         }
         if (tree.type === TreeType.MAP) {
-            renderMap(tree);
+            internal.renderMap(tree);
         }
 
         if (tree.type === TreeType.WHEN || tree.type === TreeType.ATOM) {
-            renderWhen(tree);
+            internal.renderWhen(tree);
         }
     }
 
