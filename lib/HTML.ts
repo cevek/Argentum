@@ -5,7 +5,7 @@ module ag {
 
     function _d(tag:string, args:any) {
         var start = 0;
-        if (typeof args[start] === 'string') {
+        if (typeof args[start] === 'string' && args.length > 1) {
             tag += args[start];
             start++;
         }
