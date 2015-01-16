@@ -59,7 +59,7 @@ module ag {
 
         render() {
             return root(this.params.attrs,
-                ul('.nav', extendsAttrs(this.params.ulAttrs, {
+                ul('.nav', copy(this.params.ulAttrs, {
                     classSet: {
                         'nav-pills': this.params.pills,
                         'nav-tabs': !this.params.pills,
@@ -90,7 +90,7 @@ module ag {
         tree:TreeItem;
 
         render() {
-            return li(extendsAttrs(this.params.attrs, {
+            return li(copy(this.params.attrs, {
                     classSet: {
                         disabled: this.params.disabled,
                         active: ()=>this.parent.activeTab.isEqual(this)

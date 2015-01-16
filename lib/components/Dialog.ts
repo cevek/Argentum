@@ -33,7 +33,7 @@ module ag {
         }
 
         render() {
-            return div('.modal', extendsAttrs(this.params.attrs, {style: {display: 'block'}}),
+            return div('.modal', copy(this.params.attrs, {style: {display: 'block'}}),
                 div('.modal-backdrop'),
                 div('.modal-dialog', this.params.dialogAttrs,
                     div('.modal-content', this.params.contentAttrs, this.children)

@@ -30,7 +30,7 @@ module ag {
         }
 
         render() {
-            return input(extendsAttrs(this.params.attrs, {
+            return input(copy(this.params.attrs, {
                 type: this.params.type || 'text',
                 oninput: ()=>this.onInput(),
                 onblur: ()=>this.updateInput(),
@@ -59,11 +59,11 @@ module ag {
 
         render() {
             return root('.form-group', this.params.attrs,
-                label('.control-label', extendsAttrs(this.params.labelAttrs, {
+                label('.control-label', copy(this.params.labelAttrs, {
                     htmlFor: this.id,
                     classSet: {required: this.params.required}
                 }), this.params.label, ":"),
-                input('.form-control', extendsAttrs(this.params.inputAttrs, {
+                input('.form-control', copy(this.params.inputAttrs, {
                     id: this.id,
                     type: this.params.type
                 }))

@@ -8,98 +8,98 @@ module ag {
     }
 
     export function btn(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'default',
             type: 'button'
         }), children)
     }
 
     export function btndanger(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'danger',
             type: 'button'
         }), children)
     }
 
     export function btnwarning(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'warning',
             type: 'button'
         }), children)
     }
 
     export function btninfo(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'info',
             type: 'button'
         }), children)
     }
 
     export function btnprimary(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'primary',
             type: 'button'
         }), children)
     }
 
     export function btnlink(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'link',
             type: 'button'
         }), children)
     }
 
     export function btnsuccess(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'success',
             type: 'button'
         }), children)
     }
 
     export function submit(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'default',
             type: 'submit'
         }), children)
     }
 
     export function submitdanger(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'danger',
             type: 'submit'
         }), children)
     }
 
     export function submitwarning(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'warning',
             type: 'submit'
         }), children)
     }
 
     export function submitinfo(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'info',
             type: 'submit'
         }), children)
     }
 
     export function submitprimary(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'primary',
             type: 'button'
         }), children)
     }
 
     export function submitlink(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'link',
             type: 'submit'
         }), children)
     }
 
     export function submitsuccess(params:IBtn, ...children:any[]) {
-        return new Btn(extendsAttrs(params, {
+        return new Btn(copy(params, {
             color: 'success',
             type: 'submit'
         }), children)
@@ -109,7 +109,7 @@ module ag {
         constructor(public params:IBtn, public children?:any) {}
 
         render() {
-            return button('.btn', extendsAttrs(this.params, {
+            return button('.btn', copy(this.params, {
                 classSet: {
                     'btn-default': this.params.color === 'default',
                     'btn-danger': this.params.color === 'danger',

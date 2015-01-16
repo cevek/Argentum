@@ -28,7 +28,7 @@ module ag {
         render() {
             return root('.' + this.type, this.params.attrs,
                 label(this.params.labelAttrs,
-                    input(extendsAttrs(this.params.inputAttrs, {
+                    input(copy(this.params.inputAttrs, {
                         type: this.type,
                         onchange: (e:Event)=>this.onChange(e),
                         checked: ()=>this.params.model.isEqual(this.params.value)

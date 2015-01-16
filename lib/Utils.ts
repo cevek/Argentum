@@ -11,8 +11,6 @@ module ag {
         }
     }
 
-
-
     export function prepareViewName(name:string) {
         var splits = name.split(/([A-Z][a-z\d_]+)/);
         var words:string[] = [];
@@ -25,12 +23,19 @@ module ag {
         return words.join("-");
     }
 
-
-    export function extendsAttrs(attrs: any, extendsAttrs: any) {
+    export function copy(attrs:any, extendsAttrs:any) {
         attrs = attrs || {};
-        if (extendsAttrs){
-            for (var attr in extendsAttrs) {
-                attrs[attr] = extendsAttrs[attr];
+        if (extendsAttrs) {
+            var keys = Object.keys(extendsAttrs);
+            for (var i = 0; i < keys.length; i++) {
+                var attr = keys[i];
+                if (extendsAttrs[attr] && extendsAttrs[attr].constructor === Object &&
+                    attrs[attr] && attrs[attr].constructor === Object) {
+                    copy(attrs[attr], extendsAttrs[attr]);
+                }
+                else {
+                    attrs[attr] = extendsAttrs[attr];
+                }
             }
         }
         return attrs;
