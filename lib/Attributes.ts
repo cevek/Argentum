@@ -83,7 +83,7 @@ module ag {
     export function renderAttrAtomListener(val:any, tree:TreeItem, attr:string) {
         if (!tree.removed && val !== void 0) {
             tree.attrs[attr] = val;
-            tree.node[attr] = val;
+            (<any>tree.node)[attr] = val;
         }
     }
 
@@ -122,7 +122,7 @@ module ag {
     export function applyStyleListener(val:any, tree:TreeItem, styleName:string) {
         if (!tree.removed && val !== void 0) {
             tree.attrs.style[styleName] = val;
-            tree.node['style'][styleName] = styleCompleter(styleName, val);
+            (<any>tree.node)['style'][styleName] = styleCompleter(styleName, val);
         }
     }
 
@@ -183,8 +183,8 @@ module ag {
             }
         }
         cls = cls.trim();
-        tree.attrs['className'] = cls;
-        tree.node['className'] = cls;
+        tree.attrs.className = cls;
+        (<any>tree.node).className = cls;
     }
 
 }
