@@ -24,6 +24,17 @@ module ag.test {
 
         radio = new Atom(this);
 
+        dialog() {
+            var dialog:Dialog = new Dialog({}, [
+                dialogheader({}, 'header'),
+                dialogbody({}, 'body'),
+                dialogfooter({},
+                    btn({onclick: ()=>dialog.close()}, 'Cancel'),
+                    btnsuccess({}, 'Save')
+                ),
+            ])
+        }
+
         render() {
             var condItem = {name: "Condition"};
             //this.select.set(options);
@@ -54,7 +65,7 @@ module ag.test {
                     map(this.select, item=>div(item.name)),
                     this.input,
                     btndanger({onclick: ()=>this.select.set([])}, 'clear'),
-                    btninfo({onclick: ()=> {new Dialog({header: 'hey', body: 'boy', footer: 'clickme'})}}, 'dialog'),
+                    btninfo({onclick: ()=> {this.dialog()}}, 'dialog'),
                     submitsuccess({}, 'Send'),
                     btn({onclick: ()=>this.activeTab.set(1)}, 'Tab1'),
                     btn({onclick: ()=>this.activeTab.set(2)}, 'Tab2'),
@@ -66,14 +77,13 @@ module ag.test {
                         tab({title: "Tab 3", value: 3}, 'Content3')
                     ),
                     radiogroup({model: this.radio},
-                       radio({value: 11, default: true}, 'hey'),
-                       radio({value: 2}, 'hey boy'),
-                       radio({value: 3}, 'hey girl')
+                        radio({value: 11, default: true}, 'hey'),
+                        radio({value: 2}, 'hey boy'),
+                        radio({value: 3}, 'hey girl')
                     ),
                     btn({onclick: ()=>this.radio.set(2)}, 'set 2'),
                     this.radio,
                     btninfo({onclick: ()=>new Alert({type: Alert.types.INFO}, 'hello')}, 'alert')
-
                 )
                 /*
                  this.checkbox,
