@@ -1,8 +1,6 @@
 module ag {
-    export interface IBtn {
+    export interface IBtn extends Attrs{
         color?: any;
-        type?: any;
-        attrs?: Attrs;
         size?: any;
         block?: any;
         active?: any;
@@ -111,7 +109,7 @@ module ag {
         constructor(public params:IBtn, public children?:any) {}
 
         render() {
-            return button('.btn', extendsAttrs(this.params.attrs, {
+            return button('.btn', extendsAttrs(this.params, {
                 classSet: {
                     'btn-default': this.params.color === 'default',
                     'btn-danger': this.params.color === 'danger',
