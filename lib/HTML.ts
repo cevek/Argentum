@@ -22,7 +22,7 @@ module ag {
         });
 
         treeItem.attrs = attrs || {};
-        parseTagExpr(tag, treeItem);
+        treeItem.parseTagExpr(tag);
         return treeItem;
     }
 

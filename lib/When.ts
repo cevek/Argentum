@@ -49,7 +49,7 @@ module ag.internal {
         if (tree.type === TreeType.WHEN) {
             removeTreeChildren(tree);
             if (value) {
-                var sub_tree = convertToTree(tree.whenCallback());
+                var sub_tree = TreeItem.convertToTree(tree.whenCallback());
                 sub_tree.parentNode = tree.parentNode;
                 sub_tree.nodeBefore = tree.node;
                 sub_tree.parentTree = tree;
@@ -68,7 +68,7 @@ module ag.internal {
             else {
                 removeTreeChildren(tree);
                 if (value !== null && value !== void 0) {
-                    var sub_tree = convertToTree(value);
+                    var sub_tree = TreeItem.convertToTree(value);
                     sub_tree.parentNode = tree.parentNode;
                     sub_tree.nodeBefore = tree.node;
                     sub_tree.parentTree = tree;

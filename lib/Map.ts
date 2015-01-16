@@ -27,7 +27,7 @@ module ag.internal {
         tree.children = [];
         var array = (tree.map.get() || []).slice();
         for (var i = 0; i < array.length; i++) {
-            tree.children[i] = convertToTree(tree.mapIterator(array[i], i));
+            tree.children[i] = TreeItem.convertToTree(tree.mapIterator(array[i], i));
         }
 
         for (var i = 0; i < tree.children.length; i++) {
@@ -50,7 +50,7 @@ module ag.internal {
             tree.children = [];
             tree.mapValues = [];
             for (var i = 0; i < array.length; i++) {
-                var itemTree = convertToTree(tree.mapIterator(array[i], i));
+                var itemTree = TreeItem.convertToTree(tree.mapIterator(array[i], i));
                 itemTree.parentNode = tree.parentNode;
                 itemTree.nodeBefore = tree.node;
                 tree.mapValues[i] = array[i];

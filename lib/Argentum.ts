@@ -37,7 +37,7 @@ module ag {
             document.head.appendChild(cssDom);
         }
 
-        var _treeItem = convertToTree(treeItem);
+        var _treeItem = TreeItem.convertToTree(treeItem);
         _treeItem.parentNode = node;
         render(_treeItem);
         return _treeItem;
@@ -96,7 +96,7 @@ module ag {
             attrs = {};
         }
         treeItem.attrs = attrs;
-        parseTagExpr(tagExpr, treeItem);
+        treeItem.parseTagExpr(tagExpr);
         return treeItem;
     }
 }

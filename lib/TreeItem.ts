@@ -61,7 +61,7 @@ module ag {
             }
             if (this.children) {
                 for (var i = 0; i < this.children.length; i++) {
-                    this.children[i] = convertToTree(this.children[i]);
+                    this.children[i] = TreeItem.convertToTree(this.children[i]);
                 }
             }
         }
@@ -193,7 +193,7 @@ module ag {
                     return val;
                 }
                 if (val.render) {
-                    var treeItem = convertToTree(val.render());
+                    var treeItem = TreeItem.convertToTree(val.render());
                     treeItem.tag = treeItem.tag || prepareViewName(val.constructor.name);
                     treeItem.type = TreeType.TAG;
                     treeItem.component = val;
@@ -203,6 +203,47 @@ module ag {
             }
             return new TreeItem({type: TreeType.TEXT, value: val});
         }
+
+        parseTagExpr(tagExpr:string):TreeItem {
+            var tree = this;
+            var className = '';
+            var lastDot = -1;
+            var len = tagExpr.length;
+            for (var i = 0; i < len + 1; i++) {
+                if (i === len || tagExpr[i] === '.') {
+                    if (lastDot == -1) {
+                        tree.tag = tagExpr.substring(0, i);
+                    }
+                    else {
+                        className += tagExpr.substring(lastDot + 1, i);
+                        if (i != len) {
+                            className += ' ';
+                        }
+                    }
+                    lastDot = i;
+                }
+            }
+
+            if (className) {
+                if (tree.attrs) {
+                    if (!tree.attrs.className) {
+                        tree.attrs.className = className;
+                        tree.attrs.baseClassName = className;
+                    }
+                } else {
+                    tree.attrs = {className: className, baseClassName: className};
+                }
+            }
+            else {
+                if (tree.attrs && tree.attrs.className) {
+                    tree.attrs.baseClassName = tree.attrs.className;
+                }
+
+            }
+
+            return tree;
+        }
+
     }
 
     export enum TreeType{
