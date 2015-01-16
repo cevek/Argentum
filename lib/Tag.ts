@@ -1,4 +1,4 @@
-module ag {
+module ag.internal {
 
     export function renderTag(tree:TreeItem) {
         //todo: do it to all cases
