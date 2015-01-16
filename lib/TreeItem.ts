@@ -97,6 +97,7 @@ module ag {
             }
             tree.nodeBefore = null;
             tree.parentNode = null;
+            tree.parentTree = null;
 
             if (tree.attrs && tree.attrs.self && tree.attrs.self.constructor === Atom) {
                 tree.attrs.self.setNull();
