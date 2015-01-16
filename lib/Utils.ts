@@ -14,103 +14,12 @@ module ag {
     export function removeTreeChildren(tree:TreeItem) {
         if (tree && tree.children) {
             for (var i = 0; i < tree.children.length; i++) {
-                removeTree(tree.children[i], true);
+                tree.children[i].destroy(true);
             }
             tree.children = null;
         }
     }
 
-    //TODO: remove only ag and this component atoms
-    export function removeTree(tree:TreeItem, isRoot = false) {
-        if (!tree) {
-            return;
-        }
-
-        if (tree.children) {
-            for (var i = 0; i < tree.children.length; i++) {
-                removeTree(tree.children[i]);
-            }
-            tree.children = null;
-        }
-
-        tree.removed = true;
-        if (tree.node) {
-            if (isRoot) {
-                animate(tree, true);
-            }
-
-            if (tree.attrs) {
-                for (var key in tree.attrs) {
-                    if (key.substr(0, 2) === 'on') {
-                        tree.node[key] = null;
-                    }
-                }
-            }
-            tree.node = null;
-        }
-        tree.nodeBefore = null;
-        tree.parentNode = null;
-
-        if (tree.attrs && tree.attrs.self && tree.attrs.self.constructor === Atom) {
-            tree.attrs.self.setNull();
-        }
-        tree.attrs = null;
-
-        if (tree.attrsAtoms) {
-            for (var key in tree.attrsAtoms) {
-                tree.attrsAtoms[key].destroy();
-            }
-            tree.attrsAtoms = null;
-        }
-
-        if (tree.styleAtoms) {
-            for (var key in tree.styleAtoms) {
-                tree.styleAtoms[key].destroy();
-            }
-            tree.styleAtoms = null;
-        }
-
-        if (tree.classSetAtoms) {
-            for (var key in tree.classSetAtoms) {
-                tree.classSetAtoms[key].destroy();
-            }
-            tree.classSetAtoms = null;
-        }
-
-        tree.mapValues = null;
-        tree.mapIterator = null;
-
-        if (tree.map) {
-            //tree.map.get().listeners = null;
-            tree.map.destroy();
-            tree.map = null;
-        }
-
-        tree.whenCallback = null;
-        if (tree.whenCondition) {
-            tree.whenCondition.destroy();
-            tree.whenCondition = null;
-        }
-
-        if (tree.component) {
-            if (tree.component.atoms) {
-                //console.log(tree.component.atoms);
-
-                for (var i = 0; i < tree.component.atoms.length; i++) {
-                    tree.component.atoms[i].destroy();
-                }
-            }
-            if (tree.component.listeners) {
-                //console.log(tree.component.listeners);
-
-                for (var i = 0; i < tree.component.listeners.length; i++) {
-                    tree.component.listeners[i].atom.removeListener(tree.component.listeners[i].callback, tree.component.listeners[i].thisArg);
-                }
-            }
-            tree.component.componentWillUnmount && tree.component.componentWillUnmount();
-            tree.component = null;
-        }
-    }
 
     export function convertToTree(val:any):TreeItem {
         if (val) {
