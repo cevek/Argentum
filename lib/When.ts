@@ -47,7 +47,7 @@ module ag.internal {
 
     export function renderWhenListener(value:any, tree:TreeItem) {
         if (tree.type === TreeType.WHEN) {
-            removeTreeChildren(tree);
+            tree.removeChildren();
             if (value) {
                 var sub_tree = TreeItem.convertToTree(tree.whenCallback());
                 sub_tree.parentNode = tree.parentNode;
@@ -66,7 +66,7 @@ module ag.internal {
                 renderTextContent(text, tree.children[0]);
             }
             else {
-                removeTreeChildren(tree);
+                tree.removeChildren();
                 if (value !== null && value !== void 0) {
                     var sub_tree = TreeItem.convertToTree(value);
                     sub_tree.parentNode = tree.parentNode;

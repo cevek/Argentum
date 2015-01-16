@@ -11,14 +11,6 @@ module ag {
         }
     }
 
-    export function removeTreeChildren(tree:TreeItem) {
-        if (tree && tree.children) {
-            for (var i = 0; i < tree.children.length; i++) {
-                tree.children[i].destroy(true);
-            }
-            tree.children = null;
-        }
-    }
 
 
     export function prepareViewName(name:string) {
@@ -42,10 +34,5 @@ module ag {
             }
         }
         return attrs;
-    }
-
-    export function log(param:any) {
-        console.log(param);
-        return param;
     }
 }

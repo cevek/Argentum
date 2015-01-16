@@ -45,7 +45,7 @@ module ag.internal {
     }
 
     export function renderMapDOMSet(array:any[], tree:TreeItem) {
-        removeTreeChildren(tree);
+        tree.removeChildren();
         if (array) {
             tree.children = [];
             tree.mapValues = [];
@@ -92,7 +92,7 @@ module ag.internal {
                 values[i] = array[i];
             }
         }
-        removeTreeChildren(tree);
+        tree.removeChildren();
         tree.children = children;
         tree.mapValues = values;
 
