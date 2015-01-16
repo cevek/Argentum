@@ -93,6 +93,17 @@ class Atom<T> {
              }
              */
         }
+
+        var obj:any = {
+            id: this.id,
+            owner: this.owner,
+            setterFn: this.setterFn,
+            getterFn: this.getterFn,
+            value: this.value,
+            constructor: ()=> {},
+            __proto__: Atom.prototype
+        };
+        return obj;
     }
 
     /*    proxy(owner:any) {
@@ -137,6 +148,8 @@ class Atom<T> {
             this._name = 'noname';
             console.error("atom hasn't name", this);
         }
+
+        (<any>this.constructor).displayName = 'Atom.' + this._name;
         return this._name;
     }
 
