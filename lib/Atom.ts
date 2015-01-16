@@ -612,7 +612,7 @@ module Atom {
     [idx: string]: any;
     }
 
-    if (window && window['Map']) {
+    if (window && (<any>window).Map) {
         Atom.AtomMap = <any>Map;
     }
 }
