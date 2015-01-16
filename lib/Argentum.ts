@@ -1,5 +1,6 @@
 /// <reference path="Atom.ts"/>
-/// <reference path="Interfaces.ts"/>
+/// <reference path="TreeItem.ts"/>
+/// <reference path="Component.ts"/>
 /// <reference path="HTML.ts"/>
 /// <reference path="HTMLAttrs.ts"/>
 /// <reference path="Utils.ts"/>
@@ -45,7 +46,7 @@ module ag {
     export function render(tree:TreeItem) {
         if (tree.component && (tree.component.isBlock || tree.component.isBlock === void 0)) {
             if (!createdCSSRules[tree.tag]) {
-                cssDom.sheet.insertRule(tree.tag + '{display: block}', 0);
+                (<any>cssDom.sheet).insertRule(tree.tag + '{display: block}', 0);
                 createdCSSRules[tree.tag] = true;
             }
         }
