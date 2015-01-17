@@ -152,6 +152,7 @@ var server = net.createServer(function (c) {
 	c.on('data', function (data) {
 		var filename = data.toString();
 		console.log(filename);
+		fs.futimes(fs.openSync(filename, 'r'), new Date(), new Date());
 		//var content = fs.readFileSync(filename);
 		//fs.writeFileSync(filename, content);
 	});

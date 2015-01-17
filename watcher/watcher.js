@@ -4,9 +4,11 @@ var client = net.connect({port: 9090},
 		//console.log('connected to server!');
 		client.write(process.argv[2]);
 	});
+/*
 client.setTimeout(5000, function(){
 	client.end();
 });
+*/
 client.on('data', function (data) {
 	console.log(data.toString());
 });
