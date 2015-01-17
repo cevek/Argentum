@@ -11,6 +11,8 @@
 /// <reference path="DOMUtils.ts"/>
 /// <reference path="Animation.ts"/>
 /// <reference path="Router.ts"/>
+/// <reference path="i18n/en.ts"/>
+/// <reference path="i18n/ru.ts"/>
 /// <reference path="i18n/i18n.ts"/>
 /// <reference path="components/Dialog.ts"/>
 /// <reference path="components/Alert.ts"/>
