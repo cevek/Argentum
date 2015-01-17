@@ -50,7 +50,7 @@ class Atom<T> {
     private removed:boolean;
     private level:number = 0;
     private _name:string;
-    private owner:any;
+    owner:any;
 
     static source<T>(owner:any, value?:T, params:IAtom<T> = {}):Atom<T> {
         params.value = value;
@@ -94,9 +94,11 @@ class Atom<T> {
              */
         }
 
+/*
         var obj:any = {
             id: this.id,
             owner: this.owner,
+            _name: this._name,
             setterFn: this.setterFn,
             getterFn: this.getterFn,
             value: this.value,
@@ -104,6 +106,7 @@ class Atom<T> {
             __proto__: Atom.prototype
         };
         return obj;
+*/
     }
 
     /*    proxy(owner:any) {
