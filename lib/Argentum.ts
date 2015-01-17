@@ -11,6 +11,7 @@
 /// <reference path="DOMUtils.ts"/>
 /// <reference path="Animation.ts"/>
 /// <reference path="Router.ts"/>
+/// <reference path="i18n/i18n.ts"/>
 /// <reference path="components/Dialog.ts"/>
 /// <reference path="components/Alert.ts"/>
 /// <reference path="components/Tabs.ts"/>
@@ -45,9 +46,9 @@ module ag {
 
     export function render(tree:TreeItem) {
         if (tree.component && (tree.component.isBlock || tree.component.isBlock === void 0)) {
-            if (!createdCSSRules[tree.tag]) {
-                (<any>cssDom.sheet).insertRule(tree.tag + '{display: block}', 0);
-                createdCSSRules[tree.tag] = true;
+            if (!createdCSSRules[tree.componentTag]) {
+                (<any>cssDom.sheet).insertRule(tree.componentTag + '{display: block}', 0);
+                createdCSSRules[tree.componentTag] = true;
             }
         }
         if (tree.type === TreeType.TAG) {

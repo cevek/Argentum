@@ -30,6 +30,7 @@ module ag {
         type:TreeType;
         tag:string;
         value:string;
+        componentTag: string;
         component:Component;
         attrs:Attrs;
         attrsAtoms:{[idx: string]: Atom<any>};
@@ -195,7 +196,8 @@ module ag {
                 }
                 if (val.render) {
                     var treeItem = TreeItem.convertToTree(val.render());
-                    treeItem.tag = treeItem.tag || prepareViewName(val.constructor.name);
+                    treeItem.componentTag = prepareViewName(val.constructor.name);
+                    treeItem.tag = treeItem.tag || treeItem.componentTag;
                     treeItem.type = TreeType.TAG;
                     treeItem.component = val;
                     treeItem.component.tree = treeItem;
