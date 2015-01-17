@@ -67,6 +67,12 @@ module ag {
             }
         }
 
+        destroyOwnAtom(atom: Atom<any>){
+            if (atom.owner === ag || (this.component && atom.owner == this.component)){
+                atom.destroy();
+            }
+        }
+
         //TODO: remove only ag and this component atoms
         destroy(isRoot = false) {
             var tree = this;
@@ -107,21 +113,21 @@ module ag {
 
             if (tree.attrsAtoms) {
                 for (var key in tree.attrsAtoms) {
-                    tree.attrsAtoms[key].destroy();
+                    this.destroyOwnAtom(tree.attrsAtoms[key]);
                 }
                 tree.attrsAtoms = null;
             }
 
             if (tree.styleAtoms) {
                 for (var key in tree.styleAtoms) {
-                    tree.styleAtoms[key].destroy();
+                    this.destroyOwnAtom(tree.styleAtoms[key]);
                 }
                 tree.styleAtoms = null;
             }
 
             if (tree.classSetAtoms) {
                 for (var key in tree.classSetAtoms) {
-                    tree.classSetAtoms[key].destroy();
+                    this.destroyOwnAtom(tree.classSetAtoms[key]);
                 }
                 tree.classSetAtoms = null;
             }
@@ -131,13 +137,13 @@ module ag {
 
             if (tree.map) {
                 //tree.map.get().listeners = null;
-                tree.map.destroy();
+                this.destroyOwnAtom(tree.map);
                 tree.map = null;
             }
 
             tree.whenCallback = null;
             if (tree.whenCondition) {
-                tree.whenCondition.destroy();
+                this.destroyOwnAtom(tree.whenCondition);
                 tree.whenCondition = null;
             }
 
@@ -146,7 +152,7 @@ module ag {
                     //console.log(tree.component.atoms);
 
                     for (var i = 0; i < tree.component.atoms.length; i++) {
-                        tree.component.atoms[i].destroy();
+                        this.destroyOwnAtom(tree.component.atoms[i]);
                     }
                 }
                 if (tree.component.listeners) {
