@@ -1,93 +1,45 @@
-module ag._i18n{
-    export class RU implements Lang {
+module ag.locale {
+    export class RU implements ILocale {
         "DATETIME_FORMATS" = {
-            "AMPMS": [
-                "AM",
-                "PM"
-            ],
-            "DAY": [
-                "\u0432\u043e\u0441\u043a\u0440\u0435\u0441\u0435\u043d\u044c\u0435",
-                "\u043f\u043e\u043d\u0435\u0434\u0435\u043b\u044c\u043d\u0438\u043a",
-                "\u0432\u0442\u043e\u0440\u043d\u0438\u043a",
-                "\u0441\u0440\u0435\u0434\u0430",
-                "\u0447\u0435\u0442\u0432\u0435\u0440\u0433",
-                "\u043f\u044f\u0442\u043d\u0438\u0446\u0430",
-                "\u0441\u0443\u0431\u0431\u043e\u0442\u0430"
-            ],
-            "MONTH": [
-                "\u044f\u043d\u0432\u0430\u0440\u044f",
-                "\u0444\u0435\u0432\u0440\u0430\u043b\u044f",
-                "\u043c\u0430\u0440\u0442\u0430",
-                "\u0430\u043f\u0440\u0435\u043b\u044f",
-                "\u043c\u0430\u044f",
-                "\u0438\u044e\u043d\u044f",
-                "\u0438\u044e\u043b\u044f",
-                "\u0430\u0432\u0433\u0443\u0441\u0442\u0430",
-                "\u0441\u0435\u043d\u0442\u044f\u0431\u0440\u044f",
-                "\u043e\u043a\u0442\u044f\u0431\u0440\u044f",
-                "\u043d\u043e\u044f\u0431\u0440\u044f",
-                "\u0434\u0435\u043a\u0430\u0431\u0440\u044f"
-            ],
-            "SHORTDAY": [
-                "\u0432\u0441",
-                "\u043f\u043d",
-                "\u0432\u0442",
-                "\u0441\u0440",
-                "\u0447\u0442",
-                "\u043f\u0442",
-                "\u0441\u0431"
-            ],
-            "SHORTMONTH": [
-                "\u044f\u043d\u0432.",
-                "\u0444\u0435\u0432\u0440.",
-                "\u043c\u0430\u0440\u0442\u0430",
-                "\u0430\u043f\u0440.",
-                "\u043c\u0430\u044f",
-                "\u0438\u044e\u043d\u044f",
-                "\u0438\u044e\u043b\u044f",
-                "\u0430\u0432\u0433.",
-                "\u0441\u0435\u043d\u0442.",
-                "\u043e\u043a\u0442.",
-                "\u043d\u043e\u044f\u0431.",
-                "\u0434\u0435\u043a."
-            ],
-            "fullDate": "EEEE, d MMMM y '\u0433'.",
-            "longDate": "d MMMM y '\u0433'.",
-            "medium": "d MMM y '\u0433'. H:mm:ss",
-            "mediumDate": "d MMM y '\u0433'.",
+            "AMPMS": ["AM", "PM"],
+            "DAY": ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"],
+            "MONTH": ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"],
+            "SHORTDAY": ["вс", "пн", "вт", "ср", "чт", "пт", "сб"],
+            "SHORTMONTH": ["янв.", "февр.", "марта", "апр.", "мая", "июня", "июля", "авг.", "сент.", "окт.", "нояб.", "дек."],
+            "fullDate": "EEEE, d MMMM y 'г'.",
+            "longDate": "d MMMM y 'г'.",
+            "medium": "d MMM y 'г'. H:mm:ss",
+            "mediumDate": "d MMM y 'г'.",
             "mediumTime": "H:mm:ss",
             "short": "dd.MM.yy H:mm",
             "shortDate": "dd.MM.yy",
             "shortTime": "H:mm"
         };
         "NUMBER_FORMATS" = {
-            "CURRENCY_SYM": "\u0440\u0443\u0431.",
+            "CURRENCY_SYM": "руб.",
             "DECIMAL_SEP": ",",
-            "GROUP_SEP": "\u00a0",
-            "PATTERNS": [
-                {
-                    "gSize": 3,
-                    "lgSize": 3,
-                    "maxFrac": 3,
-                    "minFrac": 0,
-                    "minInt": 1,
-                    "negPre": "-",
-                    "negSuf": "",
-                    "posPre": "",
-                    "posSuf": ""
-                },
-                {
-                    "gSize": 3,
-                    "lgSize": 3,
-                    "maxFrac": 2,
-                    "minFrac": 2,
-                    "minInt": 1,
-                    "negPre": "-",
-                    "negSuf": "\u00a0\u00a4",
-                    "posPre": "",
-                    "posSuf": "\u00a0\u00a4"
-                }
-            ]
+            "GROUP_SEP": " ",
+            "PATTERNS": [{
+                "gSize": 3,
+                "lgSize": 3,
+                "maxFrac": 3,
+                "minFrac": 0,
+                "minInt": 1,
+                "negPre": "-",
+                "negSuf": "",
+                "posPre": "",
+                "posSuf": ""
+            }, {
+                "gSize": 3,
+                "lgSize": 3,
+                "maxFrac": 2,
+                "minFrac": 2,
+                "minInt": 1,
+                "negPre": "-",
+                "negSuf": " ¤",
+                "posPre": "",
+                "posSuf": " ¤"
+            }]
         };
         "id" = "ru";
 

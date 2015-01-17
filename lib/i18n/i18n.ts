@@ -1,7 +1,7 @@
 module ag {
-    export module _i18n {
+    export module locale {
         export enum PLURAL_CATEGORY {ZERO, ONE, TWO, FEW, MANY, OTHER}
-        export interface Lang {
+        export interface ILocale {
             id: string;
             DATETIME_FORMATS: IDATETIME_FORMATS;
             NUMBER_FORMATS: INUMBER_FORMATS;
@@ -83,7 +83,7 @@ module ag {
         [type: string]: string;
     }
 
-    export var defaultLang = new _i18n.EN();
+    export var defaultLang = new locale.EN();
     export interface IPlural {
         one: string;
         other: string;
@@ -137,7 +137,7 @@ module ag {
             pluralCat = count;
         }
         else {
-            pluralCat = _i18n.PLURAL_CATEGORY[lang.plural(count)].toLowerCase();
+            pluralCat = locale.PLURAL_CATEGORY[lang.plural(count)].toLowerCase();
         }
 
         var str = obj[pluralCat];

@@ -1,5 +1,5 @@
-module ag._i18n{
-    export class EN implements Lang {
+module ag.locale{
+    export class EN implements ILocale {
         id = "en";
         DATETIME_FORMATS = {
             "AMPMS": [
