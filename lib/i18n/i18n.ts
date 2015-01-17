@@ -37,10 +37,6 @@ module ag {
     var lang = new EN();
 
     export function i18n(str:string, ...args:any[]) {
-        return i18nArgs(str, args);
-    }
-
-    function i18nArgs(str:string, args:any[]) {
         if (str) {
             var children:any[] = [];
             var splits = str.split('{}');
@@ -84,22 +80,24 @@ module ag {
             console.error("Plural categories doesn't exists:", doestExistsCats.join());
         }
 
-        switch (lang.plural(count)) {
-            case PLURAL_CATEGORY.ONE:
-                return i18nArgs(obj.one, args);
-            case PLURAL_CATEGORY.TWO:
-                return i18nArgs(obj.two, args);
-            case PLURAL_CATEGORY.FEW:
-                return i18nArgs(obj.few, args);
-            case PLURAL_CATEGORY.MANY:
-                return i18nArgs(obj.many, args);
-            case PLURAL_CATEGORY.OTHER:
-                return i18nArgs(obj.other, args);
-            case PLURAL_CATEGORY.ZERO:
-                return i18nArgs(obj.zero, args);
+        if (obj[count]) {
+            return i18n.apply(null, [obj[count]].concat(args));
+        }
+        else {
+            switch (lang.plural(count)) {
+                case PLURAL_CATEGORY.ONE:
+                    return i18n.apply(null, [obj.one].concat(args));
+                case PLURAL_CATEGORY.TWO:
+                    return i18n.apply(null, [obj.two].concat(args));
+                case PLURAL_CATEGORY.FEW:
+                    return i18n.apply(null, [obj.few].concat(args));
+                case PLURAL_CATEGORY.MANY:
+                    return i18n.apply(null, [obj.many].concat(args));
+                case PLURAL_CATEGORY.OTHER:
+                    return i18n.apply(null, [obj.other].concat(args));
+                case PLURAL_CATEGORY.ZERO:
+                    return i18n.apply(null, [obj.zero].concat(args));
+            }
         }
     }
-
-    i18n('hello my {} friend');
-    plural({one: 'hello my {} friend', other: 'hello my {} friends'}, 12);
 }
