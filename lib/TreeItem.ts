@@ -30,7 +30,7 @@ module ag {
         type:TreeType;
         tag:string;
         value:string;
-        componentTag: string;
+        componentTag:string;
         component:Component;
         attrs:Attrs;
         attrsAtoms:{[idx: string]: Atom<any>};
@@ -67,8 +67,17 @@ module ag {
             }
         }
 
-        destroyOwnAtom(atom: Atom<any>){
-            if (atom.owner === ag || (this.component && atom.owner == this.component)){
+        destroyOwnAtom(atom:Atom<any>) {
+            for (var i = 0; i < atom.listeners.length; i++) {
+                var listener = atom.listeners[i];
+                if (listener.thisArg === this) {
+                    atom.removeListener(listener.callback, this);
+                }
+                if (this.component && atom.owner == this.component && listener.thisArg === this) {
+                    atom.removeListener(listener.callback, this.component);
+                }
+            }
+            if (atom.owner === ag || (this.component && atom.owner == this.component)) {
                 atom.destroy();
             }
         }
@@ -155,13 +164,13 @@ module ag {
                         this.destroyOwnAtom(tree.component.atoms[i]);
                     }
                 }
-                if (tree.component.listeners) {
+                /*if (tree.component.listeners) {
                     //console.log(tree.component.listeners);
 
                     for (var i = 0; i < tree.component.listeners.length; i++) {
                         tree.component.listeners[i].atom.removeListener(tree.component.listeners[i].callback, tree.component.listeners[i].thisArg);
                     }
-                }
+                }*/
                 tree.component.componentWillUnmount && tree.component.componentWillUnmount();
                 tree.component = null;
             }

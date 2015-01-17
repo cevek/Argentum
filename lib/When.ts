@@ -41,7 +41,7 @@ module ag.internal {
             render(child);
         }
         if (ag.enableAtoms) {
-            tree.whenCondition.addListener(renderWhenListener, ag, tree);
+            tree.whenCondition.addListener(renderWhenListener, tree, tree);
         }
     }
 

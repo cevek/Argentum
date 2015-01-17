@@ -60,7 +60,7 @@ class Atom<T> {
     private computing:boolean = false;
     private slaves:Atom.AtomMap<Atom<Object>>;
     private masters:Atom.AtomMap<Atom<Object>>;
-    private listeners:AtomListeners<T, Object, Object, Object>[] = [];
+    listeners:AtomListeners<T, Object, Object, Object>[] = [];
 
     //constructor(getterFn?:(atom:Atom<T>)=>void, setterFn?:(atom:Atom<T>)=>T, val?:T);
     constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>) {
@@ -354,10 +354,6 @@ class Atom<T> {
                 thisArg: thisArg
             };
             this.listeners.push(listener);
-            if (thisArg) {
-                thisArg.listeners = thisArg.listeners || [];
-                thisArg.listeners.push(listener);
-            }
         }
         return this;
     }

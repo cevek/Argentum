@@ -40,7 +40,7 @@ module ag.internal {
         var array = tree.map.get() || [];
         if (ag.enableAtoms) {
             array.addListener(mapArrayListener, tree);
-            tree.map.addListener(renderMapDOMSet, ag, tree);
+            tree.map.addListener(renderMapDOMSet, tree, tree);
         }
     }
 

@@ -75,7 +75,7 @@ module ag.internal {
         else {
             renderAttrAtomListener(tree.attrs[attr], tree, attr);
             if (tree.attrsAtoms && tree.attrsAtoms[attr] && ag.enableAtoms) {
-                tree.attrsAtoms[attr].addListener(renderAttrAtomListener, ag, tree, attr);
+                tree.attrsAtoms[attr].addListener(renderAttrAtomListener, tree, tree, attr);
             }
         }
     }
@@ -115,7 +115,7 @@ module ag.internal {
         applyStyleListener(tree.attrs['style'][styleName], tree, styleName);
 
         if (tree.styleAtoms && tree.styleAtoms[styleName] && ag.enableAtoms) {
-            tree.styleAtoms[styleName].addListener(applyStyleListener, ag, tree, styleName);
+            tree.styleAtoms[styleName].addListener(applyStyleListener, tree, tree, styleName);
         }
     }
 
@@ -165,7 +165,7 @@ module ag.internal {
     export function renderClassSet(tree:TreeItem, className:string) {
         //console.log(className, "changed", tree.classSetAtoms[className]);
         if (ag.enableAtoms) {
-            tree.classSetAtoms[className].addListener(classSetAtomListener, ag, tree, className);
+            tree.classSetAtoms[className].addListener(classSetAtomListener, tree, tree, className);
         }
     }
 
