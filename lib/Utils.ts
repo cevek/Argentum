@@ -11,6 +11,19 @@ module ag {
         }
     }
 
+    export function flattenArray(arr:Object[], startPos = 0) {
+        var ret:Object[] = [];
+        for (var i = startPos; i < arr.length; i++) {
+            if (arr[i] && arr[i].constructor === Array) {
+                ret = ret.concat(flattenArray(<Object[]>arr[i]));
+            }
+            else {
+                ret.push(arr[i]);
+            }
+        }
+        return ret;
+    }
+
     export function prepareViewName(name:string) {
         var splits = name.split(/([A-Z][a-z\d_]+)/);
         var words:string[] = [];

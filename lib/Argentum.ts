@@ -66,18 +66,6 @@ module ag {
         }
     }
 
-    export function flattenArray(arr:Object[], startPos = 0) {
-        var ret:Object[] = [];
-        for (var i = startPos; i < arr.length; i++) {
-            if (arr[i] && arr[i].constructor === Array) {
-                ret = ret.concat(flattenArray(<Object[]>arr[i]));
-            }
-            else {
-                ret.push(arr[i]);
-            }
-        }
-        return ret;
-    }
 
     export function dom(tagExpr:string, ...children:any[]) {
         if (children[0] && children[0].constructor === Object) {
