@@ -42,6 +42,7 @@ module ag.test {
             //this.select.set(options);
             return root(
                 alertcontainer(),
+                dateFilter(new Date()),
                 form({onsubmit: ()=>false},
                     i18n('Hello, my dear {}! Yeah {} man!', b(i18n('Friend')), this.pluralNum),
                     plural({0: 'No one', one: 'one {} layer', other: 'other {} people'}, this.pluralNum),

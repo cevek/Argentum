@@ -27,7 +27,7 @@ module ag {
             return {v: v, f: f};
         }
 
-        interface IDATETIME_FORMATS {
+        export interface IDATETIME_FORMATS {
             AMPMS: string[];
             DAY: string[];
             MONTH: string[];
@@ -43,14 +43,14 @@ module ag {
             shortTime: string;
         }
 
-        interface INUMBER_FORMATS {
+        export interface INUMBER_FORMATS {
             CURRENCY_SYM: string;
             DECIMAL_SEP: string;
             GROUP_SEP: string;
             PATTERNS: IPATTERNS[];
         }
 
-        interface IPATTERNS {
+        export interface IPATTERNS {
             "gSize": number;
             "lgSize": number;
             "maxFrac": number;
