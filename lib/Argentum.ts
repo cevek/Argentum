@@ -14,6 +14,9 @@
 /// <reference path="i18n/en.ts"/>
 /// <reference path="i18n/ru.ts"/>
 /// <reference path="i18n/i18n.ts"/>
+/// <reference path="i18n/number.ts"/>
+/// <reference path="i18n/date.ts"/>
+/// <reference path="i18n/currency.ts"/>
 /// <reference path="components/Dialog.ts"/>
 /// <reference path="components/Alert.ts"/>
 /// <reference path="components/Tabs.ts"/>
