@@ -111,6 +111,12 @@ module ag {
                 continue;
             }
             if (!stringState && (s == 'y' || s == 'M' || s == 'd' || s == 'H' || s == 'h' || s == 'm' || s == 's' || s == 'a' || s == 'Z' || s == 'E' || s == 'w')) {
+                if (start > -1 && s !== sym){
+                    var fn = DATE_FORMATS[sym][i - start];
+                    text += fn ? fn(date) : '?';
+                    start = i;
+                    sym = s;
+                }
                 if (start === -1) {
                     start = i;
                     sym = s;
@@ -121,6 +127,7 @@ module ag {
                     var fn = DATE_FORMATS[sym][i - start];
                     text += fn ? fn(date) : '?';
                     start = -1;
+                    sym = '';
                 }
                 text += s;
             }
