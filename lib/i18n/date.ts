@@ -1,33 +1,14 @@
 module ag {
-    function dateGetter(name:string, size:number, offset?:number, trim?:boolean) {
-        offset = offset || 0;
-        return function (date:Date) {
-            var value = (<any>date)['get' + name]();
-            if (offset > 0 || value > -offset) {
-                value += offset;
-            }
-            if (value === 0 && offset == -12) {
-                value = 12;
-            }
-            return locale.padNumber(value, size, trim);
-        };
-    }
 
-    function dateStrGetter(name:string, shortForm?:boolean) {
-        return function (date:any) {
-            var value = date['get' + name]();
-            var get = (shortForm ? ('SHORT' + name) : name).toUpperCase();
-
-            return (<any>lang.DATETIME_FORMATS)[get][value];
-        };
+    function padNumber(num:number, pad:number, trim?:boolean) {
+        var N = Math.pow(10, pad);
+        return (num < N ? ("" + (N + num)).slice(1) : trim ? ("" + num).slice(-pad) : ("" + num));
     }
 
     function timeZoneGetter(date:Date) {
         var zone = -1 * date.getTimezoneOffset();
         var paddedZone = (zone >= 0) ? "+" : "";
-
-        paddedZone += locale.padNumber(zone > 0 ? Math.floor(zone / 60) : Math.ceil(zone / 60), 2) + locale.padNumber(Math.abs(zone % 60), 2);
-
+        paddedZone += padNumber(zone > 0 ? Math.floor(zone / 60) : Math.ceil(zone / 60), 2) + padNumber(Math.abs(zone % 60), 2);
         return paddedZone;
     }
 
@@ -45,90 +26,103 @@ module ag {
             datetime.getDate() + (4 - datetime.getDay()));
     }
 
-    function weekGetter(size:number) {
-        return function (date:Date) {
-            var firstThurs = getFirstThursdayOfYear(date.getFullYear()),
-                thisThurs = getThursdayThisWeek(date);
+    function weekGetter(date:Date) {
+        var firstThurs = getFirstThursdayOfYear(date.getFullYear()),
+            thisThurs = getThursdayThisWeek(date);
 
-            var diff = +thisThurs - +firstThurs,
-                result = 1 + Math.round(diff / 6.048e8); // 6.048e8 ms per week
-
-            return locale.padNumber(result, size);
-        };
+        var diff = +thisThurs - +firstThurs; // 6.048e8 ms per week
+        return 1 + Math.round(diff / 6.048e8);
     }
 
     function ampmGetter(date:Date) {
         return date.getHours() < 12 ? lang.DATETIME_FORMATS.AMPMS[0] : lang.DATETIME_FORMATS.AMPMS[1];
     }
 
+    function ampm(value:number) {
+        return value === 12 ? 12 : value - 12;
+    }
+
     var DATE_FORMATS:any = {
-        yyyy: dateGetter('FullYear', 4),
-        yy: dateGetter('FullYear', 2, 0, true),
-        y: dateGetter('FullYear', 1),
-        MMMM: dateStrGetter('Month'),
-        MMM: dateStrGetter('Month', true),
-        MM: dateGetter('Month', 2, 1),
-        M: dateGetter('Month', 1, 1),
-        dd: dateGetter('Date', 2),
-        d: dateGetter('Date', 1),
-        HH: dateGetter('Hours', 2),
-        H: dateGetter('Hours', 1),
-        hh: dateGetter('Hours', 2, -12),
-        h: dateGetter('Hours', 1, -12),
-        mm: dateGetter('Minutes', 2),
-        m: dateGetter('Minutes', 1),
-        ss: dateGetter('Seconds', 2),
-        s: dateGetter('Seconds', 1),
-        // while ISO 8601 requires fractions to be prefixed with `.` or `,`
-        // we can be just safely rely on using `sss` since we currently don't support single or two digit fractions
-        sss: dateGetter('Milliseconds', 3),
-        EEEE: dateStrGetter('Day'),
-        EEE: dateStrGetter('Day', true),
-        a: ampmGetter,
-        Z: timeZoneGetter,
-        ww: weekGetter(2),
-        w: weekGetter(1)
+        y: {
+            4: (date:Date)=>padNumber(date.getFullYear(), 4),
+            2: (date:Date)=>padNumber(date.getFullYear(), 2, true),
+            1: (date:Date)=>date.getFullYear()
+        },
+        M: {
+            4: (date:Date)=>lang.DATETIME_FORMATS.MONTH[date.getMonth()],
+            3: (date:Date)=>lang.DATETIME_FORMATS.SHORTMONTH[date.getMonth()],
+            2: (date:Date)=>padNumber(date.getMonth() + 1, 2),
+            1: (date:Date)=>date.getMonth() + 1
+        },
+        d: {
+            2: (date:Date)=>padNumber(date.getDate(), 2),
+            1: (date:Date)=>date.getDate()
+        },
+        H: {
+            2: (date:Date)=>padNumber(date.getHours(), 2),
+            1: (date:Date)=>date.getHours()
+        },
+        h: {
+            2: (date:Date)=>padNumber(ampm(date.getHours()), 2),
+            1: (date:Date)=>ampm(date.getHours())
+        },
+        m: {
+            2: (date:Date)=>padNumber(date.getMinutes(), 2),
+            1: (date:Date)=>date.getMinutes()
+        },
+        s: {
+            3: (date:Date)=>padNumber(date.getMilliseconds(), 3),
+            2: (date:Date)=>padNumber(date.getSeconds(), 2),
+            1: (date:Date)=>date.getSeconds()
+        },
+        E: {
+            4: (date:Date)=>lang.DATETIME_FORMATS.DAY[date.getDay()],
+            3: (date:Date)=>lang.DATETIME_FORMATS.SHORTDAY[date.getDay()]
+        },
+        a: {
+            1: ampmGetter
+        },
+        Z: {
+            1: timeZoneGetter
+        },
+        w: {
+            2: (date:Date)=>padNumber(weekGetter(date), 2),
+            1: weekGetter
+        }
     };
 
-    var DATE_FORMATS_SPLIT = /((?:[^yMdHhmsaZEw']+)|(?:'(?:[^']|'')*')|(?:E+|y+|M+|d+|H+|h+|m+|s+|a|Z|w+))(.*)/,
-        NUMBER_STRING = /^\-?\d+$/;
-
-    //                      1        2       3         4          5          6          7          8  9     10      11
-    var R_ISO8601_STR = /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
-
     export function dateFilter(date:Date, format?:string, timezone?:string) {
-
-        var text = '',
-            parts:string[] = [];
-
         format = format || 'mediumDate';
         format = (<any>lang.DATETIME_FORMATS)[format] || format;
-
-        if (!date || !isFinite(date.getTime())) {
-            return 'Invalid Date';
-        }
-
-        while (format) {
-            var match = DATE_FORMATS_SPLIT.exec(format);
-            if (match) {
-                parts = parts.concat([].slice.call(match, 1));
-                format = parts.pop();
-            } else {
-                parts.push(format);
-                format = null;
-            }
-        }
+        var text = '';
+        var start = -1;
+        var stringState = false;
 
         if (timezone && timezone === 'UTC') {
             date = new Date(date.getTime());
             date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
         }
-        parts.forEach((value) => {
-            var fn = DATE_FORMATS[value];
-            text += fn ? fn(date, lang.DATETIME_FORMATS)
-                : value.replace(/(^'|'$)/g, '').replace(/''/g, "'");
-        });
 
+        for (var i = 0, len = format.length; i < len; i++) {
+            var s = format[i];
+            if (s === "'") {
+                stringState = !stringState;
+                continue;
+            }
+            if (!stringState && DATE_FORMATS[s]) {
+                if (start === -1) {
+                    start = i;
+                }
+                if (!DATE_FORMATS[format[i + 1]]) {
+                    var fn = DATE_FORMATS[s][i - start + 1];
+                    text += fn ? fn(date) : '?';
+                    start = -1;
+                }
+            }
+            else {
+                text += s;
+            }
+        }
         return text;
     }
 }
