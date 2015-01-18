@@ -97,6 +97,7 @@ module ag {
         var text = '';
         var start = -1;
         var stringState = false;
+        var sym = '';
 
         if (timezone && timezone === 'UTC') {
             date = new Date(date.getTime());
@@ -109,19 +110,24 @@ module ag {
                 stringState = !stringState;
                 continue;
             }
-            if (!stringState && DATE_FORMATS[s]) {
+            if (!stringState && (s == 'y' || s == 'M' || s == 'd' || s == 'H' || s == 'h' || s == 'm' || s == 's' || s == 'a' || s == 'Z' || s == 'E' || s == 'w')) {
                 if (start === -1) {
                     start = i;
-                }
-                if (!DATE_FORMATS[format[i + 1]]) {
-                    var fn = DATE_FORMATS[s][i - start + 1];
-                    text += fn ? fn(date) : '?';
-                    start = -1;
+                    sym = s;
                 }
             }
             else {
+                if (start > -1) {
+                    var fn = DATE_FORMATS[sym][i - start];
+                    text += fn ? fn(date) : '?';
+                    start = -1;
+                }
                 text += s;
             }
+        }
+        if (start > -1) {
+            var fn = DATE_FORMATS[sym][i - start];
+            text += fn ? fn(date) : '?';
         }
         return text;
     }
