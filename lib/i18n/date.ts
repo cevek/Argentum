@@ -1,10 +1,5 @@
 module ag {
 
-    function padNumber(num:number, pad:number, trim?:boolean) {
-        var N = Math.pow(10, pad);
-        return (num < N ? ("" + (N + num)).slice(1) : trim ? ("" + num).slice(-pad) : ("" + num));
-    }
-
     function timeZoneGetter(date:Date) {
         var zone = -1 * date.getTimezoneOffset();
         var paddedZone = (zone >= 0) ? "+" : "";

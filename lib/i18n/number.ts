@@ -1,4 +1,15 @@
 module ag {
+    export function currencyFilter(amount:number,
+                                   currencySymbol = lang.NUMBER_FORMATS.CURRENCY_SYM,
+                                   fractionSize = lang.NUMBER_FORMATS.PATTERNS[1].maxFrac) {
+        return formatNumber(amount, fractionSize, 1).replace(/\u00A4/g, currencySymbol);
+    }
+
+    export function padNumber(num:number, pad:number, trim?:boolean) {
+        var N = Math.pow(10, pad);
+        return (num < N ? ("" + (N + num)).slice(1) : trim ? ("" + num).slice(-pad) : ("" + num));
+    }
+
     export function formatNumber(num:number, fractionSize?:number, patternIndex = 0) {
         var formats = lang.NUMBER_FORMATS;
         var pattern = formats.PATTERNS[patternIndex],
