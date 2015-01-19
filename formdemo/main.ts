@@ -43,6 +43,8 @@ module ag.test {
             return root(
                 alertcontainer(),
                 dateFilter(new Date()),
+                currencyFilter(1000),
+                formatNumber(1000.12),
                 form({onsubmit: ()=>false},
                     i18n('Hello, my dear {}! Yeah {} man!', b(i18n('Friend')), this.pluralNum),
                     plural({0: 'No one', one: 'one {} layer', other: 'other {} people'}, this.pluralNum),
@@ -193,9 +195,14 @@ module ag.test {
     publicRender(document.body, new Users());
 }
 
-/*
- var bench = new Bench();
- console.time('perf');
- var dom = publicRender(document.body, bench);
- console.timeEnd('perf');
- */
+function aaa() {
+    ag.formatNumber(1000.234);
+}
+
+ //var bench = new Bench();
+console.time('perf');
+ //var dom = publicRender(document.body, bench);
+for (var i = 0; i < 100000; i++) {
+    //aaa();
+}
+console.timeEnd('perf');
