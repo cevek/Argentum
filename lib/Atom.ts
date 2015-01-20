@@ -44,7 +44,7 @@ class Atom<T> {
     static debugMode = true;
     private static lastId = 0;
     private id:number;
-    private value:T;
+    value:T;
     private getterFn:(prevValue:T)=>T;
     private setterFn:(atom:Atom<T>)=>void;
     private removed:boolean;
@@ -76,6 +76,13 @@ class Atom<T> {
             this._name = params.name;
             this.setterFn = params.setter;
             this.value = params.value === null ? void 0 : params.value;
+            if (params.masters) {
+                this.masters = new Atom.AtomMap<Atom<Object>>();
+                for (var i = 0; i < params.masters.length; i++) {
+                    var master = params.masters[i];
+                    this.addMaster(master);
+                }
+            }
             /*
              if (params.masters){
              this.masters = new Atom.AtomMap<Atom<Object>>();
@@ -94,19 +101,19 @@ class Atom<T> {
              */
         }
 
-/*
-        var obj:any = {
-            id: this.id,
-            owner: this.owner,
-            _name: this._name,
-            setterFn: this.setterFn,
-            getterFn: this.getterFn,
-            value: this.value,
-            constructor: ()=> {},
-            __proto__: Atom.prototype
-        };
-        return obj;
-*/
+        /*
+                var obj:any = {
+                    id: this.id,
+                    owner: this.owner,
+                    _name: this._name,
+                    setterFn: this.setterFn,
+                    getterFn: this.getterFn,
+                    value: this.value,
+                    constructor: ()=> {},
+                    __proto__: Atom.prototype
+                };
+                return obj;
+        */
     }
 
     /*    proxy(owner:any) {
@@ -255,19 +262,62 @@ class Atom<T> {
         return this.value;
     }
 
+    static mid = 0;
+    static mt:Atom<any>[] = [];
+    static messager = window.addEventListener('message', Atom.callGetter);
+
+    static callGetter(e:{data: number}) {
+        var mid = e.data;
+        if (Atom.mt[mid]) {
+            var atom = Atom.mt[mid];
+            console.log("updater", atom.value);
+            if (atom.setterFn) {
+                atom.setterFn.call(atom.owner, atom.value);
+            }
+            if (atom.getterFn) {
+                atom.value = atom.getterFn.call(atom.owner, atom.value);
+            }
+            //atom.callSetter();
+            //atom.callGetter();
+            atom.callListeners();
+            Atom.mt[mid] = null;
+        }
+    }
+
+    private update() {
+        var index = -1;
+        if ((index = Atom.mt.indexOf(this)) > -1) {
+            Atom.mt[index] = null;
+        }
+        var mid = ++Atom.mid;
+        Atom.mt[mid] = this;
+        window.postMessage(mid, '*');
+        if (this.slaves) {
+            var slaves = Atom.getAtomMapValues(this.slaves);
+            for (var i = 0; i < slaves.length; i++) {
+                var slave = slaves[i];
+                slave.update();
+            }
+        }
+    }
+
     set(val:T, force = false) {
         if (this.value !== val || force) {
             this.value = val;
-            var mid = ++Atom.lastMicrotaskId;
-            Atom.microtasks.push({
-                atom: this,
-                value: val,
-                stack: Atom.lastCalledSetter
-            });
-            Atom.observer.microtaskId = mid;
-            if (!Object.observe || !Atom.useObjectObserver) {
-                window.postMessage({atomMicrotaskId: mid}, '*');
-            }
+            this.update();
+            /*
+                        var mid = ++Atom.lastMicrotaskId;
+
+                        Atom.microtasks.push({
+                            atom: this,
+                            value: val,
+                            stack: Atom.lastCalledSetter
+                        });
+                        Atom.observer.microtaskId = mid;
+                        if (!Object.observe || !Atom.useObjectObserver) {
+                            window.postMessage({atomMicrotaskId: mid}, '*');
+                        }
+            */
         }
     }
 
@@ -629,3 +679,27 @@ module Atom {
     }
 }
 
+/*
+var a1 = new Atom(this, null, {value: 1});
+var a2 = new Atom(this, null, {value: 2, masters: [a1]});
+var a3 = new Atom(this, null, {value: 3, masters: [a2]});
+var a9 = new Atom(this, null, {value: 9, masters: null});
+var a5 = new Atom(this, null, {value: 5, masters: [a9]});
+var a4 = new Atom(this, null, {value: 4, masters: [a1, a5]});
+var a10 = new Atom(this, null, {value: 10, masters: [a9]});
+var a6 = new Atom(this, null, {value: 6, masters: [a5, a10]});
+var a7 = new Atom(this, null, {value: 7, masters: [a4, a6]});
+var a8 = new Atom(this, null, {value: 8, masters: [a7]});
+var a11 = new Atom(this, null, {value: 11, masters: [a10]});
+var a12 = new Atom(this, null, {value: 12, masters: null});
+var a13 = new Atom(this, null, {value: 13, masters: null});
+var a14 = new Atom(this, null, {value: 14, masters: null});
+var a15 = new Atom(this, null, {value: 15, masters: [a13, a14]});
+var a16 = new Atom(this, null, {value: 16, masters: [a3, a4, a8, a11, a12, a15]});
+
+a1.set(a1.value);
+a9.set(a9.value);
+a12.set(a12.value);
+a13.set(a13.value);
+a14.set(a14.value);
+// run order 1,2,3,9,5,4,10,6,7,8,11,12,13,14,15,16*/
