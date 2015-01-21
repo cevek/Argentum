@@ -50,6 +50,8 @@ class Atom<T> {
     private removed:boolean;
     private level:number = 0;
     private _name:string;
+
+    private needUpdate = false;
     owner:any;
 
     static source<T>(owner:any, value?:T, params:IAtom<T> = {}):Atom<T> {
@@ -244,10 +246,30 @@ class Atom<T> {
     }
 
     get():T {
-        if (this.value === void 0) {
-            this.callGetter();
+        if (this.value === void 0 && this.getterFn) {
+            this.value = this.getterFn.call(this.owner, this.value);
+            //this.callGetter();
         }
+/*
+        var slaveAtom = Atom.lastCalledGetter;
+        if (slaveAtom) {
+            if (!this.slaves) {
+                this.slaves = new Atom.AtomMap<Atom<Object>>();
+            }
+            if (!slaveAtom.masters) {
+                slaveAtom.masters = new Atom.AtomMap<Atom<Object>>();
+            }
+            this.slaves.set(slaveAtom.id, slaveAtom);
+            slaveAtom.masters.set(this.id, this);
+        }*/
+        return this.value;
+    }
 
+    depsAndGet():T {
+        if (this.value === void 0 && this.getterFn) {
+            this.value = this.getterFn.call(this.owner, this.value);
+            //this.callGetter();
+        }
         var slaveAtom = Atom.lastCalledGetter;
         if (slaveAtom) {
             if (!this.slaves) {
@@ -264,19 +286,35 @@ class Atom<T> {
 
     static mid = 0;
     static mt:Atom<any>[] = [];
-    static messager = window.addEventListener('message', Atom.callGetter);
+    static messager = window.addEventListener('message', Atom.update);
 
-    static callGetter(e:{data: number}) {
+    static update(e:{data: number}) {
         var mid = e.data;
-        if (Atom.mt[mid]) {
-            var atom = Atom.mt[mid];
-            console.log("updater", atom.value);
+        var atom = Atom.mt[mid];
+        if (atom && atom.needUpdate) {
+            atom.needUpdate = false;
+            console.log("updater", atom.value, atom);
             if (atom.setterFn) {
                 atom.setterFn.call(atom.owner, atom.value);
             }
+
+            var needUpdateSlaves = true;
             if (atom.getterFn) {
-                atom.value = atom.getterFn.call(atom.owner, atom.value);
+                var old = atom.value;
+                atom.value = atom.getterFn.call(atom.owner, old);
+                needUpdateSlaves = old !== atom.value;
             }
+            if (needUpdateSlaves && atom.slaves) {
+                var slaves = Atom.getAtomMapValues(atom.slaves);
+                for (var i = 0; i < slaves.length; i++) {
+                    var slave = slaves[i];
+                    slave.needUpdate = true;
+                }
+            }
+            /*
+                        if (atom.value !== old) {
+                        }
+            */
             //atom.callSetter();
             //atom.callGetter();
             atom.callListeners();
@@ -304,6 +342,7 @@ class Atom<T> {
     set(val:T, force = false) {
         if (this.value !== val || force) {
             this.value = val;
+            this.needUpdate = true;
             this.update();
             /*
                         var mid = ++Atom.lastMicrotaskId;
@@ -703,3 +742,4 @@ a12.set(a12.value);
 a13.set(a13.value);
 a14.set(a14.value);
 // run order 1,2,3,9,5,4,10,6,7,8,11,12,13,14,15,16*/
+
