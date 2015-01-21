@@ -32,8 +32,8 @@ module ag {
         render() {
             return input(copy(this.params.attrs, {
                 type: this.params.type || 'text',
-                oninput: ()=>this.onInput(),
-                onblur: ()=>this.updateInput(),
+                oninput: this.onInput,
+                onblur: this.updateInput,
                 required: this.params.required
             }));
         }
@@ -63,9 +63,12 @@ module ag {
                     htmlFor: this.id,
                     classSet: {required: this.params.required}
                 }), this.params.label, ":"),
-                input('.form-control', copy(this.params.inputAttrs, {
-                    id: this.id,
-                    type: this.params.type
+                inputtext(copy(this.params, {
+                    attrs: copy(this.params.inputAttrs, {
+                        className: 'form-control',
+                        id: this.id,
+                        type: this.params.type
+                    })
                 }))
             );
         }
