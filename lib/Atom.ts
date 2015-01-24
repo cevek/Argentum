@@ -3,6 +3,9 @@
 interface Object {
     observe(beingObserved:Object, callback:(update:Object) => void) : void;
 }
+interface Function {
+    displayName:string;
+}
 
 interface Console {
     profileEnd(name:string):void;
@@ -43,16 +46,18 @@ interface IAtom<T> {
 class Atom<T> {
     static debugMode = true;
     private static lastId = 0;
-    private id:number;
+    private id = 0;
+    private _name = '';
     value:T;
     private getterFn:(prevValue:T)=>T;
     private setterFn:(atom:Atom<T>)=>void;
     private removed:boolean;
     private level:number = 0;
-    private _name:string;
 
-    private needUpdate = false;
+    private needUpdate = 0;
     owner:any;
+
+    private getterFnName:{};
 
     static source<T>(owner:any, value?:T, params:IAtom<T> = {}):Atom<T> {
         params.value = value;
@@ -73,7 +78,10 @@ class Atom<T> {
             owner.atoms.push(this);
         }
 
-        this.getterFn = getter;
+        if (getter) {
+            this.getterFnName = getter.prototype;
+            this.getterFn = getter;
+        }
         if (params) {
             this._name = params.name;
             this.setterFn = params.setter;
@@ -158,7 +166,7 @@ class Atom<T> {
         }
         else {
             this._name = 'noname';
-            console.error("atom hasn't name", this);
+            //console.error("atom hasn't name", this);
         }
 
         (<any>this.constructor).displayName = 'Atom.' + this._name;
@@ -247,10 +255,9 @@ class Atom<T> {
 
     get():T {
         if (this.value === void 0 && this.getterFn) {
-            this.value = this.getterFn.call(this.owner, this.value);
-            //this.callGetter();
+            //this.value = this.getterFn.call(this.owner, this.value);
+            this.callGetter();
         }
-/*
         var slaveAtom = Atom.lastCalledGetter;
         if (slaveAtom) {
             if (!this.slaves) {
@@ -261,54 +268,57 @@ class Atom<T> {
             }
             this.slaves.set(slaveAtom.id, slaveAtom);
             slaveAtom.masters.set(this.id, this);
-        }*/
+        }
         return this.value;
     }
 
-    depsAndGet():T {
-        if (this.value === void 0 && this.getterFn) {
-            this.value = this.getterFn.call(this.owner, this.value);
-            //this.callGetter();
-        }
-        var slaveAtom = Atom.lastCalledGetter;
-        if (slaveAtom) {
-            if (!this.slaves) {
-                this.slaves = new Atom.AtomMap<Atom<Object>>();
+    /*
+
+        depsAndGet():T {
+            if (this.value === void 0 && this.getterFn) {
+                this.value = this.getterFn.call(this.owner, this.value);
+                //this.callGetter();
             }
-            if (!slaveAtom.masters) {
-                slaveAtom.masters = new Atom.AtomMap<Atom<Object>>();
+            var slaveAtom = Atom.lastCalledGetter;
+            if (slaveAtom) {
+                if (!this.slaves) {
+                    this.slaves = new Atom.AtomMap<Atom<Object>>();
+                }
+                if (!slaveAtom.masters) {
+                    slaveAtom.masters = new Atom.AtomMap<Atom<Object>>();
+                }
+                this.slaves.set(slaveAtom.id, slaveAtom);
+                slaveAtom.masters.set(this.id, this);
             }
-            this.slaves.set(slaveAtom.id, slaveAtom);
-            slaveAtom.masters.set(this.id, this);
+            return this.value;
         }
-        return this.value;
-    }
+    */
 
     static mid = 0;
     static mt:Atom<any>[] = [];
-    static messager = window.addEventListener('message', Atom.update);
+    static messager = window.addEventListener('message', Atom.asyncUpdate);
 
-    static update(e:{data: number}) {
+    static asyncUpdate(e:{data: number}) {
         var mid = e.data;
         var atom = Atom.mt[mid];
         if (atom && atom.needUpdate) {
-            atom.needUpdate = false;
-            console.log("updater", atom.value, atom);
             if (atom.setterFn) {
                 atom.setterFn.call(atom.owner, atom.value);
             }
 
             var needUpdateSlaves = true;
-            if (atom.getterFn) {
+            if (atom.needUpdate === 1 && atom.getterFn) {
                 var old = atom.value;
-                atom.value = atom.getterFn.call(atom.owner, old);
-                needUpdateSlaves = old !== atom.value;
+                //atom.value = atom.getterFn.call(atom.owner, old);
+                //needUpdateSlaves = old !== atom.value;
+                atom.callGetter();
+                needUpdateSlaves = true;
             }
             if (needUpdateSlaves && atom.slaves) {
                 var slaves = Atom.getAtomMapValues(atom.slaves);
                 for (var i = 0; i < slaves.length; i++) {
                     var slave = slaves[i];
-                    slave.needUpdate = true;
+                    slave.needUpdate = 1;
                 }
             }
             /*
@@ -318,32 +328,116 @@ class Atom<T> {
             //atom.callSetter();
             //atom.callGetter();
             atom.callListeners();
+            console.log("updater", atom.value, atom);
+            atom.needUpdate = 0;
             Atom.mt[mid] = null;
         }
     }
 
-    private update() {
-        var index = -1;
-        if ((index = Atom.mt.indexOf(this)) > -1) {
-            Atom.mt[index] = null;
+    update() {
+        var self = <Atom<T>>this;
+        if (self.getterFn) {
+            self.getterFn.displayName = self.name + '.getter';
+            var temp = Atom.lastCalledGetter;
+            Atom.lastCalledGetter = this;
+            self.clearMasters();
+            if (self.computing) {
+                console.log("cyclic atom", this);
+                throw "cyclic error";
+            }
+            self.computing = true;
+            //var old_value = this.value;
+            self.value = self.getterFn.call(self.owner, self.value);
+            self.computing = false;
+            self.setLevelToMasters(self.level + 1);
+            Atom.lastCalledGetter = temp;
+            //return true;//old_value !== this.value;
         }
-        var mid = ++Atom.mid;
-        Atom.mt[mid] = this;
-        window.postMessage(mid, '*');
+        self.callListeners();
+        console.log("update", self.name, '=', self.value);
+
+
+        if (self.slaves) {
+            var slaves = Atom.getAtomMapValues(self.slaves);
+            for (var j = 0; j < slaves.length; j++) {
+                var slave = slaves[j];
+                if (slave.mastersCount === 1) {
+                    slave.mastersCount--;
+                    slave.update();
+                    slave.update.displayName = slave.name;
+                }
+            }
+        }
+
+        /* var index = -1;
+         if ((index = Atom.mt.indexOf(this)) > -1) {
+             Atom.mt[index] = null;
+         }
+         var mid = ++Atom.mid;
+         Atom.mt[mid] = this;
+         window.postMessage(mid, '*');
+         if (this.slaves) {
+             var slaves = Atom.getAtomMapValues(this.slaves);
+             for (var i = 0; i < slaves.length; i++) {
+                 var slave = slaves[i];
+                 slave.update();
+             }
+         }*/
+    }
+
+    private updateSlaveMastersCount() {
         if (this.slaves) {
             var slaves = Atom.getAtomMapValues(this.slaves);
-            for (var i = 0; i < slaves.length; i++) {
-                var slave = slaves[i];
-                slave.update();
+            for (var j = 0; j < slaves.length; j++) {
+                var slave = slaves[j];
+                slave.mastersCount++;
+                if (slave.mastersCount === 1) {
+                    slave.updateSlaveMastersCount();
+                    slave.update.displayName = slave.name;
+                }
             }
         }
     }
 
+    mastersCount = 0;
+
+    static digest(e:{data: string}) {
+        if (e.data === 'digest') {
+            //console.log("digest", Atom.setAtoms);
+
+            for (var i = 0; i < Atom.setAtoms.length; i++) {
+                var atom = Atom.setAtoms[i];
+                atom.updateSlaveMastersCount();
+                atom.update.displayName = atom.name;
+            }
+
+            for (var i = 0; i < Atom.setAtoms.length; i++) {
+                var atom = Atom.setAtoms[i];
+                atom.update();
+            }
+            Atom.setAtoms = [];
+            Atom.willDigests = false;
+        }
+
+    }
+
+    static ondigest = window.addEventListener('message', Atom.digest);
+    static willDigests = false;
+    static setAtoms:Atom<any>[] = [];
+
     set(val:T, force = false) {
+        //console.log("set", this.name, val);
+
         if (this.value !== val || force) {
             this.value = val;
-            this.needUpdate = true;
-            this.update();
+            this.needUpdate = 2;
+            Atom.setAtoms.push(this);
+            if (!Atom.willDigests) {
+                postMessage('digest', '*');
+            }
+
+            Atom.willDigests = true;
+//            this.update();
             /*
                         var mid = ++Atom.lastMicrotaskId;
 
@@ -718,7 +812,6 @@ module Atom {
     }
 }
 
-/*
 var a1 = new Atom(this, null, {value: 1});
 var a2 = new Atom(this, null, {value: 2, masters: [a1]});
 var a3 = new Atom(this, null, {value: 3, masters: [a2]});
@@ -734,12 +827,17 @@ var a12 = new Atom(this, null, {value: 12, masters: null});
 var a13 = new Atom(this, null, {value: 13, masters: null});
 var a14 = new Atom(this, null, {value: 14, masters: null});
 var a15 = new Atom(this, null, {value: 15, masters: [a13, a14]});
-var a16 = new Atom(this, null, {value: 16, masters: [a3, a4, a8, a11, a12, a15]});
+var a16 = new Atom(this, ()=>{debugger; return 23}, {value: 16, masters: [a3, a4, a8, a11, a12, a15]});
 
-a1.set(a1.value);
-a9.set(a9.value);
-a12.set(a12.value);
-a13.set(a13.value);
-a14.set(a14.value);
-// run order 1,2,3,9,5,4,10,6,7,8,11,12,13,14,15,16*/
+a1.set(a1.value, true);
+a9.set(a9.value, true);
+a12.set(a12.value, true);
+a13.set(a13.value, true);
+a14.set(a14.value, true);
+// run order 1,2,3,9,5,4,10,6,7,8,11,12,13,14,15,16
 
+console.time('perferror');
+for (var i = 0; i < 10000; i++) {
+    new Error();
+}
+console.timeEnd('perferror');
