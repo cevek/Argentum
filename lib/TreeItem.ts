@@ -275,7 +275,11 @@ module ag {
     }
 
     export enum TreeType{
-        TAG, MAP, WHEN, COMPONENT, TEXT, ATOM
+        TAG = <any>'tag',
+        MAP = <any>'map',
+        WHEN = <any>'when',
+        TEXT = <any>'text',
+        ATOM = <any>'atom'
     }
 
 }
