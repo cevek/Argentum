@@ -64,6 +64,7 @@ class Atom<T> {
     private slaves:AtomMap<Atom<Object>> = null;
     listeners:AtomListeners<T, Object, Object, Object>[] = [];
     private needUpdate = NeedUpdate.NOT;
+    private mastersCount = 0;
 
     constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>) {
         this.id = ++Atom.lastId;
@@ -185,6 +186,7 @@ class Atom<T> {
     }
 
     static depth = -1;
+    private static checked:{[id:number]: boolean} = {};
 
     update() {
         Atom.depth++;
@@ -238,8 +240,6 @@ class Atom<T> {
         Atom.depth--;
     }
 
-    private static checked:{[id:number]: boolean} = {};
-
     private updateSlaveMastersCount() {
         if (Atom.checked[this.id]) {
             console.error(this);
@@ -258,42 +258,47 @@ class Atom<T> {
         }
     }
 
-    mastersCount = 0;
 
-    static digest(e:{data: string}) {
+    static ondigest = window.addEventListener('message', (e:{data: string})=> {
         if (e.data === 'digest') {
-            var atoms = Atom.setAtoms.slice();
-            Atom.setAtoms = [];
-            Atom.checked = {};
-            Atom.willDigests = false;
-            if (Atom.debugMode) {
-                console.groupCollapsed("digest");
-                console.log(atoms);
-                console.trace();
-                console.groupEnd();
-            }
+            Atom.digest()
+        }
+    });
+    static willDigests = false;
 
-            for (var i = 0; i < atoms.length; i++) {
-                var atom = atoms[i];
-                atom.updateSlaveMastersCount();
-            }
-
-            for (var i = 0; i < atoms.length; i++) {
-                var atom = atoms[i];
-                if (Atom.debugMode) {
-                    atom.update.displayName = atom.fullname + '.atom';
-                }
-                atom.needUpdate = NeedUpdate.SET;
-                if (!atom.removed) {
-                    atom.update();
-                }
-            }
+    static digest() {
+        if (Atom.setAtoms.length === 0) {
+            return;
+        }
+        var atoms = Atom.setAtoms.slice();
+        Atom.setAtoms = [];
+        Atom.checked = {};
+        Atom.willDigests = false;
+        if (Atom.debugMode) {
+            console.groupCollapsed("digest");
+            console.log(atoms);
+            console.trace();
+            console.groupEnd();
         }
 
+        for (var i = 0; i < atoms.length; i++) {
+            var atom = atoms[i];
+            atom.updateSlaveMastersCount();
+        }
+
+        for (var i = 0; i < atoms.length; i++) {
+            var atom = atoms[i];
+            if (Atom.debugMode) {
+                atom.update.displayName = atom.fullname + '.atom';
+            }
+            atom.needUpdate = NeedUpdate.SET;
+            if (!atom.removed) {
+                atom.update();
+            }
+        }
+        Atom.digest();
     }
 
-    static ondigest = window.addEventListener('message', Atom.digest);
-    static willDigests = false;
     static setAtoms:Atom<any>[] = [];
 
     set(val:T, force = false) {
@@ -335,14 +340,6 @@ class Atom<T> {
             }
         }
     }
-
-    /* addListener2(owner: any, callback: (val: T)=>void){
-     var atom = new Atom(owner, {getter: ()=>{ callback.call(owner, this.get()); return null; }*/
-    /*, masters: [this]*/
-    /*, name: this.name + '.listener'});
-     atom.get();
-     return this;
-     }*/
 
     addListener<A1, A2, A3>(fn:AtomListenerCallback<T, A1, A2, A3>,
                             thisArg:any/*checked*/,
