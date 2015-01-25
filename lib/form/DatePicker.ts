@@ -4,7 +4,7 @@ module ag {
         attrs?: Attrs;
     }
 
-    export function datepicker(params: IDatePicker){return new DatePicker(params)}
+    export function datepicker(params:IDatePicker) {return new DatePicker(params)}
     class DatePicker implements Component {
         inputTree = new Atom<TreeItem>(this);
         calendar = new Atom<TreeItem>(this);
@@ -120,6 +120,7 @@ module ag {
             return new Date(date.setDate(diff));
         }
 
+        private firstDayOfMonth = new Atom<Date>(this);
         private days = new Atom<Date[][]>(this, this.calcDays);
 
         calcDays() {
@@ -139,24 +140,20 @@ module ag {
             //console.log("DateCalendar created", this);
             //this.model = model.proxy(this);
 
-            //this.modelChanged();
+            this.modelChanged();
             //this.model.addListener2(this, this.modelChanged);
-            //this.model.addListener(this.modelChanged, this);
+            this.model.addListener(this.modelChanged, this);
         }
 
-        private firstDayOfMonth = new Atom<Date>(this, this.firstDayOfMonthGetter);
-
-        firstDayOfMonthGetter() {
+        modelChanged() {
             var dt = this.model.get();
-            var dd:Date;
-            //console.log("Calendar modelChanged", dt);
             if (dt && isFinite(dt.getTime())) {
-                dd = new Date(dt.getFullYear(), dt.getMonth(), 1);
+                var dd = new Date(dt.getFullYear(), dt.getMonth(), 1);
             }
             else {
                 dd = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
             }
-            return dd;
+            this.firstDayOfMonth.set(dd);
         }
 
         move(pos:number) {
@@ -180,7 +177,10 @@ module ag {
         render() {
             return root(this.attrs,
                 dom('.header',
-                    dom('.month-year', ()=>DatePickerCalendar.months[this.firstDayOfMonth.get().getMonth()], " ", ()=>this.firstDayOfMonth.get().getFullYear()),
+                    dom('.month-year',
+                        ()=>DatePickerCalendar.months[this.firstDayOfMonth.get().getMonth()],
+                        " ",
+                        ()=>this.firstDayOfMonth.get().getFullYear()),
 
                     dom('.controls',
                         dom('a.left', {onclick: ()=>this.move(-1)}, '<'),
