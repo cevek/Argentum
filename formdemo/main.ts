@@ -48,7 +48,8 @@ module ag.test {
                 form({onsubmit: ()=>false},
                     i18n('Hello, my dear {}! Yeah {} man!', b(i18n('Friend')), this.pluralNum),
                     plural({0: 'No one', one: 'one {} layer', other: 'other {} people'}, this.pluralNum),
-                    button({onclick: ()=>this.pluralNum.set(Math.random() * 3 | 0)}, 'one'),
+                    this.pluralNum,
+                    button({onclick: ()=>this.pluralNum.set(this.pluralNum.value + 1)}, 'one'),
                     datepicker({model: this.date, attrs: {self: this.picker}}),
                     checkbox({value: 'yes', model: this.checkbox}, 'Click me'),
                     checkbox({value: true, model: this.multiple}, 'Multiple'),
@@ -199,9 +200,9 @@ function aaa() {
     ag.formatNumber(1000.234);
 }
 
- //var bench = new Bench();
+//var bench = new Bench();
 console.time('perf');
- //var dom = publicRender(document.body, bench);
+//var dom = publicRender(document.body, bench);
 for (var i = 0; i < 100000; i++) {
     //aaa();
 }
