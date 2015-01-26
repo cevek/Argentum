@@ -67,6 +67,24 @@ class Atom<T> {
     private mastersCount = 0;
 
     constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>) {
+        var args = [].slice.apply(arguments);
+        if (typeof args[args.length - 1] !== 'string') {
+            debugger;
+        }
+
+        if (args.length == 2) {
+            this.name = args[1];
+            params = null;
+            getter = null;
+        }
+        if (args.length == 3) {
+            this.name = args[2];
+            params = null;
+        }
+        if (args.length == 4) {
+            this.name = args[3];
+        }
+
         this.id = ++Atom.lastId;
         this.owner = owner;
         if (owner) {
@@ -78,7 +96,7 @@ class Atom<T> {
             this.getter = getter;
         }
         if (params) {
-            this.name = params.name;
+            //this.name = params.name;
             this.value = params.value === null ? void 0 : params.value;
             if (params.masters) {
                 this.masters = new AtomMap<Atom<Object>>();
@@ -91,7 +109,7 @@ class Atom<T> {
 
         if (Atom.debugMode) {
             //todo: just copy function code
-            this.update = <()=>void>new Function('return ' + Atom.prototype.update.toString());
+            this.update = <()=>void>new Function('return ' + Atom.prototype.update.toString())();
         }
     }
 
@@ -105,6 +123,7 @@ class Atom<T> {
     }
 
     get fullname() {
+        return this.name;
         if (this.owner) {
             if (this.name && this.name.indexOf('.') === -1) {
                 this.name = Atom.makeName(this.owner, this.name);
@@ -257,7 +276,6 @@ class Atom<T> {
             }
         }
     }
-
 
     static ondigest = window.addEventListener('message', (e:{data: string})=> {
         if (e.data === 'digest') {
