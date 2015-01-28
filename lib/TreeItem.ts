@@ -82,6 +82,8 @@ module ag {
             }
         }
 
+        flatChildren:TreeItem[] = [];
+
         //TODO: remove only ag and this component atoms
         destroy(isRoot = false) {
             var tree = this;
@@ -95,6 +97,15 @@ module ag {
                 }
                 tree.children = null;
             }
+
+            if (this.parentTree) {
+                var pos = this.parentTree.flatChildren.indexOf(this);
+                if (pos > -1) {
+                    this.parentTree.flatChildren.splice(pos, 1);
+                }
+            }
+            this.flatChildren = null;
+
 
             tree.removed = true;
             if (tree.node) {

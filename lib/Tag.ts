@@ -2,6 +2,9 @@ module ag.internal {
 
     export function renderTag(tree:TreeItem) {
         //todo: do it to all cases
+        if (tree.parentTree) {
+            tree.parentTree.flatChildren.push(tree);
+        }
         if (tree.component && tree.component.componentWillMount) {
             tree.component.componentWillMount();
         }

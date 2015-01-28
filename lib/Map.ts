@@ -34,6 +34,7 @@ module ag.internal {
             var itemTree = tree.children[i];
             itemTree.parentNode = tree.parentNode;
             itemTree.nodeBefore = tree.node;
+            itemTree.parentTree = tree.parentTree;
             render(itemTree);
         }
 
@@ -53,6 +54,7 @@ module ag.internal {
                 var itemTree = TreeItem.convertToTree(tree.mapIterator(array[i], i));
                 itemTree.parentNode = tree.parentNode;
                 itemTree.nodeBefore = tree.node;
+                itemTree.parentTree = tree.parentTree;
                 tree.mapValues[i] = array[i];
                 tree.children[i] = itemTree;
                 render(itemTree);
@@ -87,6 +89,7 @@ module ag.internal {
                 var itemTree = tree.mapIterator(array[i], i);
                 itemTree.parentNode = tree.parentNode;
                 itemTree.nodeBefore = node;
+                itemTree.parentTree = tree.parentTree;
                 render(itemTree);
                 children[i] = itemTree;
                 values[i] = array[i];

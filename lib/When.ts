@@ -37,7 +37,7 @@ module ag.internal {
         if (child) {
             child.parentNode = tree.parentNode;
             child.nodeBefore = tree.node;
-            child.parentTree = tree;
+            child.parentTree = tree.parentTree;
             render(child);
         }
         if (ag.enableAtoms) {
@@ -52,7 +52,7 @@ module ag.internal {
                 var sub_tree = TreeItem.convertToTree(tree.whenCallback());
                 sub_tree.parentNode = tree.parentNode;
                 sub_tree.nodeBefore = tree.node;
-                sub_tree.parentTree = tree;
+                sub_tree.parentTree = tree.parentTree;
                 tree.children = sub_tree ? [sub_tree] : null;
                 render(sub_tree);
             }
@@ -71,7 +71,7 @@ module ag.internal {
                     var sub_tree = TreeItem.convertToTree(value);
                     sub_tree.parentNode = tree.parentNode;
                     sub_tree.nodeBefore = tree.node;
-                    sub_tree.parentTree = tree;
+                    sub_tree.parentTree = tree.parentTree;
                     tree.children = sub_tree ? [sub_tree] : null;
                     render(sub_tree);
                 }
