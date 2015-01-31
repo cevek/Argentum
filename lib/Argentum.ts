@@ -1,4 +1,5 @@
 /// <reference path="Atom.ts"/>
+/// <reference path="AtomLIst.ts"/>
 /// <reference path="TreeItem.ts"/>
 /// <reference path="Component.ts"/>
 /// <reference path="HTML.ts"/>

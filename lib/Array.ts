@@ -67,6 +67,7 @@ window.addEventListener("message", function message(event:any) {
         Array_arrays = [];
     }
 });
+/*
 
 Array.prototype.push = function (item:any) {
     this.changed();
@@ -102,3 +103,4 @@ Array.prototype.splice = function (start:number, deleteCount?:number) {
         return this.__splice(start, deleteCount);
     }
 };
+*/
