@@ -1,5 +1,10 @@
 <component name="libraryTable">
   <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/compilertest.js" />
+      </sourceFilesUrls>
+    </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/demo1/Component.js" />
       <root url="file://$PROJECT_DIR$/tester.js" />
@@ -21,6 +26,7 @@
       <root url="file://$PROJECT_DIR$/demo1/testAtoms.js" />
       <root url="file://$PROJECT_DIR$/demo1/main.js" />
       <root url="file://$PROJECT_DIR$/test3.js" />
+      <root url="file://$PROJECT_DIR$/compilertest.js" />
     </CLASSES>
     <SOURCES />
   </library>
