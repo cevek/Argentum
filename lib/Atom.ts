@@ -55,11 +55,11 @@ class Atom<T> {
 
     owner:any = null;
 
-    static source<T>(owner:any, value?:T, params:IAtom<T> = {}):Atom<T> {
-        params.value = value;
-        return new Atom(owner, null, params);
-    }
-
+    /* static source<T>(owner:any, value?:T, params:IAtom<T> = {}):Atom<T> {
+         params.value = value;
+         return new Atom(owner, null, params);
+     }
+ */
     private masters:AtomMap<Atom<Object>> = null;
     private slaves:AtomMap<Atom<Object>> = null;
     listeners:AtomListeners<T, Object, Object, Object>[] = [];
@@ -124,7 +124,7 @@ class Atom<T> {
 
     get fullname() {
         return this.name;
-        if (this.owner) {
+        /*if (this.owner) {
             if (this.name && this.name.indexOf('.') === -1) {
                 this.name = Atom.makeName(this.owner, this.name);
             }
@@ -147,7 +147,7 @@ class Atom<T> {
             //console.error("atom hasn't name", this);
         }
 
-        return this.name;
+        return this.name;*/
     }
 
     private valueOf():T {
@@ -229,9 +229,9 @@ class Atom<T> {
 
         this.callListeners();
         if (Atom.debugMode) {
-            console.log(Atom.depthSpaces(Atom.depth) + "update", this.needUpdate, this.fullname);
+            //console.log(Atom.depthSpaces(Atom.depth) + "update", this.needUpdate, this.fullname);
             if (updated) {
-                console.groupCollapsed(Atom.depthSpaces(Atom.depth) + "update", this.fullname);
+                console.groupCollapsed(Atom.depthSpaces(Atom.depth) + this.fullname);
                 console.log(this);
                 console.log(this.value);
                 console.trace();
@@ -346,7 +346,7 @@ class Atom<T> {
 
     private callListeners() {
         if (this.listeners) {
-            Atom.debugMode && console.log(this.fullname + ".listeners");
+            //Atom.debugMode && console.log(this.fullname + ".listeners");
 
             for (var i = 0; i < this.listeners.length; i++) {
                 var listener = this.listeners[i];
@@ -436,29 +436,31 @@ class Atom<T> {
         return s;
     }
 
-    private static makeName(owner:any/*checked*/, name:string) {
-        if (!owner) {
-            return name;
-        }
-        var constr = owner.constructor;
-        if (constr && typeof constr.ns == 'function') {
-            constr.ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
-        }
-        if (owner.ns) {
-            if (typeof owner.ns == 'function') {
-                owner.ns = owner.ns.toString().replace('function () { return ', '').replace('; }', '');
+    /* private static makeName(owner:any*/
+    /*checked*/
+    /*, name:string) {
+            if (!owner) {
+                return name;
             }
-        }
+            var constr = owner.constructor;
+            if (constr && typeof constr.ns == 'function') {
+                constr.ns = constr.ns.toString().replace('function () { return ', '').replace('; }', '');
+            }
+            if (owner.ns) {
+                if (typeof owner.ns == 'function') {
+                    owner.ns = owner.ns.toString().replace('function () { return ', '').replace('; }', '');
+                }
+            }
 
-        var ns = owner.ns || owner.fullname || (constr && constr.ns);
+            var ns = owner.ns || owner.fullname || (constr && constr.ns);
 
-        var constrName = '';
-        if (constr && constr.fullname && constr.fullname !== 'Function' && constr.fullname !== 'Object') {
-            constrName = constr.fullname;
-        }
+            var constrName = '';
+            if (constr && constr.fullname && constr.fullname !== 'Function' && constr.fullname !== 'Object') {
+                constrName = constr.fullname;
+            }
 
-        return (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
-    }
+            return (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
+        }*/
 
     private static getAtomMapValues<T>(map:AtomMap<T>) {
         var values:T[] = [];
@@ -489,6 +491,13 @@ class Atom<T> {
             }
         }
         return true;
+    }
+}
+
+class AtomSource<T> extends Atom<T> {
+    constructor(value?:T) {
+        this.value = value;
+        super(null, arguments[arguments.length - 1]);
     }
 }
 
