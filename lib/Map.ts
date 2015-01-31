@@ -25,12 +25,11 @@ module ag.internal {
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
 
         tree.children = [];
+        tree.mapValues = [];
         var array = (tree.map.get() || []).slice();
         for (var i = 0; i < array.length; i++) {
             tree.children[i] = TreeItem.convertToTree(tree.mapIterator(array[i], i));
-        }
-
-        for (var i = 0; i < tree.children.length; i++) {
+            tree.mapValues[i] = array[i];
             var itemTree = tree.children[i];
             itemTree.parentNode = tree.parentNode;
             itemTree.nodeBefore = tree.node;
@@ -66,7 +65,7 @@ module ag.internal {
     }
 
     var counter = 0;
-
+    //todo: mapArrayListener doesnt work
     export function mapArrayListener(array:any[], tree:TreeItem) {
         counter++;
         var node = document.createComment("/for" + counter);
