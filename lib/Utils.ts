@@ -47,7 +47,15 @@ module ag {
                     copy(attrs[attr], extendsAttrs[attr]);
                 }
                 else {
-                    attrs[attr] = extendsAttrs[attr];
+                    if (extendsAttrs[attr] && extendsAttrs[attr].constructor === Function && attr.substr(0, 2) === 'on') {
+                        if (!attrs[attr] || attrs[attr].constructor !== Array) {
+                            attrs[attr] = attrs[attr] ? [attrs[attr]] : [];
+                        }
+                        attrs[attr].push(extendsAttrs[attr]);
+                    }
+                    else {
+                        attrs[attr] = extendsAttrs[attr];
+                    }
                 }
             }
         }

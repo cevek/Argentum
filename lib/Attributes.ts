@@ -30,9 +30,9 @@ module ag.internal {
 
     export function prepareAttr(tree:TreeItem, attr:string) {
         if (tree.attrs[attr] && tree.attrs[attr].constructor === Function) {
-            if (attr.substr(0, 2) === 'on'){
-                var fn = tree.attrs[attr];
-                tree.attrs[attr] = ()=>fn.apply(tree.component, arguments);
+            if (attr.substr(0, 2) === 'on') {
+                //var fn = tree.attrs[attr];
+                //tree.attrs[attr] = ()=>fn.apply(tree.component, arguments);
             }
             else {
                 var getter:IAtomGetter<any> = tree.attrs[attr];
@@ -82,8 +82,21 @@ module ag.internal {
 
     export function renderAttrAtomListener(val:any, tree:TreeItem, attr:string) {
         if (!tree.removed && val !== void 0) {
-            tree.attrs[attr] = val;
-            (<any>tree.node)[attr] = val;
+            //todo: remove listener
+            if (attr.substr(0, 2) === 'on') {
+                if (tree.attrs[attr].constructor === Array) {
+                    for (var i = 0; i < tree.attrs[attr].length; i++) {
+                        tree.node.addEventListener(attr.substr(2), tree.attrs[attr][i]);
+                    }
+                }
+                else {
+                    tree.node.addEventListener(attr.substr(2), tree.attrs[attr]);
+                }
+            }
+            else {
+                tree.attrs[attr] = val;
+                (<any>tree.node)[attr] = val;
+            }
         }
     }
 
