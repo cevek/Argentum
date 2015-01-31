@@ -23,10 +23,14 @@
     date-picker-calendar .week-names { border-bottom: 1px solid silver; }
     date-picker-calendar .week-name { font-weight: bold; text-align: center }
     date-picker-calendar .header { display: flex; justify-content: space-between }
-
     .animation { transition: transform .3s, opacity .5s; }
     .animation.ag-enter, .animation.ag-leave.ag-leave-active { opacity: 0; transform: scale(0.98) }
-    .animation.ag-enter.ag-enter-active, .animation.ag-leave  { opacity: 1; transform: scale(1)}
+    .animation.ag-enter.ag-enter-active, .animation.ag-leave { opacity: 1; transform: scale(1) }
+    autocomplete { width: 300px; border: 1px solid silver; background: white; padding: 10px; border-radius: 3px; }
+    autocomplete input { background: transparent; border: transparent; width: 100%; outline: none }
+    autocomplete .remove { float: right; }
+    autocomplete .wraplist { position: relative }
+    autocomplete .list { box-sizing: border-box; position: absolute; background: white; border: 1px solid silver; width: 100%; padding: 5px; }
 
 
 </style>

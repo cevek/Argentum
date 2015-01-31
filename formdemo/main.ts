@@ -1,18 +1,30 @@
 /// <reference path="../lib/Argentum.ts"/>
+/// <reference path="AutoComplete.ts"/>
 //Atom.debugMode = false;
 var glob:any = {};
 module ag.test {
 
+    export class User {
+        id:number;
+        name:string;
+
+        constructor() {
+            this.name = Math.random().toString(33).substr(3, 5);
+        }
+    }
+
+
+
     class TestForm implements Component {
-        input = Atom.source(this, 'input');
-        checkbox = Atom.source(this, 'yes');
-        required = Atom.source(this, true);
-        multiple = Atom.source(this, true);
+        input = new AtomSource('input');
+        checkbox = new AtomSource('yes');
+        required = new AtomSource(true);
+        multiple = new AtomSource(true);
 
         options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
         //select = new Atom<User[]>(this, {name: 'select', value: []});
-        select = Atom.source(this, [this.options[2]]);
-        date = Atom.source(this, new Date());
+        select = new AtomSource([this.options[2]]);
+        date = new AtomSource(new Date());
 
         picker = new Atom<TreeItem>(this);
 
@@ -37,11 +49,15 @@ module ag.test {
 
         pluralNum = new Atom(this, null, {value: 1});
 
+        users = new AtomSource([new User(),new User(),new User()]);
+        selectedUsers = new AtomSource<User[]>([]);
+
         render() {
             var condItem = {name: "Condition"};
             //this.select.set(options);
             return root(
                 alertcontainer(),
+                autocomplete({users: this.users, selectedUsers: this.selectedUsers}),
                 dateFilter(new Date()),
                 currencyFilter(1000),
                 formatNumber(1000.12),
@@ -109,7 +125,7 @@ module ag.test {
 
         constructor() {
             for (var i = 0; i < 10000; i++) {
-                this.atoms[i] = Atom.source(this, 0);
+                this.atoms[i] = new AtomSource(0);
             }
         }
 
@@ -134,7 +150,7 @@ module ag.test {
         }
     }
 
-    Atom.debugMode = false;
+    //Atom.debugMode = false;
     var testForm = new TestForm();
     var dom = publicRender(document.body, testForm);
     Route.listen();
@@ -157,11 +173,6 @@ module ag.test {
         }
     }
 
-    class User implements Component {
-        render() {
-
-        }
-    }
     class UserProfile implements Component {
         render() {
 
@@ -174,7 +185,7 @@ module ag.test {
             Route.activeRoute.addListener(route => {
                 switch (route) {
                     case R.userInfo:
-                        this.page.set(new User());
+                        //this.page.set(new User());
                         break;
 
                     case R.userProfileOffersItem:
@@ -200,10 +211,24 @@ function aaa() {
     ag.formatNumber(1000.234);
 }
 
+class AAA {
+    constructor() {
+
+    }
+}
+
+class BBB extends AAA {
+    constructor() {
+        super();
+    }
+}
+
 //var bench = new Bench();
 console.time('perf');
 //var dom = publicRender(document.body, bench);
-for (var i = 0; i < 100000; i++) {
+var list:any[] = [];
+for (var i = 0; i < 1000000; i++) {
+    //list[i] = new AAA();
     //aaa();
 }
 console.timeEnd('perf');
