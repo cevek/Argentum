@@ -32,8 +32,8 @@ module ag {
         render() {
             return input(copy(this.params.attrs, {
                 type: this.params.type || 'text',
-                oninput: this.onInput,
-                onblur: this.updateInput,
+                oninput: ()=>this.onInput(),
+                onblur: ()=>this.updateInput(),
                 required: this.params.required
             }));
         }

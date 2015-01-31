@@ -8,7 +8,7 @@ module ag {
     class DatePicker implements Component {
         inputTree = new Atom<TreeItem>(this);
         calendar = new Atom<TreeItem>(this);
-        focused = Atom.source(this, false);
+        focused = new AtomSource(false);
 
         constructor(private params:IDatePicker) {}
 
