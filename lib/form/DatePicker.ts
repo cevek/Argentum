@@ -6,9 +6,9 @@ module ag {
 
     export function datepicker(params:IDatePicker) {return new DatePicker(params)}
     class DatePicker implements Component {
-        inputTree = new Atom<TreeItem>(this);
-        calendar = new Atom<TreeItem>(this);
-        focused = new AtomSource(false);
+        inputTree = new Atom<TreeItem>();
+        calendar = new Atom<TreeItem>();
+        focused = new Atom(false);
 
         constructor(private params:IDatePicker) {}
 
@@ -105,7 +105,7 @@ module ag {
 
         static months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         static weeks = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-        static weekOrder = [1, 2, 3, 4, 5, 6, 0];
+        static weekOrder = new List([1, 2, 3, 4, 5, 6, 0]);
 
         private currentDay = DatePickerCalendar.getDayInt(new Date());
 
@@ -120,18 +120,18 @@ module ag {
             return new Date(date.setDate(diff));
         }
 
-        private firstDayOfMonth = new Atom<Date>(this);
-        private days = new Atom<Date[][]>(this, this.calcDays);
+        private firstDayOfMonth = new Atom<Date>();
+        private days = new ListFormula<List<Date>>(this, this.calcDays);
 
         calcDays() {
-            var days:Date[][] = [];
+            var days = new List<List<Date>>();
             var start = DatePickerCalendar.getMonday(this.firstDayOfMonth.get());
             //console.log("calc", start);
 
             for (var j = 0; j < 42; j++) {
                 var week = j / 7 | 0;
-                days[week] = days[week] || [];
-                days[week].push(new Date(start.getTime() + j * (24 * 60 * 60 * 1000)));
+                days.put(week, new List(days[week]));
+                days.get(week).push(new Date(start.getTime() + j * (24 * 60 * 60 * 1000)));
             }
             return days;
         }
@@ -188,12 +188,12 @@ module ag {
                         dom('a.right', {onclick: ()=>this.move(1)}, '>'))
                 ),
                 dom('div.week-names',
-                    mapRaw(DatePickerCalendar.weekOrder, (p)=>
+                    map(DatePickerCalendar.weekOrder, (p)=>
                         dom('.day.week-name', DatePickerCalendar.weeks[p]))),
 
                 map(this.days, (week)=>
                     dom('div.week',
-                        mapRaw(week, day=>
+                        map(week, day=>
                             dom('span.day', {
                                     classSet: {
                                         'current': this.currentDay === DatePickerCalendar.getDayInt(day),
