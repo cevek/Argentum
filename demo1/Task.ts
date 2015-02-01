@@ -11,7 +11,7 @@ module wrike {
         summary:string;
         description:string;
         assignee:User = null;
-        subtasks:Task[] = [];
+        subtasks = new List<Task>();
         comments:Comment[] = [];
         completed:boolean = false;
 

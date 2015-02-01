@@ -1,7 +1,7 @@
 var glob:any = {};
 module wrike {
-    export class List implements ag.Component {
-        activeTask = new AtomSource(new Task());
+    export class Lister implements ag.Component {
+        activeTask = new Atom(new Task());
 
         tasks:TaskVM[] = [];
 
