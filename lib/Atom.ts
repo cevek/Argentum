@@ -1,6 +1,6 @@
 /// <reference path="Array.ts"/>
 
-interface Iterable<T>{
+interface Iterable<T> {
     [index:number]: T;
     length: number;
 }
@@ -70,7 +70,7 @@ class AtomFormula<T> {
     protected needUpdate = NeedUpdate.NOT;
     protected mastersCount = 0;
 
-    constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>, name = '') {
+    constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>, name?:string) {
         if (!name) {
             console.error('Atom name is not define');
             //debugger;
@@ -103,6 +103,23 @@ class AtomFormula<T> {
         if (AtomFormula.debugMode) {
             //todo: just copy function code
             this.update = <()=>void>new Function('return ' + AtomFormula.prototype.update.toString())();
+            this.update.displayName = 'Atom.' + this.name;
+        }
+        return this.createNamedInstance();
+    }
+
+    protected createNamedInstance() {
+        return this;
+        if (AtomFormula.debugMode) {
+            var obj = Object.create(AtomFormula.prototype);
+            var keys = Object.keys(this);
+            for (var i = 0; i < keys.length; i++) {
+                var key = keys[i];
+                obj[key] = (<any>this)[key];
+            }
+            obj.constructor = function () {};
+            obj.constructor.displayName = name;
+            return obj;
         }
     }
 
@@ -175,7 +192,7 @@ class AtomFormula<T> {
 
     touch() {
         var slaveAtom = AtomFormula.lastCalledGetter;
-        if (slaveAtom) {
+        if (slaveAtom && slaveAtom.id !== this.id) {
             if (!this.slaves) {
                 this.slaves = new AtomMap<AtomFormula<Object>>();
             }
@@ -236,7 +253,7 @@ class AtomFormula<T> {
         }
     }
 
-    update() {
+    protected update() {
         AtomFormula.depth++;
         var updated = false;
         if (this.needUpdate === NeedUpdate.SET) {
@@ -273,19 +290,24 @@ class AtomFormula<T> {
         }
     }
 
-    static ondigest = window.addEventListener('message', (e:{data: string})=> {
-        if (e.data === 'digest') {
-            AtomFormula.digest()
-        }
-    });
+    static ondigest = window.addEventListener('message', AtomFormula.digest);
     static willDigests = false;
 
-    static digest() {
-        if (AtomFormula.setAtoms.length === 0) {
+    static digest(e?:{data: string}) {
+        if (e && e.data !== 'digest') {
             return;
         }
-        var atoms = AtomFormula.setAtoms.slice();
-        AtomFormula.setAtoms = [];
+        var keys = Object.keys(AtomFormula.setAtoms);
+        if (keys.length === 0) {
+            return;
+        }
+        var atoms:Atom<any>[] = [];
+        for (var i = 0; i < keys.length; i++) {
+            if (AtomFormula.setAtoms[+keys[i]]) {
+                atoms.push(AtomFormula.setAtoms[+keys[i]]);
+            }
+        }
+        AtomFormula.setAtoms = {};
         AtomFormula.checked = {};
         AtomFormula.willDigests = false;
         if (AtomFormula.debugMode) {
@@ -313,13 +335,13 @@ class AtomFormula<T> {
         AtomFormula.digest();
     }
 
-    static setAtoms:AtomFormula<any>[] = [];
+    static setAtoms:{[id: number]: AtomFormula<any>} = {};
 
     set(val:T, force = false) {
         if (this.value !== val || force) {
             this.value = val;
             this.needUpdate = NeedUpdate.SET;
-            AtomFormula.setAtoms.push(this);
+            AtomFormula.setAtoms[this.id] = this;
             if (!AtomFormula.willDigests) {
                 postMessage('digest', '*');
             }
@@ -494,6 +516,7 @@ class Atom<T> extends AtomFormula<T> {
     constructor(value?:T) {
         this.value = value;
         super(null, void 0, void 0, arguments[3]);
+        return this.createNamedInstance();
     }
 }
 
