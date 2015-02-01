@@ -1,16 +1,11 @@
 module ag{
-    export function map<R>(atomArray:Atom<R[]>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
+    export function map<R>(atomArray:List<R>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
         return new TreeItem({
             type: TreeType.MAP,
             map: atomArray,
             split: split,
             mapIterator: mapIterator
         });
-    }
-
-    export function mapRaw<R>(array:R[], mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
-        var atomArray = new Atom<any>(ag, null, {value: array, name: 'map'});
-        return map(atomArray, mapIterator, split);
     }
 }
 
@@ -25,11 +20,10 @@ module ag.internal {
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
 
         tree.children = [];
-        tree.mapValues = [];
-        var array = (tree.map.get() || []).slice();
-        for (var i = 0; i < array.length; i++) {
-            tree.children[i] = TreeItem.convertToTree(tree.mapIterator(array[i], i));
-            tree.mapValues[i] = array[i];
+        tree.mapValues = tree.map.toArray();
+
+        for (var i = 0; i < tree.mapValues.length; i++) {
+            tree.children[i] = TreeItem.convertToTree(tree.mapIterator(tree.mapValues[i], i));
             var itemTree = tree.children[i];
             itemTree.parentNode = tree.parentNode;
             itemTree.nodeBefore = tree.node;
@@ -37,14 +31,15 @@ module ag.internal {
             render(itemTree);
         }
 
-        var array = tree.map.get() || [];
+        //var array = tree.map || [];
         if (ag.enableAtoms) {
-            array.addListener(mapArrayListener, tree);
-            tree.map.addListener(renderMapDOMSet, tree, tree);
+            //array.addListener(mapArrayListener, tree);
+            //tree.map.addListener(renderMapDOMSet, tree, tree);
+            tree.map.addListener(mapArrayListener, tree, tree);
         }
     }
 
-    export function renderMapDOMSet(array:any[], tree:TreeItem) {
+   /* export function renderMapDOMSet(array:any[], tree:TreeItem) {
         tree.removeChildren();
         if (array) {
             tree.children = [];
@@ -62,21 +57,23 @@ module ag.internal {
                 array.addListener(mapArrayListener, tree);
             }
         }
-    }
+    }*/
 
     var counter = 0;
     //todo: mapArrayListener doesnt work
-    export function mapArrayListener(array:any[], tree:TreeItem) {
+    export function mapArrayListener(a1rray:any[], tree:TreeItem) {
+        //console.log("mapArrayListener", tree);
+
         counter++;
         var node = document.createComment("/for" + counter);
-        (<any>tree.node).tree = tree;
+        (<any>node).tree = tree;
         tree.parentNode.insertBefore(node, tree.node.nextSibling);
         tree.parentNode.removeChild(tree.node);
         var children:TreeItem[] = [];
         var values:any[] = [];
 
-        for (var i = 0; i < array.length; i++) {
-            var index = tree.mapValues.indexOf(array[i]);
+        for (var i = 0; i < tree.map.length; i++) {
+            var index = tree.mapValues.indexOf(tree.map[i]);
             if (index > -1) {
                 tree.parentNode.insertBefore(tree.children[index].node, node);
                 children[i] = tree.children[index];
@@ -85,19 +82,18 @@ module ag.internal {
                 tree.mapValues[index] = null;
             }
             else {
-                var itemTree = tree.mapIterator(array[i], i);
+                var itemTree = tree.mapIterator(tree.map[i], i);
                 itemTree.parentNode = tree.parentNode;
                 itemTree.nodeBefore = node;
                 itemTree.parentTree = tree.parentTree;
                 render(itemTree);
                 children[i] = itemTree;
-                values[i] = array[i];
+                values[i] = tree.map[i];
             }
         }
         tree.removeChildren();
         tree.children = children;
         tree.mapValues = values;
-
         tree.node = node;
     }
 }
