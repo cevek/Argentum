@@ -5,10 +5,10 @@ module ag{
         var atomCondition:Atom<any> = condition;
         if (condition.constructor === Function) {
             var getter:IAtomGetter<any> = condition;
-            atomCondition = new Atom<any>(ag, getter, {name: 'whenCondition'});
+            atomCondition = new AtomFormula<any>(ag, getter, {name: 'whenCondition'});
         }
-        else if (!(condition instanceof Atom)) {
-            atomCondition = new Atom<any>(ag, null, {value: condition, name: 'whenCondition'});
+        else if (!(condition instanceof AtomFormula)) {
+            atomCondition = new Atom<any>(condition);
         }
 
         return new TreeItem({
@@ -61,7 +61,7 @@ module ag.internal {
             // optimizing for textcontent
             if (tree.children && tree.children[0] && tree.children[0].type === TreeType.TEXT &&
                 ((value && !value.render && value.constructor !== Function &&
-                value.constructor !== Array && !(value instanceof Atom)) || !value)) {
+                value.constructor !== Array && !(value instanceof AtomFormula)) || !value)) {
                 var text = value !== null && value !== void 0 ? value : '';
                 renderTextContent(text, tree.children[0]);
             }

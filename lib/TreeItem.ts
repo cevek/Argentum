@@ -17,7 +17,7 @@ module ag {
         removed?:boolean;
 
         mapIterator?:internal.IMapIterator<any>;
-        map?:Atom<any[]>;
+        map?:List<any>;
         mapSplit?:string;
         mapValues?:any[];
 
@@ -46,7 +46,7 @@ module ag {
         removed:boolean;
 
         mapIterator:internal.IMapIterator<any>;
-        map:Atom<any[]>;
+        map:List<any>;
         mapSplit:string;
         mapValues:any[];
 
@@ -126,7 +126,7 @@ module ag {
             tree.parentNode = null;
             tree.parentTree = null;
 
-            if (tree.attrs && tree.attrs.self && tree.attrs.self instanceof Atom) {
+            if (tree.attrs && tree.attrs.self && tree.attrs.self instanceof AtomFormula) {
                 tree.attrs.self.setNull();
             }
             tree.attrs = null;
@@ -205,10 +205,10 @@ module ag {
                 var constructor = val.constructor;
                 if (constructor === Function) {
                     var getter:IAtomGetter<any> = val;
-                    val = new Atom<any>(ag, getter, {name: 'atom'});
-                    constructor = Atom;
+                    val = new AtomFormula<any>(ag, getter, {name: 'atom'});
+                    constructor = AtomFormula;
                 }
-                if (val instanceof Atom) {
+                if (val instanceof AtomFormula) {
                     var atom:Atom<any> = val;
                     var child = atom.get();
                     return new TreeItem({

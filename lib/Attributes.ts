@@ -11,7 +11,7 @@ module ag.internal {
                 if (key.substr(0, 3) === 'arg') {
                     continue;
                 }
-                if (key === 'self' && tree.attrs[key] && tree.attrs[key] instanceof Atom) {
+                if (key === 'self' && tree.attrs[key] && tree.attrs[key] instanceof AtomFormula) {
                     var selfAtom = <Atom<TreeItem>>tree.attrs[key];
                     selfAtom.set(tree);
                     continue;
@@ -36,10 +36,10 @@ module ag.internal {
             }
             else {
                 var getter:IAtomGetter<any> = tree.attrs[attr];
-                tree.attrs[attr] = new Atom(ag, getter, {name: 'attr'});
+                tree.attrs[attr] = new AtomFormula(ag, getter, {name: 'attr'});
             }
         }
-        if (tree.attrs[attr] && tree.attrs[attr] instanceof Atom) {
+        if (tree.attrs[attr] && tree.attrs[attr] instanceof AtomFormula) {
             var atom:Atom<any> = tree.attrs[attr];
             tree.attrs[attr] = atom.get();
 
@@ -111,9 +111,9 @@ module ag.internal {
         for (var styleName in styles) {
             if (styles[styleName] && styles[styleName].constructor === Function) {
                 var getter:IAtomGetter<any> = styles[styleName];
-                styles[styleName] = new Atom(ag, getter, {getter: getter, name: 'style'});
+                styles[styleName] = new AtomFormula(ag, getter, {getter: getter, name: 'style'});
             }
-            if (styles[styleName] && styles[styleName] instanceof Atom) {
+            if (styles[styleName] && styles[styleName] instanceof AtomFormula) {
                 var atom:Atom<any> = styles[styleName];
                 styles[styleName] = atom.get();
 
@@ -159,9 +159,9 @@ module ag.internal {
         for (var i in classSet) {
             if (classSet[i] && classSet[i].constructor === Function) {
                 var getter = <IAtomGetter<any>>classSet[i];
-                classSet[i] = new Atom(ag, getter, {name: 'classSetItem'});
+                classSet[i] = new AtomFormula(ag, getter, {name: 'classSetItem'});
             }
-            if (classSet[i] && classSet[i] instanceof Atom) {
+            if (classSet[i] && classSet[i] instanceof AtomFormula) {
                 var atom:Atom<any> = classSet[i];
                 classSet[i] = atom.get();
                 tree.classSetAtoms = tree.classSetAtoms || {};
