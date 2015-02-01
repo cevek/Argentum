@@ -1,5 +1,9 @@
 /// <reference path="Array.ts"/>
 
+interface Iterable<T>{
+    [index:number]: T;
+    length: number;
+}
 interface Object {
     observe(beingObserved:Object, callback:(update:Object) => void) : void;
 }
@@ -15,7 +19,7 @@ interface Console {
 }
 
 interface AtomListenerCallback<T, A1, A2, A3> {
-    (value:T, arg1?:A1, arg2?:A2, arg3?:A3): void;
+    (value:any, arg1?:A1, arg2?:A2, arg3?:A3): void;
 }
 interface AtomListeners<T, A1, A2, A3> {
     callback: AtomListenerCallback<T, A1, A2, A3>;
@@ -470,7 +474,7 @@ class AtomFormula<T> {
         return values;
     }
 
-    static arrayIsEqual(a1:Object[], a2:Object[]) {
+    static arrayIsEqual(a1:Iterable<Object>, a2:Iterable<Object>) {
         if (a1 === a2) {
             return true;
         }

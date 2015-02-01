@@ -52,7 +52,7 @@ class ListFormula<T> extends AtomFormula<T> {
         }
     }
 
-    replace(array:{[index: number]: T; length: number}) {
+    replace(array:Iterable<T>) {
         for (var i = 0; i < array.length; i++) {
             this[i] = array[i];
         }
@@ -177,7 +177,7 @@ class ListFormula<T> extends AtomFormula<T> {
 }
 
 class List<T> extends ListFormula<T> {
-    constructor(array?:{[index: number]: T; length: number}) {
+    constructor(array?: Iterable<T>) {
         super(null, void 0, void 0, arguments[3]);
         if (array) {
             for (var i = 0; i < array.length; i++) {
