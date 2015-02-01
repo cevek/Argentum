@@ -16,25 +16,25 @@ module ag.test {
 
 
     class TestForm implements Component {
-        input = new AtomSource('input');
-        checkbox = new AtomSource('yes');
-        required = new AtomSource(true);
-        multiple = new AtomSource(true);
+        input = new Atom('input');
+        checkbox = new Atom('yes');
+        required = new Atom(true);
+        multiple = new Atom(true);
 
-        options = [{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}];
+        options = new List([{name: 'No1'}, {name: 'No2'}, {name: 'No3'}, {name: 'No4'}]);
         //select = new Atom<User[]>(this, {name: 'select', value: []});
-        select = new AtomSource([this.options[2]]);
-        date = new AtomSource(new Date());
+        select = new List([this.options[2]]);
+        date = new Atom(new Date());
 
-        picker = new Atom<TreeItem>(this);
+        picker = new AtomFormula<TreeItem>(this);
 
         componentDidMount() {
             glob.picker = this.picker.get().component;
         }
 
-        activeTab = new Atom(this, null, {value: 2});
+        activeTab = new AtomFormula(this, null, {value: 2});
 
-        radio = new Atom(this);
+        radio = new AtomFormula(this);
 
         dialog() {
             var dialog:Dialog = new Dialog({}, [
@@ -47,10 +47,10 @@ module ag.test {
             ])
         }
 
-        pluralNum = new Atom(this, null, {value: 1});
+        pluralNum = new AtomFormula(this, null, {value: 1});
 
-        users = new AtomSource([new User(),new User(),new User()]);
-        selectedUsers = new AtomSource<User[]>([]);
+        users = new List([new User(),new User(),new User()]);
+        selectedUsers = new List<User>();
 
         render() {
             var condItem = {name: "Condition"};
@@ -83,13 +83,13 @@ module ag.test {
                             when(this.checkbox, ()=>
                                 option({argValue: condItem}, condItem.name)),
 
-                            mapRaw(this.options, opt =>
+                            map(this.options, opt =>
                                 option({argValue: opt}, opt.name))
                         )
                     ),
                     map(this.select, item=>div(item.name)),
                     this.input,
-                    btndanger({onclick: ()=>this.select.set([])}, 'clear'),
+                    btndanger({onclick: ()=>this.select.clear()}, 'clear'),
                     btninfo({onclick: ()=> {this.dialog()}}, 'dialog'),
                     submitsuccess({}, 'Send'),
                     btn({onclick: ()=>this.activeTab.set(1)}, 'Tab1'),
@@ -121,18 +121,18 @@ module ag.test {
 
     class Bench implements Component {
 
-        atoms:Atom<number>[] = [];
+        atoms_ = new List<Atom<number>>();
 
         constructor() {
             for (var i = 0; i < 10000; i++) {
-                this.atoms[i] = new AtomSource(0);
+                this.atoms_[i] = new Atom(0);
             }
         }
 
         click() {
             var start = Math.random() * 1000 | 0;
             for (var i = 0; i < 10000; i++) {
-                this.atoms[i].set(start + i);
+                this.atoms_[i].set(start + i);
             }
             //console.profile('click');
             console.time('click');
@@ -146,7 +146,7 @@ module ag.test {
             return root('',
                 button({onclick: ()=>this.click()}, 'click'),
                 ul({style: {display: 'none'}},
-                    mapRaw(this.atoms, (atom, i)=>li('item ' + i + ' ', atom))))
+                    map(this.atoms_, (atom, i)=>li('item ' + i + ' ', atom))))
         }
     }
 
@@ -179,7 +179,7 @@ module ag.test {
         }
     }
     class Users {
-        page = new Atom<Component>(this);
+        page = new AtomFormula<Component>(this);
 
         constructor() {
             Route.activeRoute.addListener(route => {
