@@ -2,8 +2,8 @@ module ag.test {
 
     export interface IAutocomplete {
         attrs?: Attrs;
-        users: Atom<User[]>;
-        selectedUsers: Atom<User[]>;
+        users: List<User>;
+        selectedUsers: List<User>;
     }
 
     export function autocomplete(params:IAutocomplete, ...children:any[]) {return new Autocomplete(params, children)}
@@ -11,28 +11,38 @@ module ag.test {
     export class Autocomplete implements Component {
         constructor(public params:IAutocomplete, public children?:any) {}
 
-        private opened = new AtomSource(false);
-        private inputTree = new AtomSource<TreeItem>();
-        private input = new AtomSource('');
-        private autocompleteUsers = new Atom(this, () =>
-            this.params.users.get()
+        private opened = new Atom(false);
+        private inputTree = new Atom<TreeItem>();
+        private input = new Atom('');
+        private autocompleteUsers = new ListFormula<User>(this, () => {
+            var ret = this.params.users
                 .filter(u => u.name.indexOf(this.input.get()) > -1)
-                .filter(u => this.params.selectedUsers.get().indexOf(u) === -1));
+                .filter(u => this.params.selectedUsers.indexOf(u) === -1);
+            console.log("autocompleteUsers", ret);
+            return ret;
+        });
+
+        documentClick = (e:Event)=> {
+            if (document.activeElement !== this.inputTree.get().node) {
+                this.opened.set(false);
+            }
+        };
+
+        componentDidMount() {
+            document.addEventListener('click', this.documentClick);
+        }
+
+        componentWillUnmount() {
+            document.removeEventListener('click', this.documentClick);
+        }
 
         select(user:User) {
-            var u = this.params.selectedUsers.get().slice();
-            u.push(user);
-            this.params.selectedUsers.set(u);
-            (<HTMLInputElement>this.inputTree.get().node).focus()
+            this.params.selectedUsers.push(user);
+            this.opened.set(false);
         }
 
         remove(user:User) {
-            var users = this.params.selectedUsers.get().slice();
-            var pos = users.indexOf(user);
-            if (pos > -1) {
-                users.splice(pos, 1);
-            }
-            this.params.selectedUsers.set(users);
+            this.params.selectedUsers.remove(user);
         }
 
         render() {
@@ -45,7 +55,7 @@ module ag.test {
                         ))),
                 inputtext({
                     model: this.input, attrs: {
-                        onblur: (e)=> this.opened.set(false),
+                        //onblur: (e)=> this.opened.set(false),
                         onfocus: ()=>this.opened.set(true),
                         self: this.inputTree
                     }
@@ -53,10 +63,10 @@ module ag.test {
                 when(this.opened, ()=>
                     div('.wraplist',
                         div('.list',
-                            when(()=>this.autocompleteUsers.get().length === 0, ()=>
+                            when(()=>this.autocompleteUsers.isEmpty(), ()=>
                                 div('Empty list')),
                             map(this.autocompleteUsers, u=>
-                                div({onmousedown: ()=>this.select(u)}, u.name)))))
+                                div({onclick: ()=>this.select(u)}, u.name)))))
             )
         }
     }
