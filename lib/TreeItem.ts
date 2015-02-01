@@ -106,7 +106,6 @@ module ag {
             }
             this.flatChildren = null;
 
-
             tree.removed = true;
             if (tree.node) {
                 if (isRoot) {
@@ -237,7 +236,9 @@ module ag {
             var tree = this;
             if (tree && tree.children) {
                 for (var i = 0; i < tree.children.length; i++) {
-                    tree.children[i].destroy(true);
+                    if (tree.children[i]) {
+                        tree.children[i].destroy(true);
+                    }
                 }
                 tree.children = null;
             }
