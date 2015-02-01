@@ -105,7 +105,6 @@ class AtomFormula<T> {
             this.update = <()=>void>new Function('return ' + AtomFormula.prototype.update.toString())();
             this.update.displayName = 'Atom.' + this.name;
         }
-        return this.createNamedInstance();
     }
 
     protected createNamedInstance() {
@@ -251,6 +250,7 @@ class AtomFormula<T> {
                 }
             }
         }
+        this.needUpdate = NeedUpdate.NOT;
     }
 
     protected update() {
@@ -344,8 +344,8 @@ class AtomFormula<T> {
             AtomFormula.setAtoms[this.id] = this;
             if (!AtomFormula.willDigests) {
                 postMessage('digest', '*');
+                AtomFormula.willDigests = true;
             }
-            AtomFormula.willDigests = true;
         }
     }
 
@@ -516,7 +516,6 @@ class Atom<T> extends AtomFormula<T> {
     constructor(value?:T) {
         this.value = value;
         super(null, void 0, void 0, arguments[3]);
-        return this.createNamedInstance();
     }
 }
 

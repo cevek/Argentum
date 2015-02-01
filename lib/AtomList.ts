@@ -1,6 +1,7 @@
 class ListFormula<T> extends AtomFormula<T> {
     constructor(owner:any, getter?:(prevValue:T)=>List<T>, params?:IAtom<T>, name?:string) {
-        this.length = this.length || 0;
+        super(owner, null, null, name);
+        this.length = 0;
         this.getterList = getter;
         if (this.getterList) {
             this.getterList.displayName = name + '.getter';
@@ -9,12 +10,13 @@ class ListFormula<T> extends AtomFormula<T> {
             this.clearMasters();
             var res = this.getterList.call(this.owner, this);
             this.replace(res);
-            console.log("AA", this, res);
-
             AtomFormula.lastCalledGetter = temp;
         }
-        super(owner, null, null, name);
-        return this.createNamedInstance();
+        if (AtomFormula.debugMode) {
+            //todo: just copy function code
+            this.update = <()=>void>new Function('return ' + ListFormula.prototype.update.toString())();
+            this.update.displayName = 'Atom.' + this.name;
+        }
     }
 
     getterList:any;
@@ -41,6 +43,16 @@ class ListFormula<T> extends AtomFormula<T> {
         }
         this._update(updated);
         AtomFormula.depth--;
+    }
+
+    protected callListeners() {
+        if (this.listeners) {
+            //Atom.debugMode && console.log(this.fullname + ".listeners");
+            for (var i = 0; i < this.listeners.length; i++) {
+                var listener = this.listeners[i];
+                listener.callback.call(listener.thisArg, this, listener.arg1, listener.arg2, listener.arg3);
+            }
+        }
     }
 
     set() {
@@ -75,11 +87,10 @@ class ListFormula<T> extends AtomFormula<T> {
         for (var i = 0; i < array.length; i++) {
             this[i] = array[i];
         }
-        var oldLen = this.length;
-        this.length = array.length;
-        for (var i = array.length; i < oldLen; i++) {
-            this.pop();
+        for (var i = array.length; i < this.length; i++) {
+            this[i] = null;
         }
+        this.length = array.length;
         this.changed();
     }
 
@@ -90,17 +101,6 @@ class ListFormula<T> extends AtomFormula<T> {
             postMessage('digest', '*');
             AtomFormula.willDigests = true;
         }
-        console.log("changed");
-    }
-
-    toString():string {
-        this.touch();
-        return Array.prototype.toString.call(this)
-    }
-
-    toLocaleString():string {
-        this.touch();
-        return Array.prototype.toLocaleString.call(this)
     }
 
     concat<U extends List<T>>(...items:U[]):List<T>;
@@ -227,13 +227,12 @@ class ListFormula<T> extends AtomFormula<T> {
 
 class List<T> extends ListFormula<T> {
     constructor(array?:Iterable<T>) {
+        super(null, void 0, void 0, arguments[3]);
         if (array) {
             for (var i = 0; i < array.length; i++) {
                 this[i] = array[i];
             }
             this.length = array.length;
         }
-        super(null, void 0, void 0, arguments[3]);
-        return this.createNamedInstance();
     }
 }
