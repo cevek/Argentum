@@ -22,7 +22,7 @@ interface AtomListeners<T, A1, A2, A3> {
     arg1: A1;
     arg2: A2;
     arg3: A3;
-    atom: Atom<T>;
+    atom: AtomFormula<T>;
     firstValue: T;
     thisArg: Object;
 }
@@ -34,8 +34,8 @@ interface IAtom<T> {
     getter?: IAtomGetter<T>;
     value?: T;
     name?: string;
-    masters?: Atom<Object>[];
-    slaves?: Atom<Object>[];
+    masters?: AtomFormula<Object>[];
+    slaves?: AtomFormula<Object>[];
 }
 
 enum NeedUpdate{
@@ -44,14 +44,14 @@ enum NeedUpdate{
     NOT = <any>'not'
 }
 
-class Atom<T> {
+class AtomFormula<T> {
     static debugMode = true;
-    private static lastId = 0;
-    private id = 0;
-    private name = '';
+    protected static lastId = 0;
+    protected id = 0;
+    protected name = '';
     value:T;
-    private getter:(prevValue:T)=>T;
-    private removed:boolean;
+    protected getter:(prevValue:T)=>T;
+    protected removed:boolean;
 
     owner:any = null;
 
@@ -60,32 +60,20 @@ class Atom<T> {
          return new Atom(owner, null, params);
      }
  */
-    private masters:AtomMap<Atom<Object>> = null;
-    private slaves:AtomMap<Atom<Object>> = null;
+    protected masters:AtomMap<AtomFormula<Object>> = null;
+    protected slaves:AtomMap<AtomFormula<Object>> = null;
     listeners:AtomListeners<T, Object, Object, Object>[] = [];
-    private needUpdate = NeedUpdate.NOT;
-    private mastersCount = 0;
+    protected needUpdate = NeedUpdate.NOT;
+    protected mastersCount = 0;
 
-    constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>) {
-        var args = [].slice.apply(arguments);
-        if (typeof args[args.length - 1] !== 'string') {
-            debugger;
+    constructor(owner:any, getter?:(prevValue:T)=>T, params?:IAtom<T>, name = '') {
+        if (!name) {
+            console.error('Atom name is not define');
+            //debugger;
         }
+        this.name = name;
 
-        if (args.length == 2) {
-            this.name = args[1];
-            params = null;
-            getter = null;
-        }
-        if (args.length == 3) {
-            this.name = args[2];
-            params = null;
-        }
-        if (args.length == 4) {
-            this.name = args[3];
-        }
-
-        this.id = ++Atom.lastId;
+        this.id = ++AtomFormula.lastId;
         this.owner = owner;
         if (owner) {
             owner.atoms = owner.atoms || [];
@@ -94,12 +82,13 @@ class Atom<T> {
 
         if (getter) {
             this.getter = getter;
+            this.getter.displayName = this.fullname + '.getter';
         }
         if (params) {
             //this.name = params.name;
             this.value = params.value === null ? void 0 : params.value;
             if (params.masters) {
-                this.masters = new AtomMap<Atom<Object>>();
+                this.masters = new AtomMap<AtomFormula<Object>>();
                 for (var i = 0; i < params.masters.length; i++) {
                     var master = params.masters[i];
                     this.addMaster(master);
@@ -107,19 +96,19 @@ class Atom<T> {
             }
         }
 
-        if (Atom.debugMode) {
+        if (AtomFormula.debugMode) {
             //todo: just copy function code
-            this.update = <()=>void>new Function('return ' + Atom.prototype.update.toString())();
+            this.update = <()=>void>new Function('return ' + AtomFormula.prototype.update.toString())();
         }
     }
 
-    static createIfNot<T>(owner:any, val:Atom<T>):Atom<T>;
-    static createIfNot<T>(owner:any, val:T):Atom<T>;
-    static createIfNot<T>(owner:any, val:any):Atom<T> {
-        if (val instanceof Atom) {
+    static createIfNot<T>(owner:any, val:AtomFormula<T>):AtomFormula<T>;
+    static createIfNot<T>(owner:any, val:T):AtomFormula<T>;
+    static createIfNot<T>(owner:any, val:any):AtomFormula<T> {
+        if (val instanceof AtomFormula) {
             return val;
         }
-        return new Atom(owner, null, {value: val});
+        return new AtomFormula(owner, null, {value: val});
     }
 
     get fullname() {
@@ -150,20 +139,20 @@ class Atom<T> {
         return this.name;*/
     }
 
-    private valueOf():T {
+    protected valueOf():T {
         return this.get();
     }
 
-    private toJSON() {
+    protected toJSON() {
         return '<Atom>';
     }
 
-    addMaster(masterAtom:Atom<Object>) {
+    addMaster(masterAtom:AtomFormula<Object>) {
         if (!masterAtom.slaves) {
-            masterAtom.slaves = new AtomMap<Atom<Object>>();
+            masterAtom.slaves = new AtomMap<AtomFormula<Object>>();
         }
         if (!this.masters) {
-            this.masters = new AtomMap<Atom<Object>>();
+            this.masters = new AtomMap<AtomFormula<Object>>();
         }
         masterAtom.slaves.set(this.id, this);
         this.masters.set(masterAtom.id, masterAtom);
@@ -172,7 +161,7 @@ class Atom<T> {
 
     clearMasters() {
         if (this.masters) {
-            var masters = Atom.getAtomMapValues(this.masters);
+            var masters = AtomFormula.getAtomMapValues(this.masters);
             for (var i = 0; i < masters.length; i++) {
                 masters[i].slaves.delete(this.id);
             }
@@ -180,58 +169,43 @@ class Atom<T> {
         }
     }
 
-    get():T {
-        if (this.value === void 0 && this.getter) {
-            if (this.getter) {
-                var temp = Atom.lastCalledGetter;
-                Atom.lastCalledGetter = this;
-                this.clearMasters();
-                this.value = this.getter.call(this.owner, this.value);
-                Atom.lastCalledGetter = temp;
-            }
-        }
-        var slaveAtom = Atom.lastCalledGetter;
+    touch() {
+        var slaveAtom = AtomFormula.lastCalledGetter;
         if (slaveAtom) {
             if (!this.slaves) {
-                this.slaves = new AtomMap<Atom<Object>>();
+                this.slaves = new AtomMap<AtomFormula<Object>>();
             }
             if (!slaveAtom.masters) {
-                slaveAtom.masters = new AtomMap<Atom<Object>>();
+                slaveAtom.masters = new AtomMap<AtomFormula<Object>>();
             }
             this.slaves.set(slaveAtom.id, slaveAtom);
             slaveAtom.masters.set(this.id, this);
         }
+    }
+
+    get(index?:number):T {
+        if (this.value === void 0 && this.getter) {
+            if (this.getter) {
+                var temp = AtomFormula.lastCalledGetter;
+                AtomFormula.lastCalledGetter = this;
+                this.clearMasters();
+                this.value = this.getter.call(this.owner, this.value);
+                AtomFormula.lastCalledGetter = temp;
+            }
+        }
+        this.touch();
         return this.value;
     }
 
     static depth = -1;
-    private static checked:{[id:number]: boolean} = {};
+    protected static checked:{[id:number]: boolean} = {};
 
-    update() {
-        Atom.depth++;
-
-        var updated = false;
-        if (this.needUpdate === NeedUpdate.SET) {
-            updated = true;
-        }
-        if (this.needUpdate === NeedUpdate.GETTER && this.getter) {
-            if (Atom.debugMode) {
-                this.getter.displayName = this.fullname + '.getter';
-            }
-            var temp = Atom.lastCalledGetter;
-            Atom.lastCalledGetter = this;
-            this.clearMasters();
-            var old_value = this.value;
-            this.value = this.getter.call(this.owner, this.value);
-            updated = old_value !== this.value;
-            Atom.lastCalledGetter = temp;
-        }
-
+    protected _update(updated:boolean) {
         this.callListeners();
-        if (Atom.debugMode) {
+        if (AtomFormula.debugMode) {
             //console.log(Atom.depthSpaces(Atom.depth) + "update", this.needUpdate, this.fullname);
             if (updated) {
-                console.groupCollapsed(Atom.depthSpaces(Atom.depth) + this.fullname);
+                console.groupCollapsed(AtomFormula.depthSpaces(AtomFormula.depth) + this.fullname);
                 console.log(this);
                 console.log(this.value);
                 console.trace();
@@ -240,7 +214,7 @@ class Atom<T> {
         }
 
         if (this.slaves) {
-            var slaves = Atom.getAtomMapValues(this.slaves);
+            var slaves = AtomFormula.getAtomMapValues(this.slaves);
             for (var j = 0; j < slaves.length; j++) {
                 var slave = slaves[j];
                 if (updated && slave.needUpdate === NeedUpdate.NOT) {
@@ -250,23 +224,41 @@ class Atom<T> {
                 console.assert(slave.mastersCount >= 0, 'Negative mastersCount', slave.mastersCount, slave);
                 if (slave.mastersCount === 0) {
                     slave.update();
-                    if (Atom.debugMode) {
+                    if (AtomFormula.debugMode) {
                         slave.update.displayName = slave.fullname + '.atom';
                     }
                 }
             }
         }
-        Atom.depth--;
     }
 
-    private updateSlaveMastersCount() {
-        if (Atom.checked[this.id]) {
+    update() {
+        AtomFormula.depth++;
+        var updated = false;
+        if (this.needUpdate === NeedUpdate.SET) {
+            updated = true;
+        }
+        if (this.needUpdate === NeedUpdate.GETTER && this.getter) {
+            var temp = AtomFormula.lastCalledGetter;
+            AtomFormula.lastCalledGetter = this;
+            this.clearMasters();
+            var old_value = this.value;
+            this.value = this.getter.call(this.owner, this.value);
+            updated = old_value !== this.value;
+            AtomFormula.lastCalledGetter = temp;
+        }
+        this._update(updated);
+        AtomFormula.depth--;
+    }
+
+    protected updateSlaveMastersCount() {
+        if (AtomFormula.checked[this.id]) {
             console.error(this);
             throw new Error("cyclic atom");
         }
-        Atom.checked[this.id] = true;
+        AtomFormula.checked[this.id] = true;
         if (this.slaves) {
-            var slaves = Atom.getAtomMapValues(this.slaves);
+            var slaves = AtomFormula.getAtomMapValues(this.slaves);
             for (var j = 0; j < slaves.length; j++) {
                 var slave = slaves[j];
                 slave.mastersCount++;
@@ -279,20 +271,20 @@ class Atom<T> {
 
     static ondigest = window.addEventListener('message', (e:{data: string})=> {
         if (e.data === 'digest') {
-            Atom.digest()
+            AtomFormula.digest()
         }
     });
     static willDigests = false;
 
     static digest() {
-        if (Atom.setAtoms.length === 0) {
+        if (AtomFormula.setAtoms.length === 0) {
             return;
         }
-        var atoms = Atom.setAtoms.slice();
-        Atom.setAtoms = [];
-        Atom.checked = {};
-        Atom.willDigests = false;
-        if (Atom.debugMode) {
+        var atoms = AtomFormula.setAtoms.slice();
+        AtomFormula.setAtoms = [];
+        AtomFormula.checked = {};
+        AtomFormula.willDigests = false;
+        if (AtomFormula.debugMode) {
             console.groupCollapsed("digest");
             console.log(atoms);
             console.trace();
@@ -306,7 +298,7 @@ class Atom<T> {
 
         for (var i = 0; i < atoms.length; i++) {
             var atom = atoms[i];
-            if (Atom.debugMode) {
+            if (AtomFormula.debugMode) {
                 atom.update.displayName = atom.fullname + '.atom';
             }
             atom.needUpdate = NeedUpdate.SET;
@@ -314,20 +306,20 @@ class Atom<T> {
                 atom.update();
             }
         }
-        Atom.digest();
+        AtomFormula.digest();
     }
 
-    static setAtoms:Atom<any>[] = [];
+    static setAtoms:AtomFormula<any>[] = [];
 
     set(val:T, force = false) {
         if (this.value !== val || force) {
             this.value = val;
             this.needUpdate = NeedUpdate.SET;
-            Atom.setAtoms.push(this);
-            if (!Atom.willDigests) {
+            AtomFormula.setAtoms.push(this);
+            if (!AtomFormula.willDigests) {
                 postMessage('digest', '*');
             }
-            Atom.willDigests = true;
+            AtomFormula.willDigests = true;
         }
     }
 
@@ -344,7 +336,7 @@ class Atom<T> {
         return val === void 0 || val === null;
     }
 
-    private callListeners() {
+    protected callListeners() {
         if (this.listeners) {
             //Atom.debugMode && console.log(this.fullname + ".listeners");
 
@@ -354,7 +346,7 @@ class Atom<T> {
                     // console.log(this, "listener callback");
                     listener.callback.call(listener.thisArg, this.value, listener.arg1, listener.arg2, listener.arg3);
                 }
-                listener.firstValue = <T>Atom.firstValueObj;
+                listener.firstValue = <T>AtomFormula.firstValueObj;
             }
         }
     }
@@ -395,7 +387,7 @@ class Atom<T> {
 
     destroy() {
         if (this.masters) {
-            var masters = Atom.getAtomMapValues(this.masters);
+            var masters = AtomFormula.getAtomMapValues(this.masters);
             for (var i = 0; i < masters.length; i++) {
                 var master = masters[i];
                 if (master && master.slaves) {
@@ -404,7 +396,7 @@ class Atom<T> {
             }
         }
         if (this.slaves) {
-            var slaves = Atom.getAtomMapValues(this.slaves);
+            var slaves = AtomFormula.getAtomMapValues(this.slaves);
             for (var i = 0; i < slaves.length; i++) {
                 var slave = slaves[i];
                 if (slave && slave.masters) {
@@ -425,10 +417,10 @@ class Atom<T> {
      *   Statics
      *******************/
 
-    private static lastCalledGetter:Atom<Object>;
-    private static firstValueObj = {};
+    protected static lastCalledGetter:AtomFormula<Object>;
+    protected static firstValueObj = {};
 
-    private static depthSpaces(depth:number) {
+    protected static depthSpaces(depth:number) {
         var s = '';
         for (var i = 0; i < depth; i++) {
             s += '|  ';
@@ -436,7 +428,7 @@ class Atom<T> {
         return s;
     }
 
-    /* private static makeName(owner:any*/
+    /* protected static makeName(owner:any*/
     /*checked*/
     /*, name:string) {
             if (!owner) {
@@ -462,7 +454,7 @@ class Atom<T> {
             return (ns ? ns + '.' : '' ) + (constrName ? constrName + '.' : '') + name;
         }*/
 
-    private static getAtomMapValues<T>(map:AtomMap<T>) {
+    protected static getAtomMapValues<T>(map:AtomMap<T>) {
         var values:T[] = [];
         if (map.hash) {
             var keys = Object.keys(map.hash);
@@ -494,10 +486,10 @@ class Atom<T> {
     }
 }
 
-class AtomSource<T> extends Atom<T> {
+class Atom<T> extends AtomFormula<T> {
     constructor(value?:T) {
         this.value = value;
-        super(null, arguments[arguments.length - 1]);
+        super(null, void 0, void 0, arguments[3]);
     }
 }
 
