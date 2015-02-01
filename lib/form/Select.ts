@@ -1,7 +1,7 @@
 module ag {
     export interface ISelect<T> {
         model?: Atom<T>;
-        modelMultiple?: Atom<T[]>;
+        modelMultiple?: List<T>;
         multiple?: any;
         required?: any;
         attrs?: Attrs;
@@ -59,10 +59,10 @@ module ag {
         childrenAtomChanged() {
             this.recalcOptions();
             this.onChange();
-            this.modelChanged(this.params.modelMultiple.get());
+            this.modelChanged(this.params.modelMultiple);
         }
 
-        modelChanged(values:T[]) {
+        modelChanged(values:List<T>) {
             Select.debug && console.log("model changed", values);
             for (var i = 0; i < this.optionsTree.length; i++) {
                 var optionTree = this.optionsTree[i];
@@ -99,8 +99,8 @@ module ag {
             }
 
             var modelMultiple = this.params.modelMultiple;
-            if (modelMultiple && !AtomFormula.arrayIsEqual(modelMultiple.get(), newValues)) {
-                modelMultiple.set(newValues);
+            if (modelMultiple && !AtomFormula.arrayIsEqual(modelMultiple, newValues)) {
+                modelMultiple.replace(newValues);
             }
 
             var model = this.params.model;
@@ -118,7 +118,7 @@ module ag {
         componentDidMount() {
             Select.debug && console.log("componentDidMount");
             this.recalcOptions();
-            this.modelChanged(this.params.modelMultiple.get());
+            this.modelChanged(this.params.modelMultiple);
         }
 
         render() {
