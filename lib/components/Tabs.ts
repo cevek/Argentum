@@ -11,10 +11,10 @@ module ag {
     export function tabs(attrs:ITabs, ...children:any[]) {return new Tabs(attrs, children)}
 
     export class Tabs implements Component {
-        items:Atom<Tab[]> = new Atom(this, null, {value: []});
+        items = new Atom<Tab[]>();
         tree:TreeItem;
-        activeTab = new Atom<Tab>(this);
-        activeContent = new Atom(this, () => {
+        activeTab = new Atom<Tab>();
+        activeContent = new AtomFormula(this, () => {
             if (this.activeTab.get()) {
                 return this.activeTab.get().children;
             }
@@ -83,7 +83,7 @@ module ag {
 
     class Tab implements Component {
         constructor(public params:ITab, public children:any) {
-            params.disabled = Atom.createIfNot(this, params.disabled);
+            params.disabled = AtomFormula.createIfNot(this, params.disabled);
         }
 
         parent:Tabs;
