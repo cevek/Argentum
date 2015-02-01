@@ -1,15 +1,40 @@
-class AtomList<T> {
-    constructor(array?:T[]) {
-        if (array) {
-            for (var i = 0; i < array.length; i++) {
-                this[i] = array[i];
-            }
-            this.length = array.length;
-        }
+class ListFormula<T> extends AtomFormula<T> {
+    constructor(owner:any, getter?:(prevValue:T)=>List<T>, params?:IAtom<T>, name = ''){
+        super(owner, null, null, name);
+        this.getterList = getter;
     }
 
-    get() {
+    getterList:any;
 
+    get(index:number) {
+        if (this.getterList) {
+            var temp = AtomFormula.lastCalledGetter;
+            AtomFormula.lastCalledGetter = this;
+            this.clearMasters();
+            this.replace(this.getterList.call(this.owner, this));
+            AtomFormula.lastCalledGetter = temp;
+        }
+        this.touch();
+        return this[index];
+    }
+
+    update() {
+        AtomFormula.depth++;
+        var updated = false;
+        if (this.needUpdate === NeedUpdate.SET) {
+            updated = true;
+        }
+        if (this.needUpdate === NeedUpdate.GETTER && this.getterList) {
+            var temp = AtomFormula.lastCalledGetter;
+            AtomFormula.lastCalledGetter = this;
+            this.clearMasters();
+            var old_value = this.value;
+            this.value = this.getterList.call(this.owner, this);
+            updated = old_value !== this.value;
+            AtomFormula.lastCalledGetter = temp;
+        }
+        this._update(updated);
+        AtomFormula.depth--;
     }
 
     set() {
@@ -20,7 +45,14 @@ class AtomList<T> {
         while (this.length) this.pop();
     }
 
-    replace(array:T[]) {
+    remove(item:T) {
+        var pos = this.indexOf(item);
+        if (pos > -1) {
+            this.splice(pos, 1);
+        }
+    }
+
+    replace(array:{[index: number]: T; length: number}) {
         for (var i = 0; i < array.length; i++) {
             this[i] = array[i];
         }
@@ -32,7 +64,13 @@ class AtomList<T> {
         this.changed();
     }
 
-    changed() {
+    protected changed() {
+        this.needUpdate = NeedUpdate.SET;
+        AtomFormula.setAtoms.push(this);
+        if (!AtomFormula.willDigests) {
+            postMessage('digest', '*');
+            AtomFormula.willDigests = true;
+        }
         console.log("changed");
     }
 
@@ -40,8 +78,8 @@ class AtomList<T> {
 
     toLocaleString():string {return Array.prototype.toLocaleString.call(this)}
 
-    concat<U extends AtomList<T>>(...items:U[]):AtomList<T>;
-    concat(...items:T[]) {return new AtomList<T>(Array.prototype.concat.apply(this, items))}
+    concat<U extends List<T>>(...items:U[]):List<T>;
+    concat(...items:T[]) {return new List<T>(Array.prototype.concat.apply(this, items))}
 
     join(separator?:string):string {return Array.prototype.join.call(this, separator)}
 
@@ -69,9 +107,13 @@ class AtomList<T> {
         return ret;
     }
 
-    slice(start:number, end?:number):AtomList<T> {
+    slice(start?:number, end?:number):List<T> {
         var ret = Array.prototype.slice.call(this, start, end);
-        return new AtomList<T>(ret);
+        return new List<T>(ret);
+    }
+
+    toArray() {
+        return Array.prototype.slice.call(this);
     }
 
     sort(compareFn?:(a:T, b:T) => number) {
@@ -100,33 +142,33 @@ class AtomList<T> {
         return Array.prototype.lastIndexOf.call(this, searchElement, fromIndex)
     }
 
-    every(callbackfn:(value:T, index:number, array:AtomList<T>) => boolean, thisArg?:any):boolean {
+    every(callbackfn:(value:T, index:number, array:List<T>) => boolean, thisArg?:any):boolean {
         return Array.prototype.every.call(this, callbackfn, thisArg)
     }
 
-    some(callbackfn:(value:T, index:number, array:AtomList<T>) => boolean, thisArg?:any):boolean {
+    some(callbackfn:(value:T, index:number, array:List<T>) => boolean, thisArg?:any):boolean {
         return Array.prototype.some.call(this, callbackfn, thisArg)
     }
 
-    forEach(callbackfn:(value:T, index:number, array:AtomList<T>) => void, thisArg?:any):void {
+    forEach(callbackfn:(value:T, index:number, array:List<T>) => void, thisArg?:any):void {
         return Array.prototype.forEach.call(this, callbackfn, thisArg)
     }
 
-    map<U>(callbackfn:(value:T, index:number, array:AtomList<T>) => U, thisArg?:any):AtomList<U> {
-        return new AtomList<U>(Array.prototype.map.call(this, callbackfn, thisArg))
+    map<U>(callbackfn:(value:T, index:number, array:List<T>) => U, thisArg?:any):List<U> {
+        return new List<U>(Array.prototype.map.call(this, callbackfn, thisArg))
     }
 
-    filter(callbackfn:(value:T, index:number, array:AtomList<T>) => boolean, thisArg?:any):AtomList<T> {
-        return new AtomList<T>(Array.prototype.filter.call(this, callbackfn, thisArg))
+    filter(callbackfn:(value:T, index:number, array:List<T>) => boolean, thisArg?:any):List<T> {
+        return new List<T>(Array.prototype.filter.call(this, callbackfn, thisArg))
     }
 
-    reduce(callbackfn:(prevVal:T, curVal:T, curIndex:number, array:AtomList<T>) => T, inVal?:T):T;
-    reduce<U>(callbackfn:(prevVal:U, curVal:T, curIndex:number, array:AtomList<T>) => U, inVal:U):U {
+    reduce(callbackfn:(prevVal:T, curVal:T, curIndex:number, array:List<T>) => T, inVal?:T):T;
+    reduce<U>(callbackfn:(prevVal:U, curVal:T, curIndex:number, array:List<T>) => U, inVal:U):U {
         return Array.prototype.reduce.call(this, callbackfn, inVal)
     }
 
-    reduceRight(callbackfn:(prevVal:T, curVal:T, curIndex:number, array:AtomList<T>) => T, inVal?:T):T;
-    reduceRight<U>(callbackfn:(prevVal:U, curVal:T, curIndex:number, array:AtomList<T>) => U, inVal:U):U {
+    reduceRight(callbackfn:(prevVal:T, curVal:T, curIndex:number, array:List<T>) => T, inVal?:T):T;
+    reduceRight<U>(callbackfn:(prevVal:U, curVal:T, curIndex:number, array:List<T>) => U, inVal:U):U {
         return Array.prototype.reduceRight.call(this, callbackfn, inVal)
     }
 
@@ -134,4 +176,14 @@ class AtomList<T> {
 [n: number]: T;
 }
 
-var a = new AtomList();
+class List<T> extends ListFormula<T> {
+    constructor(array?:{[index: number]: T; length: number}) {
+        super(null, void 0, void 0, arguments[3]);
+        if (array) {
+            for (var i = 0; i < array.length; i++) {
+                this[i] = array[i];
+            }
+            this.length = array.length;
+        }
+    }
+}
