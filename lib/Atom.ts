@@ -102,8 +102,8 @@ class AtomFormula<T> {
 
         if (AtomFormula.debugMode) {
             //todo: just copy function code
-            this.update = <()=>void>new Function('return ' + AtomFormula.prototype.update.toString())();
-            this.update.displayName = 'Atom.' + this.name;
+            //this.update = <()=>void>new Function('return ' + AtomFormula.prototype.update.toString())();
+            //this.update.displayName = 'Atom.' + this.name;
         }
     }
 
@@ -218,7 +218,7 @@ class AtomFormula<T> {
     }
 
     static depth = -1;
-    protected static checked:{[id:number]: boolean} = {};
+    protected static checked:{[id:number]: Atom<any>} = {};
 
     protected _update(updated:boolean) {
         this.callListeners();
@@ -272,19 +272,19 @@ class AtomFormula<T> {
         AtomFormula.depth--;
     }
 
-    protected updateSlaveMastersCount() {
+    protected updateSlaveMastersCount(parent?: Atom<any>) {
         if (AtomFormula.checked[this.id]) {
             console.error(this);
             throw new Error("cyclic atom");
         }
-        AtomFormula.checked[this.id] = true;
+        AtomFormula.checked[this.id] = parent;
         if (this.slaves) {
             var slaves = AtomFormula.getAtomMapValues(this.slaves);
             for (var j = 0; j < slaves.length; j++) {
                 var slave = slaves[j];
                 slave.mastersCount++;
                 if (slave.mastersCount === 1) {
-                    slave.updateSlaveMastersCount();
+                    slave.updateSlaveMastersCount(this);
                 }
             }
         }
@@ -319,7 +319,7 @@ class AtomFormula<T> {
 
         for (var i = 0; i < atoms.length; i++) {
             var atom = atoms[i];
-            atom.updateSlaveMastersCount();
+            atom.updateSlaveMastersCount(<any>'digest');
         }
 
         for (var i = 0; i < atoms.length; i++) {
