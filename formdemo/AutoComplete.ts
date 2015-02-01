@@ -15,7 +15,8 @@ module ag.test {
         private inputTree = new Atom<TreeItem>();
         private input = new Atom('');
         private autocompleteUsers = new ListFormula<User>(this, () => {
-            var ret = this.params.users
+            this.params.selectedUsers.subscribeCaller();
+            var ret = this.params.users.subscribeCaller()
                 .filter(u => u.name.indexOf(this.input.get()) > -1)
                 .filter(u => this.params.selectedUsers.indexOf(u) === -1);
             console.log("autocompleteUsers", ret);
