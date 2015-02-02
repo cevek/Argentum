@@ -3,10 +3,7 @@ class ListFormula<T> extends AtomFormula<T> {
         super(owner, null, null, name);
         this.length = 0;
         this.calculated = false;
-        this.getterList = getter;
-        if (this.getterList) {
-            this.getterList.displayName = name + '.getter';
-        }
+        this.getter = <any>getter;
         if (AtomFormula.debugMode) {
             //todo: just copy function code
             //this.update = <()=>void>new Function('return ' + ListFormula.prototype.update.toString())();
@@ -14,43 +11,40 @@ class ListFormula<T> extends AtomFormula<T> {
         }
     }
 
-    getterList:any;
+    get value():any {
+        if (this.calculated) {
+            return void 0;
+        }
+        return this;
+    }
+
+    set value(val:any) {
+        this.calculated = true;
+        this._replace(val);
+    }
+
+    protected compare(a:any, b:any) {
+        return false;
+    }
+
     calculated:boolean;
 
     get(index:number) {
-        if (this.getterList && !this.calculated) {
+        //this.get();
+        if (this.getter && !this.calculated) {
             this.calculated = true;
             var temp = AtomFormula.lastCalledGetter;
             AtomFormula.lastCalledGetter = this;
             this.clearMasters();
-            var res = this.getterList.call(this.owner, this);
+            var res = this.getter.call(this.owner, this);
             this._replace(res);
             AtomFormula.lastCalledGetter = temp;
         }
         return this[index];
     }
 
-    protected update() {
-        AtomFormula.depth++;
-        var updated = false;
-        if (this.needUpdate === NeedUpdate.SET) {
-            updated = true;
-        }
-        if (this.needUpdate === NeedUpdate.GETTER && this.getterList) {
-            var temp = AtomFormula.lastCalledGetter;
-            AtomFormula.lastCalledGetter = this;
-            this.clearMasters();
-            var res = this.getterList.call(this.owner, this);
-            this._replace(res);
-            console.log("update", res.length, this.length);
 
-            updated = true;
-            AtomFormula.lastCalledGetter = temp;
-        }
-        this._update(updated);
-        AtomFormula.depth--;
-    }
-
+    //todo:remove from here
     protected callListeners() {
         if (this.listeners) {
             //Atom.debugMode && console.log(this.fullname + ".listeners");
@@ -61,7 +55,7 @@ class ListFormula<T> extends AtomFormula<T> {
         }
     }
 
-    subscribeCaller(){
+    subscribeCaller() {
         this.touch();
         return this;
     }
@@ -70,8 +64,8 @@ class ListFormula<T> extends AtomFormula<T> {
 
     }
 
-    put(index: number, value: T){
-        if (this.length <= index){
+    put(index:number, value:T) {
+        if (this.length <= index) {
             this.length = index + 1;
         }
         this[index] = value;
@@ -100,7 +94,7 @@ class ListFormula<T> extends AtomFormula<T> {
         }
     }
 
-    protected _replace(array:Iterable<T>){
+    protected _replace(array:Iterable<T>) {
         for (var i = 0; i < array.length; i++) {
             this[i] = array[i];
         }
@@ -118,7 +112,6 @@ class ListFormula<T> extends AtomFormula<T> {
 
     protected changed() {
         this.needUpdate = NeedUpdate.SET;
-        if (this.id === 41) debugger;
         AtomFormula.setAtoms[this.id] = this;
         if (!AtomFormula.willDigests) {
             postMessage('digest', '*');

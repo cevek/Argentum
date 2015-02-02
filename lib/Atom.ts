@@ -220,7 +220,25 @@ class AtomFormula<T> {
     static depth = -1;
     protected static checked:{[id:number]: Atom<any>} = {};
 
-    protected _update(updated:boolean) {
+    protected compare(a:any, b:any) {
+        return a === b;
+    }
+
+    protected update() {
+        AtomFormula.depth++;
+        var updated = false;
+        if (this.needUpdate === NeedUpdate.SET) {
+            updated = true;
+        }
+        if (this.needUpdate === NeedUpdate.GETTER && this.getter) {
+            var temp = AtomFormula.lastCalledGetter;
+            AtomFormula.lastCalledGetter = this;
+            this.clearMasters();
+            var old_value = this.value;
+            this.value = this.getter.call(this.owner, this.value);
+            updated = !this.compare(old_value, this.value);
+            AtomFormula.lastCalledGetter = temp;
+        }
         this.callListeners();
         if (AtomFormula.debugMode) {
             //console.log(Atom.depthSpaces(Atom.depth) + "update", this.needUpdate, this.fullname);
@@ -251,28 +269,10 @@ class AtomFormula<T> {
             }
         }
         this.needUpdate = NeedUpdate.NOT;
-    }
-
-    protected update() {
-        AtomFormula.depth++;
-        var updated = false;
-        if (this.needUpdate === NeedUpdate.SET) {
-            updated = true;
-        }
-        if (this.needUpdate === NeedUpdate.GETTER && this.getter) {
-            var temp = AtomFormula.lastCalledGetter;
-            AtomFormula.lastCalledGetter = this;
-            this.clearMasters();
-            var old_value = this.value;
-            this.value = this.getter.call(this.owner, this.value);
-            updated = old_value !== this.value;
-            AtomFormula.lastCalledGetter = temp;
-        }
-        this._update(updated);
         AtomFormula.depth--;
     }
 
-    protected updateSlaveMastersCount(parent?: Atom<any>) {
+    protected updateSlaveMastersCount(parent?:Atom<any>) {
         if (AtomFormula.checked[this.id]) {
             console.error(this);
             throw new Error("cyclic atom");
