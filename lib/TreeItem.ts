@@ -125,7 +125,7 @@ module ag {
             tree.parentNode = null;
             tree.parentTree = null;
 
-            if (tree.attrs && tree.attrs.self && tree.attrs.self instanceof AtomFormula) {
+            if (tree.attrs && tree.attrs.self && tree.attrs.self instanceof Atom) {
                 tree.attrs.self.setNull();
             }
             tree.attrs = null;
@@ -205,9 +205,9 @@ module ag {
                 if (constructor === Function) {
                     var getter:IAtomGetter<any> = val;
                     val = new AtomFormula<any>(ag, getter, {name: 'atom'});
-                    constructor = AtomFormula;
+                    constructor = Atom;
                 }
-                if (val instanceof AtomFormula) {
+                if (val instanceof Atom) {
                     var atom:Atom<any> = val;
                     var child = atom.get();
                     return new TreeItem({

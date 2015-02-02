@@ -127,8 +127,8 @@ module ag {
     }
 
     export function plural(obj:IPlural, count:any):any {
-        if (count instanceof AtomFormula) {
-            var atom:AtomFormula<number> = count;
+        if (count instanceof Atom) {
+            var atom:Atom<number> = count;
             return new AtomFormula(atom.owner, () => plural(obj, atom.get()), {name: 'plural'});
         }
 

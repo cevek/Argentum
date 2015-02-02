@@ -83,7 +83,7 @@ module ag {
 
     class Tab implements Component {
         constructor(public params:ITab, public children:any) {
-            params.disabled = AtomFormula.createIfNot(this, params.disabled);
+            params.disabled = Atom.createIfNot(this, params.disabled);
         }
 
         parent:Tabs;

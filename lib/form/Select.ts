@@ -28,11 +28,11 @@ module ag {
         recalcOptions() {
             Select.debug && console.log("recalcOptions");
 
-            if (this.params.required instanceof AtomFormula) {
+            if (this.params.required instanceof Atom) {
                 Select.debug && console.log("required listener");
                 this.params.required.addListener(this.childrenAtomChanged, this);
             }
-            if (this.params.multiple instanceof AtomFormula) {
+            if (this.params.multiple instanceof Atom) {
                 Select.debug && console.log("multiple listener");
                 this.params.multiple.addListener(this.childrenAtomChanged, this);
             }
@@ -45,7 +45,7 @@ module ag {
                         var node = <HTMLOptionElement>treeItem.node;
                         node.value = '';
                         var req = this.params.required;
-                        node.disabled = req instanceof AtomFormula ? req.get() : req;
+                        node.disabled = req instanceof Atom ? req.get() : req;
 
                     }
                 }
@@ -99,7 +99,7 @@ module ag {
             }
 
             var modelMultiple = this.params.modelMultiple;
-            if (modelMultiple && !AtomFormula.arrayIsEqual(modelMultiple, newValues)) {
+            if (modelMultiple && !Atom.arrayIsEqual(modelMultiple, newValues)) {
                 modelMultiple.replace(newValues);
             }
 

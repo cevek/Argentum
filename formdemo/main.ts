@@ -26,15 +26,15 @@ module ag.test {
         select = new List([this.options[2]]);
         date = new Atom(new Date());
 
-        picker = new AtomFormula<TreeItem>(this);
+        picker = new Atom<TreeItem>();
 
         componentDidMount() {
             glob.picker = this.picker.get().component;
         }
 
-        activeTab = new AtomFormula(this, null, {value: 2});
+        activeTab = new Atom(2);
 
-        radio = new AtomFormula(this);
+        radio = new Atom();
 
         dialog() {
             var dialog:Dialog = new Dialog({}, [
@@ -47,7 +47,7 @@ module ag.test {
             ])
         }
 
-        pluralNum = new AtomFormula(this, null, {value: 1});
+        pluralNum = new Atom(1);
 
         users = new List([new User(),new User(),new User()]);
         selectedUsers = new List<User>();
@@ -179,7 +179,7 @@ module ag.test {
         }
     }
     class Users {
-        page = new AtomFormula<Component>(this);
+        page = new Atom<Component>();
 
         constructor() {
             Route.activeRoute.addListener(route => {

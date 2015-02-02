@@ -34,7 +34,7 @@ module ag {
             return this.regexp.test(url);
         }
 
-        static activeRoute = new AtomFormula<Route<any>>(Route);
+        static activeRoute = new Atom<Route<any>>();
 
         static urlChanged() {
             var route = Route.routes.filter(route => route.is(location.pathname)).pop();

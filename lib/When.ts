@@ -7,7 +7,7 @@ module ag{
             var getter:IAtomGetter<any> = condition;
             atomCondition = new AtomFormula<any>(ag, getter, {name: 'whenCondition'});
         }
-        else if (!(condition instanceof AtomFormula)) {
+        else if (!(condition instanceof Atom)) {
             atomCondition = new Atom<any>(condition);
         }
 
@@ -61,7 +61,7 @@ module ag.internal {
             // optimizing for textcontent
             if (tree.children && tree.children[0] && tree.children[0].type === TreeType.TEXT &&
                 ((value && !value.render && value.constructor !== Function &&
-                value.constructor !== Array && !(value instanceof AtomFormula)) || !value)) {
+                value.constructor !== Array && !(value instanceof Atom)) || !value)) {
                 var text = value !== null && value !== void 0 ? value : '';
                 renderTextContent(text, tree.children[0]);
             }
