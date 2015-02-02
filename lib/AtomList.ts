@@ -1,13 +1,11 @@
-class ListFormula<T> extends AtomFormula<T> {
-    constructor(owner:any, getter?:(prevValue:T)=>List<T>, params?:IAtom<T>, name?:string) {
-        super(owner, null, null, name);
-        this.length = 0;
-        this.calculated = false;
-        this.getter = <any>getter;
-        if (AtomFormula.debugMode) {
-            //todo: just copy function code
-            //this.update = <()=>void>new Function('return ' + ListFormula.prototype.update.toString())();
-            //this.update.displayName = 'Atom.' + this.name;
+class List<T> extends Atom<T> {
+    constructor(array?:Iterable<T>) {
+        super();
+        if (array) {
+            for (var i = 0; i < array.length; i++) {
+                this[i] = array[i];
+            }
+            this.length = array.length;
         }
     }
 
@@ -20,7 +18,9 @@ class ListFormula<T> extends AtomFormula<T> {
 
     set value(val:any) {
         this.calculated = true;
-        this._replace(val);
+        if (val !== void 0) {
+            this._replace(val);
+        }
     }
 
     protected compare(a:any, b:any) {
@@ -33,16 +33,15 @@ class ListFormula<T> extends AtomFormula<T> {
         //this.get();
         if (this.getter && !this.calculated) {
             this.calculated = true;
-            var temp = AtomFormula.lastCalledGetter;
-            AtomFormula.lastCalledGetter = this;
+            var temp = Atom.lastCalledGetter;
+            Atom.lastCalledGetter = this;
             this.clearMasters();
             var res = this.getter.call(this.owner, this);
             this._replace(res);
-            AtomFormula.lastCalledGetter = temp;
+            Atom.lastCalledGetter = temp;
         }
         return this[index];
     }
-
 
     //todo:remove from here
     protected callListeners() {
@@ -112,10 +111,10 @@ class ListFormula<T> extends AtomFormula<T> {
 
     protected changed() {
         this.needUpdate = NeedUpdate.SET;
-        AtomFormula.setAtoms[this.id] = this;
-        if (!AtomFormula.willDigests) {
+        Atom.setAtoms[this.id] = this;
+        if (!Atom.willDigests) {
             postMessage('digest', '*');
-            AtomFormula.willDigests = true;
+            Atom.willDigests = true;
         }
     }
 
@@ -241,14 +240,17 @@ class ListFormula<T> extends AtomFormula<T> {
 [n: number]: T;
 }
 
-class List<T> extends ListFormula<T> {
-    constructor(array?:Iterable<T>) {
-        super(null, void 0, void 0, arguments[3]);
-        if (array) {
-            for (var i = 0; i < array.length; i++) {
-                this[i] = array[i];
-            }
-            this.length = array.length;
+class ListFormula<T> extends List<T> {
+    constructor(owner:any, getter?:(prevValue:T)=>List<T>, params?:IAtom<T>, name?:string) {
+        super();
+        this.length = 0;
+        this.calculated = false;
+        this.getter = <any>getter;
+        if (Atom.debugMode) {
+            //todo: just copy function code
+            //this.update = <()=>void>new Function('return ' + ListFormula.prototype.update.toString())();
+            //this.update.displayName = 'Atom.' + this.name;
         }
     }
+
 }
