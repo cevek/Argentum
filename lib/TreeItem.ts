@@ -17,7 +17,7 @@ module ag {
         removed?:boolean;
 
         mapIterator?:internal.IMapIterator<any>;
-        map?:List<any>;
+        map?:Iterable<any>;
         mapSplit?:string;
         mapValues?:any[];
 
@@ -46,7 +46,7 @@ module ag {
         removed:boolean;
 
         mapIterator:internal.IMapIterator<any>;
-        map:List<any>;
+        map:Iterable<any>;
         mapSplit:string;
         mapValues:any[];
 
@@ -154,9 +154,9 @@ module ag {
             tree.mapValues = null;
             tree.mapIterator = null;
 
-            if (tree.map) {
+            if (tree.map instanceof List) {
                 //tree.map.get().listeners = null;
-                this.destroyOwnAtom(tree.map);
+                this.destroyOwnAtom(<List<any>>tree.map);
                 tree.map = null;
             }
 
@@ -204,12 +204,16 @@ module ag {
                 var constructor = val.constructor;
                 if (constructor === Function) {
                     var getter:IAtomGetter<any> = val;
-                    val = new AtomFormula<any>(ag, getter, {name: 'atom'});
-                    constructor = Atom;
+                    var tree = new TreeItem({
+                        type: TreeType.ATOM
+                    });
+                    var atom = new AtomFormula<any>(tree, getter, {name: 'atom'});
+                    tree.atom = atom;
+                    tree.whenCondition = atom;
+                    return tree;
                 }
                 if (val instanceof Atom) {
                     var atom:Atom<any> = val;
-                    var child = atom.get();
                     return new TreeItem({
                         type: TreeType.ATOM,
                         whenCondition: atom,

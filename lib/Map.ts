@@ -1,5 +1,5 @@
-module ag{
-    export function map<R>(atomArray:List<R>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
+module ag {
+    export function map<R>(atomArray:Iterable<R>, mapIterator:(item:R, i:number)=>any, split?:string):TreeItem {
         return new TreeItem({
             type: TreeType.MAP,
             map: atomArray,
@@ -20,7 +20,12 @@ module ag.internal {
         tree.parentNode.insertBefore(tree.node, tree.nodeBefore);
 
         tree.children = [];
-        tree.mapValues = tree.map.toArray();
+        if (tree.map instanceof List) {
+            tree.mapValues = (<List<any>>tree.map).toArray();
+        }
+        if (tree.map.constructor === Array) {
+            tree.mapValues = (<any[]>tree.map).slice();
+        }
 
         for (var i = 0; i < tree.mapValues.length; i++) {
             tree.children[i] = TreeItem.convertToTree(tree.mapIterator(tree.mapValues[i], i));
@@ -35,29 +40,31 @@ module ag.internal {
         if (ag.enableAtoms) {
             //array.addListener(mapArrayListener, tree);
             //tree.map.addListener(renderMapDOMSet, tree, tree);
-            tree.map.addListener(mapArrayListener, tree, tree);
+            if (tree.map instanceof List) {
+                (<List<any>>tree.map).addListener(mapArrayListener, tree, tree);
+            }
         }
     }
 
-   /* export function renderMapDOMSet(array:any[], tree:TreeItem) {
-        tree.removeChildren();
-        if (array) {
-            tree.children = [];
-            tree.mapValues = [];
-            for (var i = 0; i < array.length; i++) {
-                var itemTree = TreeItem.convertToTree(tree.mapIterator(array[i], i));
-                itemTree.parentNode = tree.parentNode;
-                itemTree.nodeBefore = tree.node;
-                itemTree.parentTree = tree.parentTree;
-                tree.mapValues[i] = array[i];
-                tree.children[i] = itemTree;
-                render(itemTree);
-            }
-            if (ag.enableAtoms) {
-                array.addListener(mapArrayListener, tree);
-            }
-        }
-    }*/
+    /* export function renderMapDOMSet(array:any[], tree:TreeItem) {
+         tree.removeChildren();
+         if (array) {
+             tree.children = [];
+             tree.mapValues = [];
+             for (var i = 0; i < array.length; i++) {
+                 var itemTree = TreeItem.convertToTree(tree.mapIterator(array[i], i));
+                 itemTree.parentNode = tree.parentNode;
+                 itemTree.nodeBefore = tree.node;
+                 itemTree.parentTree = tree.parentTree;
+                 tree.mapValues[i] = array[i];
+                 tree.children[i] = itemTree;
+                 render(itemTree);
+             }
+             if (ag.enableAtoms) {
+                 array.addListener(mapArrayListener, tree);
+             }
+         }
+     }*/
 
     var counter = 0;
     //todo: mapArrayListener doesnt work
