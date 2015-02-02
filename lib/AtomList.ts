@@ -1,6 +1,9 @@
 class List<T> extends Atom<T> {
     constructor(array?:Iterable<T>) {
         super();
+        if (arguments[3]) {
+            this.name = arguments[3];
+        }
         if (array) {
             for (var i = 0; i < array.length; i++) {
                 this[i] = array[i];
@@ -27,7 +30,7 @@ class List<T> extends Atom<T> {
         return false;
     }
 
-    calculated:boolean;
+    calculated = true;
 
     get(index:number) {
         //this.get();
@@ -68,6 +71,7 @@ class List<T> extends Atom<T> {
             this.length = index + 1;
         }
         this[index] = value;
+        this.touch();
     }
 
     isEmpty() {
@@ -236,16 +240,19 @@ class List<T> extends Atom<T> {
         return Array.prototype.reduceRight.call(this, callbackfn, inVal)
     }
 
-    length:number;
+    length = 0;
 [n: number]: T;
 }
 
 class ListFormula<T> extends List<T> {
-    constructor(owner:any, getter?:(prevValue:T)=>List<T>, params?:IAtom<T>, name?:string) {
+    constructor(owner:any, getter?:(prevValue:T)=>List<T>) {
         super();
-        this.length = 0;
+        if (arguments[3]) {
+            this.name = arguments[3];
+        }
         this.calculated = false;
         this.getter = <any>getter;
+        this.owner = owner;
         if (Atom.debugMode) {
             //todo: just copy function code
             //this.update = <()=>void>new Function('return ' + ListFormula.prototype.update.toString())();

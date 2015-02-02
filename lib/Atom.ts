@@ -52,7 +52,7 @@ class Atom<T> {
     static debugMode = true;
     protected static lastId = 0;
     protected id = 0;
-    protected name = '';
+    protected name:string;
     value:T;
     protected getter:(prevValue:T)=>T;
     protected removed:boolean;
@@ -71,8 +71,12 @@ class Atom<T> {
     protected mastersCount = 0;
 
     constructor(value?:T) {
+        this.id = ++Atom.lastId;
         this.value = value;
-        this.name = arguments[3];
+        var name = arguments[3];
+        if (name) {
+            this.name = name;
+        }
     }
 
     protected createNamedInstance() {
@@ -483,12 +487,11 @@ class Atom<T> {
 class AtomFormula<T> extends Atom<T> {
     constructor(owner:any, getter:(prevValue:T)=>T, params?:IAtom<T>, name?:string) {
         if (!name) {
-            console.error('Atom name is not define');
-            //debugger;
+            console.error('Atom name is not defined');
+            debugger;
         }
         this.name = name;
 
-        this.id = ++Atom.lastId;
         this.owner = owner;
         if (owner) {
             owner.atoms = owner.atoms || [];
@@ -516,9 +519,6 @@ class AtomFormula<T> extends Atom<T> {
             //this.update = <()=>void>new Function('return ' + AtomFormula.prototype.update.toString())();
             //this.update.displayName = 'Atom.' + this.name;
         }
-
-
-
         super(this.value);
     }
 }
