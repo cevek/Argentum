@@ -121,17 +121,17 @@ module ag {
         }
 
         private firstDayOfMonth = new Atom<Date>();
-        private days = new ListFormula<List<Date>>(this, this.calcDays);
+        private days = new ListFormula<Date[]>(this, this.calcDays);
 
         calcDays() {
-            var days = new List<List<Date>>();
+            var days = new List<Date[]>();
             var start = DatePickerCalendar.getMonday(this.firstDayOfMonth.get());
             //console.log("calc", start);
 
             for (var j = 0; j < 42; j++) {
                 var week = j / 7 | 0;
-                days.put(week, new List(days[week]));
-                days.get(week).push(new Date(start.getTime() + j * (24 * 60 * 60 * 1000)));
+                days.put(week, days[week] || []);
+                days[week].push(new Date(start.getTime() + j * (24 * 60 * 60 * 1000)));
             }
             return days;
         }
@@ -176,8 +176,8 @@ module ag {
 
         render() {
             return root(this.attrs,
-                dom('.header',
-                    dom('.month-year',
+                div('.header',
+                    div('.month-year',
                         ()=>DatePickerCalendar.months[this.firstDayOfMonth.get().getMonth()],
                         " ",
                         ()=>this.firstDayOfMonth.get().getFullYear()),
@@ -192,13 +192,13 @@ module ag {
                         dom('.day.week-name', DatePickerCalendar.weeks[p]))),
 
                 map(this.days, (week)=>
-                    dom('div.week',
+                    div('.week',
                         map(week, day=>
-                            dom('span.day', {
+                            span('.day', {
                                     classSet: {
                                         'current': this.currentDay === DatePickerCalendar.getDayInt(day),
-                                        'current-month': ()=>this.firstDayOfMonth.get().getMonth() === day.getMonth(),
-                                        'active': ()=>this.model.get() && DatePickerCalendar.getDayInt(this.model.get()) == DatePickerCalendar.getDayInt(day)
+                                        'current-month': this.firstDayOfMonth.get().getMonth() === day.getMonth(),
+                                        'active': this.model.get() && DatePickerCalendar.getDayInt(this.model.get()) == DatePickerCalendar.getDayInt(day)
                                     },
                                     onclick: ()=>this.click(day)
 
