@@ -2,20 +2,20 @@ module ag{
     export function when(condition:Atom<any>, callback:()=>any):TreeItem;
     export function when(condition:()=>any, callback:()=>any):TreeItem;
     export function when(condition:any, callback:()=>any):TreeItem {
-        var atomCondition:Atom<any> = condition;
-        if (condition.constructor === Function) {
-            var getter:IAtomGetter<any> = condition;
-            atomCondition = new AtomFormula<any>(ag, getter, {name: 'whenCondition'});
-        }
-        else if (!(condition instanceof Atom)) {
-            atomCondition = new Atom<any>(condition);
-        }
-
-        return new TreeItem({
+        var tree = new TreeItem({
             type: TreeType.WHEN,
-            whenCondition: atomCondition,
+            whenCondition: condition,
             whenCallback: callback
         });
+
+        if (condition.constructor === Function) {
+            var getter:IAtomGetter<any> = condition;
+            tree.whenCondition = new AtomFormula<any>(tree, getter, {name: 'whenCondition'});
+        }
+        else if (!(condition instanceof Atom)) {
+            tree.whenCondition = new Atom<any>(condition);
+        }
+        return tree;
     }
 }
 module ag.internal {

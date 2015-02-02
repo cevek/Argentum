@@ -36,7 +36,7 @@ module ag.internal {
             }
             else {
                 var getter:IAtomGetter<any> = tree.attrs[attr];
-                tree.attrs[attr] = new AtomFormula(ag, getter, {name: 'attr'});
+                tree.attrs[attr] = new AtomFormula(tree, getter, {name: 'attr'});
             }
         }
         if (tree.attrs[attr] && tree.attrs[attr] instanceof Atom) {
@@ -111,7 +111,7 @@ module ag.internal {
         for (var styleName in styles) {
             if (styles[styleName] && styles[styleName].constructor === Function) {
                 var getter:IAtomGetter<any> = styles[styleName];
-                styles[styleName] = new AtomFormula(ag, getter, {getter: getter, name: 'style'});
+                styles[styleName] = new AtomFormula(tree, getter, {getter: getter, name: 'style'});
             }
             if (styles[styleName] && styles[styleName] instanceof Atom) {
                 var atom:Atom<any> = styles[styleName];
@@ -159,7 +159,7 @@ module ag.internal {
         for (var i in classSet) {
             if (classSet[i] && classSet[i].constructor === Function) {
                 var getter = <IAtomGetter<any>>classSet[i];
-                classSet[i] = new AtomFormula(ag, getter, {name: 'classSetItem'});
+                classSet[i] = new AtomFormula(tree, getter, {name: 'classSetItem'});
             }
             if (classSet[i] && classSet[i] instanceof Atom) {
                 var atom:Atom<any> = classSet[i];
