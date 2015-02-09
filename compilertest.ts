@@ -1,7 +1,16 @@
+///<reference path="bb.ts"/>
+new BB();/*
 module m {
     export class A {
-        id:number;
-        title:string;
+        *//**
+         * @observable
+         *//*
+        id:number = 123;
+        title:string = '234';
+        constructor(){
+            this.id = 4656;
+            var fuck = 324;
+        }
 
         static counter:number;
     }
@@ -16,7 +25,7 @@ class Box {
 
 new Box(m.a.title);
 new Box(m.a.id);
-new Box(m.A.counter);
+new Box(m.A.counter);*/
 /*
 class Atom {
 

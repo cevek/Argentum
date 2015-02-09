@@ -3,6 +3,7 @@
     <properties>
       <sourceFilesUrls>
         <item url="file://$PROJECT_DIR$/compilertest.js" />
+        <item url="file://$PROJECT_DIR$/bb.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -27,6 +28,7 @@
       <root url="file://$PROJECT_DIR$/demo1/main.js" />
       <root url="file://$PROJECT_DIR$/test3.js" />
       <root url="file://$PROJECT_DIR$/compilertest.js" />
+      <root url="file://$PROJECT_DIR$/bb.js" />
     </CLASSES>
     <SOURCES />
   </library>
