@@ -108,7 +108,7 @@ class B {
     title0 = '123';
 }
 
-var ff:any = function() {
+var ff:any = function () {
     this.title1 = null;
     this.title2 = null;
     this.title3 = null;
@@ -131,7 +131,8 @@ var aaa:any = function () {
     this.title8_ = null;
     this.title9_ = null;
     this.title0_ = null;
-    this.changes__ = proto;
+    this.changes__ = new ff;
+
     this.title1 = '123';
     this.title2 = '123';
     this.title3 = '123';
@@ -166,7 +167,18 @@ aaa.prototype.__defineSetter__('title9', function (val:any) {this.title9_ = val;
 aaa.prototype.__defineSetter__('title0', function (val:any) {this.title0_ = val; this.changes__.title0 = this.title0_;});
 
 
-var proto = Object.create({title1: null, title2: null, title3: null, title4: null, title5: null, title6: null, title7: null, title8: null, title9: null, title0: null});
+var proto = Object.create({
+    title1: null,
+    title2: null,
+    title3: null,
+    title4: null,
+    title5: null,
+    title6: null,
+    title7: null,
+    title8: null,
+    title9: null,
+    title0: null
+});
 
 var BB:any = (function () {
     function B() {
@@ -181,7 +193,7 @@ var BB:any = (function () {
         this.title9_ = null;
         this.title0_ = null;
 
-        this.changes__ = proto;
+        this.changes__ = new ff;
         //@observable
         this.title1 = '123';
         //@observable
@@ -203,9 +215,13 @@ var BB:any = (function () {
         //@observable
         this.title0 = '123';
     }
-    var getter = function(){return __observableGet(this.title1_, this, 'title1', 22347)};
+    var getter = function () {return __observableGet(this.title1_, this, 'title1', 22347)};
     getter.displayName = 'B.title1.get';
-    var setter = function(value:any){this.title1_ = value; this.changes__.title1 = this.title1_;/* this.title1_ = __observableSet(this.title1_, this, 'title1', 22347, value)*/};
+    var setter = function (value:any) {
+        this.title1_ = value;
+        this.changes__.title1 = this.title1_;
+        /* this.title1_ = __observableSet(this.title1_, this, 'title1', 22347, value)*/
+    };
     setter.displayName = 'B.title1.set';
     Object.defineProperty(B.prototype, "title1", {
         get: getter,
@@ -213,9 +229,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title2_, this, 'title2', 22348)};
+    var getter = function () {return __observableGet(this.title2_, this, 'title2', 22348)};
     getter.displayName = 'B.title2.get';
-    var setter = function(value:any){this.title2_ = value; this.changes__.title2 = this.title2_;/* this.title2_ = __observableSet(this.title2_, this, 'title2', 22348, value)*/};
+    var setter = function (value:any) {
+        this.title2_ = value;
+        this.changes__.title2 = this.title2_;
+        /* this.title2_ = __observableSet(this.title2_, this, 'title2', 22348, value)*/
+    };
     setter.displayName = 'B.title2.set';
     Object.defineProperty(B.prototype, "title2", {
         get: getter,
@@ -223,9 +243,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title3_, this, 'title3', 22349)};
+    var getter = function () {return __observableGet(this.title3_, this, 'title3', 22349)};
     getter.displayName = 'B.title3.get';
-    var setter = function(value:any){this.title3_ = value; this.changes__.title3 = this.title3_;/* this.title3_ = __observableSet(this.title3_, this, 'title3', 22349, value)*/};
+    var setter = function (value:any) {
+        this.title3_ = value;
+        this.changes__.title3 = this.title3_;
+        /* this.title3_ = __observableSet(this.title3_, this, 'title3', 22349, value)*/
+    };
     setter.displayName = 'B.title3.set';
     Object.defineProperty(B.prototype, "title3", {
         get: getter,
@@ -233,9 +257,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title4_, this, 'title4', 22350)};
+    var getter = function () {return __observableGet(this.title4_, this, 'title4', 22350)};
     getter.displayName = 'B.title4.get';
-    var setter = function(value:any){this.title4_ = value; this.changes__.title4 = this.title4_;/* this.title4_ = __observableSet(this.title4_, this, 'title4', 22350, value)*/};
+    var setter = function (value:any) {
+        this.title4_ = value;
+        this.changes__.title4 = this.title4_;
+        /* this.title4_ = __observableSet(this.title4_, this, 'title4', 22350, value)*/
+    };
     setter.displayName = 'B.title4.set';
     Object.defineProperty(B.prototype, "title4", {
         get: getter,
@@ -243,9 +271,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title5_, this, 'title5', 22351)};
+    var getter = function () {return __observableGet(this.title5_, this, 'title5', 22351)};
     getter.displayName = 'B.title5.get';
-    var setter = function(value:any){this.title5_ = value; this.changes__.title5 = this.title5_;/* this.title5_ = __observableSet(this.title5_, this, 'title5', 22351, value)*/};
+    var setter = function (value:any) {
+        this.title5_ = value;
+        this.changes__.title5 = this.title5_;
+        /* this.title5_ = __observableSet(this.title5_, this, 'title5', 22351, value)*/
+    };
     setter.displayName = 'B.title5.set';
     Object.defineProperty(B.prototype, "title5", {
         get: getter,
@@ -253,9 +285,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title6_, this, 'title6', 22352)};
+    var getter = function () {return __observableGet(this.title6_, this, 'title6', 22352)};
     getter.displayName = 'B.title6.get';
-    var setter = function(value:any){this.title6_ = value; this.changes__.title6 = this.title6_;/* this.title6_ = __observableSet(this.title6_, this, 'title6', 22352, value)*/};
+    var setter = function (value:any) {
+        this.title6_ = value;
+        this.changes__.title6 = this.title6_;
+        /* this.title6_ = __observableSet(this.title6_, this, 'title6', 22352, value)*/
+    };
     setter.displayName = 'B.title6.set';
     Object.defineProperty(B.prototype, "title6", {
         get: getter,
@@ -263,9 +299,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title7_, this, 'title7', 22353)};
+    var getter = function () {return __observableGet(this.title7_, this, 'title7', 22353)};
     getter.displayName = 'B.title7.get';
-    var setter = function(value:any){this.title7_ = value; this.changes__.title7 = this.title7_;/* this.title7_ = __observableSet(this.title7_, this, 'title7', 22353, value)*/};
+    var setter = function (value:any) {
+        this.title7_ = value;
+        this.changes__.title7 = this.title7_;
+        /* this.title7_ = __observableSet(this.title7_, this, 'title7', 22353, value)*/
+    };
     setter.displayName = 'B.title7.set';
     Object.defineProperty(B.prototype, "title7", {
         get: getter,
@@ -273,9 +313,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title8_, this, 'title8', 22354)};
+    var getter = function () {return __observableGet(this.title8_, this, 'title8', 22354)};
     getter.displayName = 'B.title8.get';
-    var setter = function(value:any){this.title8_ = value; this.changes__.title8 = this.title8_;/* this.title8_ = __observableSet(this.title8_, this, 'title8', 22354, value)*/};
+    var setter = function (value:any) {
+        this.title8_ = value;
+        this.changes__.title8 = this.title8_;
+        /* this.title8_ = __observableSet(this.title8_, this, 'title8', 22354, value)*/
+    };
     setter.displayName = 'B.title8.set';
     Object.defineProperty(B.prototype, "title8", {
         get: getter,
@@ -283,9 +327,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title9_, this, 'title9', 22355)};
+    var getter = function () {return __observableGet(this.title9_, this, 'title9', 22355)};
     getter.displayName = 'B.title9.get';
-    var setter = function(value:any){this.title9_ = value; this.changes__.title9 = this.title9_;/* this.title9_ = __observableSet(this.title9_, this, 'title9', 22355, value)*/};
+    var setter = function (value:any) {
+        this.title9_ = value;
+        this.changes__.title9 = this.title9_;
+        /* this.title9_ = __observableSet(this.title9_, this, 'title9', 22355, value)*/
+    };
     setter.displayName = 'B.title9.set';
     Object.defineProperty(B.prototype, "title9", {
         get: getter,
@@ -293,9 +341,13 @@ var BB:any = (function () {
         enumerable: true,
         configurable: true
     });
-    var getter = function(){return __observableGet(this.title0_, this, 'title0', 22356)};
+    var getter = function () {return __observableGet(this.title0_, this, 'title0', 22356)};
     getter.displayName = 'B.title0.get';
-    var setter = function(value:any){this.title0_ = value; this.changes__.title0 = this.title0_;/* this.title0_ = __observableSet(this.title0_, this, 'title0', 22356, value)*/};
+    var setter = function (value:any) {
+        this.title0_ = value;
+        this.changes__.title0 = this.title0_;
+        /* this.title0_ = __observableSet(this.title0_, this, 'title0', 22356, value)*/
+    };
     setter.displayName = 'B.title0.set';
     Object.defineProperty(B.prototype, "title0", {
         get: getter,
