@@ -122,6 +122,11 @@ function stopCompiling(task) {
 
 		for (var j = 0; j < task.errors.length; j++) {
 			var error = task.errors[j];
+			console.log("ERRR", error);
+
+			error = error.replace(/(\/.*?\.ts)/g, function (m) {
+				return path.relative('/users/cody/dev/ts/atomic/', m);
+			});
 			if (errors.indexOf(error) === -1) {
 				errors.push(error);
 			}
