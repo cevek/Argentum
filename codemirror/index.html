@@ -1,0 +1,38 @@
+<!doctype html>
+
+<title>CodeMirror: Sass mode</title>
+<meta charset="utf-8"/>
+
+<link rel="stylesheet" href="codemirror.css">
+<script src="codemirror.js"></script>
+<script src="compiled/script.js"></script>
+<style>.CodeMirror { border: 1px solid #ddd; font-size: 12px; height: 400px }</style>
+<textarea id="code" name="code">
+
+
+
+10:121: @Hector
+000:14: Hello everybody
+215:36: My name is Brown
+352:28: I'm from San-Francisco
+
+13:121: @Andrew
+000:14: Do you about prestige? @Yea
+215:36: Or you thinks that is best for you?
+
+10:121: @Mitchel Rock
+000:14: Because you think?
+
+//Comment
+
+----Flashback
+10:121: @Narrative
+000:14: I say, no
+~215:36: But when I do
+
+</textarea>
+<script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true
+    });
+</script>
